@@ -1,0 +1,6 @@
+brand 7 ค่า [Realme, Samsung, Apple, Google, OnePlus, Vivo, Xiaomi]
+model 23 ค่า [Realme GT, Galaxy S21, iPhone 11, Pixel 6, Pixel 7, OnePlus 11, iPhone 14, Vivo V27, iPhone , Realme Narzo 60, Pixel 8, OnePlus 10, Vivo X90, Poco X5, Galaxy S23, iPhone 13, Mi 11, iPhone 12, Galaxy S22, Nord 3, Galaxy A54, Redmi Note 12, OnePlus 9]
+os_type 2 ค่า [Android, iOS]
+condition 4 ค่า [Excellent, Fair, Good, Poor]
+city_tier 3 ค่า [Tier1, Tier2, Tier3]
+seller_type 2 ค่า [Individual, Store]
