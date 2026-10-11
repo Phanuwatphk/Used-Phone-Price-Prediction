@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-11",
+  "scope": "Move historical Mac2Hand outputs only; raw and current outputs unchanged",
+  "moves": [
+    {
+      "source": "data/processed/mac2hand_20261006T172805_252838_Asia-Bangkok",
+      "destination": "archive/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/legacy_preparation",
+      "files": 7,
+      "sha256": {
+        "mac2hand_curated.jsonl": "489b5e7f0a4cb7c1ddd05bac8abd8b9b8eacffd7da7fe22b0572485c8165f446",
+        "baseline/mac2hand_summary.json": "2e9462aee2a5bdaa9345ca2ef27db485473563c999bc3bf7a5bcb93f0388ac88",
+        "baseline/mac2hand_validation.json": "7976d50cdc100a0bfbc4b10ab6a5d1f59ad7883d9cd9377b09174c02af6a1d65",
+        "baseline/mac2hand_baseline.csv": "dead1d980658c5cf0946c4f8390f1763685d9727af4c802b423a8812d9ac831c",
+        "review/mac2hand_hold_queue.csv": "2b2e184ff61c908f6397d0d29eeddac6bcda8e3b35c96b815dc002354ecdecbe",
+        "review/mac2hand_duplicate_groups.csv": "7c5c118ad362e6a2fbc676cabe999e52465bf850bbc0451b5fd3f4b52e43e1d0",
+        "reports/mac2hand_pipeline_report.md": "584c772257b89e70b0140bf6532d302b82b24da66f61ff76ccce4f2ad91f2c47"
+      },
+      "contents_unchanged": true
+    },
+    {
+      "source": "archive/mac2hand_20261006T172805_252838_Asia-Bangkok/before_quality_review",
+      "destination": "archive/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/before_quality_review",
+      "files": 7,
+      "sha256": {
+        "mac2hand_curated.jsonl": "106d6554674a867f258d6f57d002e7f661468f5e0519d61228b2492fe23b1dc1",
+        "baseline/mac2hand_summary.json": "d51e8b4348bef7fc72b007fb50c3dc95945fe6416b182de5bbb0e6829a8623e7",
+        "baseline/mac2hand_validation.json": "02d3b987bba539539f7cd7c7e2cf8f54ed0d32695de01f98618d27d2d5a9e4af",
+        "baseline/mac2hand_baseline.csv": "b0f30aac6b5f2490eba6619aaa3faf684c201daa13f83583b4f69918daad4e30",
+        "review/mac2hand_hold_queue.csv": "0b8a725c25cbea000d414cb6330434f86eaf98a13903a37609f7a1207dd9d909",
+        "review/mac2hand_duplicate_groups.csv": "b7c96c13a1c9f98645a1a4362af2c938a564640180f6571f9ffc14de03ce6372",
+        "reports/mac2hand_pipeline_report.md": "58c383dd894ca09ecfddb3ec6562bddb3d2e553ae6b414fab086fab1500343cc"
+      },
+      "contents_unchanged": true
+    }
+  ]
+}

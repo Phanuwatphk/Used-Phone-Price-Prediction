@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sources": ["ennxo", "mac2hand"],
+  "publication_timezone": "Asia/Bangkok",
+  "fields": {
+    "listing_id": "string: source:product_id",
+    "source": "string: ennxo or mac2hand",
+    "source_snapshot": "string",
+    "product_id": "string",
+    "url": "string: original product URL",
+    "brand": "string",
+    "model": "string",
+    "storage_gb": "integer: GB, 1 TB = 1024 GB in source cleaners",
+    "condition": "string: used or new, seller selected condition",
+    "price_thb": "number: full asking price in Thai baht",
+    "published_at": "string: YYYY-MM-DD in Asia/Bangkok",
+    "published_at_raw": "string: original source date or timestamp",
+    "published_at_precision": "string: day or timestamp"
+  },
+  "model_aliases": {
+    "Apple": {
+      "iPhone SE 2020": "iPhone SE 2",
+      "iPhone SE 2022": "iPhone SE 3",
+      "iPhone 17 Air": "iPhone Air"
+    },
+    "Huawei": {"p50 Pocket": "P50 Pocket", "p9": "P9"},
+    "Vivo": {"x fold5": "X Fold 5", "X Fold5": "X Fold 5"}
+  },
+  "samsung_fold_flip_spacing": true,
+  "remove_redundant_brand_prefix": ["Xiaomi"],
+  "conditions": ["used", "new"],
+  "merge_policy": "Accepted source rows only; no imputation, date cutoff, outlier removal, or deduplication"
+}

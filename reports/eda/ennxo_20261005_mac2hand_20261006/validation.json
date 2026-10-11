@@ -1,0 +1,12 @@
+{
+  "input_files_unchanged": true,
+  "csv_jsonl_consistent": true,
+  "lineage_for_every_row": true,
+  "dataset_records": 10032,
+  "sources_verified": [
+    "ennxo",
+    "mac2hand"
+  ],
+  "outlier_rows_accounted_for": true,
+  "row_data_not_in_public_tables": true
+}

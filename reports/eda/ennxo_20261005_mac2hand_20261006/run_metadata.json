@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-10-11T14:56:28.630170+07:00",
+  "input_hashes": {
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/dataset.csv": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/dataset.jsonl": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/report.md": "8c9ebeaa5c99b4bcfbe97dc3ce621f49151dda33a830f89ef565cfdbce429624",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/run_metadata.json": "58018b5b65a458f46ed71578b22f53af1752186fa3f0fa894a41ba872d73e1d2",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/schema.json": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/summary.json": "d53e7b990ab7b1251f8cfa32031b060af2c320ddc317713c7c654ca4fa6a30c0",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/validation.json": "e3fa2e58f202bcd440f158dc01d69e88f5b601af30b33ad518bc8906ca761165",
+    "config/shared/eda_rules.json": "6b769f8c3b120f54d898fe7a4685e1a3b00e7d84acf37e2fab39cefbde13ce53",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/ennxo_audit.json": "7e010acd38f0fd14aeb59345dc3d32472ec703b7d0c8d83d0dd24dce828ac92a",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/lineage.jsonl": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/mac2hand_audit.json": "8b7a0eab0f72cd173c101e373a23a59d4252c9e46e23f8e7675880315bc07533",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/normalization_changes.json": "c5cb08b9515a8cb74984dfdde160e2ab3d411654783b03fa5c79ccaa0cc89817",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/price_review.csv": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff",
+    "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/mac2hand_final.jsonl": "6280db0523bfb5a56261ac8bb14adf738d282622a4feab1333a586881c4fa76e"
+  },
+  "code_hashes": {
+    "run_eda.py": "4eba0a3f13a9b2277b5286f647d96bad6f506e0ff888092733ebb03f89254dfe",
+    "eda_statistics.py": "c38aca1575930ffb5c3fe3900b1453766d861790fb4c14fc19d48390f1a9a25c",
+    "eda_plots.py": "de11e78b850aa4254224aa4e6fba64fc65bb3c81cb8bf6d29e5650c5b3d18286"
+  },
+  "dependencies": {
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.4"
+  },
+  "rows": 10032,
+  "figures": [
+    {
+      "name": "01_source_and_brand",
+      "caption": "สัดส่วนเว็บและยี่ห้อ: จำนวนใน snapshot ไม่ใช่ส่วนแบ่งตลาด"
+    },
+    {
+      "name": "02_price_distribution",
+      "caption": "ราคาทุกแถว แกน log เพื่อเห็นทั้งราคาต่ำและสูง จุดนอกกล่องเป็น IQR ภาพรวมต่อเว็บ ต่างจากคิวตรวจที่คุมรุ่น/ปี และยังคงอยู่ใน dataset"
+    },
+    {
+      "name": "03_publication_year",
+      "caption": "ช่วงปีต่างกันมาก เส้น median เปลี่ยนตามรุ่นที่ปะปน ไม่ใช่ราคาของเครื่องรุ่นเดิมลดลงตามเวลา"
+    },
+    {
+      "name": "04_price_over_time",
+      "caption": "แสดงทุกประกาศตามวันที่ ไม่มีการจำกัด 12 เดือน และยังไม่ปรับเงินเฟ้อหรือเลือกช่วงฝึก"
+    },
+    {
+      "name": "05_top_models",
+      "caption": "รุ่นที่พบมากที่สุด; ตารางแนบท้ายเก็บจำนวนทุกรุ่น รวมรุ่นที่มีตัวอย่างน้อย"
+    },
+    {
+      "name": "06_storage_and_price",
+      "caption": "ความจุปะปนกับรุ่นและปี กลุ่มที่มีตัวอย่างน้อยตีความอย่างระมัดระวัง ไม่ใช่ผลของความจุต่อราคาโดยตรง"
+    },
+    {
+      "name": "07_condition_and_associations",
+      "caption": "new/used เป็นช่องผู้ขาย; correlation รวมไม่ควบคุมรุ่น/สภาพ/อายุ ไม่ใช่เหตุและผล"
+    },
+    {
+      "name": "08_matched_source_comparison",
+      "caption": "เทียบรุ่น/ความจุ/สภาพ/ปีเดียวกัน ขั้นต่ำ 3 แถวต่อเว็บ ตัวเลขวงเล็บคือ n ของ ENNXO, Mac2Hand; ยังไม่ควบคุมเดือนหรือสภาพเครื่องจริง"
+    }
+  ],
+  "input_files_unchanged": true
+}

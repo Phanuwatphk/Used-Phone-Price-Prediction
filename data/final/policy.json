@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "decided_on": "2026-10-11",
+  "decided_by": "user",
+  "action": "exclude_all_queue_members",
+  "queue_rules": [
+    "Exclude every IQR flagged row",
+    "Exclude all members of text candidate components; retain no representative",
+    "Exclude every price_extremes row"
+  ],
+  "inputs": {
+    "dataset_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
+    "dataset_jsonl": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl",
+    "schema": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/schema.json",
+    "lineage": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/lineage.jsonl",
+    "outliers": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv",
+    "price_extremes": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv",
+    "text_components": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/text_candidate_components.json"
+  },
+  "input_sha256": {
+    "dataset_csv": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922",
+    "dataset_jsonl": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61",
+    "schema": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07",
+    "lineage": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50",
+    "outliers": "44305404d8fac94ae4d65eab115ecbcf31f15a20d8839e7fb4f4bfd10e55a359",
+    "price_extremes": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff",
+    "text_components": "d8dd4eebe91e61affe20bb4fa05475bc485587ecce06e2a81a0ddb2da4fc8c56"
+  },
+  "expected_counts": {
+    "input": 10032,
+    "excluded": 822,
+    "retained": 9210
+  },
+  "source_quarantine": "Exclude nonaccepted source rows and do not collect more evidence",
+  "eda_queue_review": "closed_without_further_review",
+  "date_cutoff": null,
+  "retained_values": "unchanged",
+  "split_performed": false,
+  "exclusion_meaning": "User selection policy, not a finding that every excluded listing is wrong or a confirmed duplicate"
+}

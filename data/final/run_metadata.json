@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-10-11T15:41:33.371902+07:00",
+  "input_hashes": {
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/schema.json": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07",
+    "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/lineage.jsonl": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50",
+    "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv": "44305404d8fac94ae4d65eab115ecbcf31f15a20d8839e7fb4f4bfd10e55a359",
+    "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff",
+    "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/text_candidate_components.json": "d8dd4eebe91e61affe20bb4fa05475bc485587ecce06e2a81a0ddb2da4fc8c56"
+  },
+  "policy_sha256": "067de367006ca0c5fd6b2fe1ef6fc382bd515a192485998baa27c6ad03ece854",
+  "script_sha256": "0963dbdb1ec552e8cee6f0b5179bef92b044d43c4ab7feb052701ae94dd3332d",
+  "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "output_directories": {
+    "final": "data/final",
+    "audit": "data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1"
+  }
+}

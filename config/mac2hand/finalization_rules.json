@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "policy": "All dates; new and used retained; normal devices first; seller description has priority when independently consistent with seller subtitle; raw and earlier results stay unchanged",
+  "allow_bare_storage_before_color": true,
+  "allow_unique_storage_immediately_after_model": true,
+  "infer_se_from_date_color_or_capacity": false,
+  "price_placeholders": [
+    1,
+    9,
+    99,
+    99999,
+    999999
+  ],
+  "storage_gb": [
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "accessory_pattern": "^[^a-zA-Zก-๙0-9]*(?:ขาย(?:\\s*/\\s*แลก)?[.\\s]*)?(?:(?:apple\\s*)?airpods|magic\\s*keyboard|usb.c.*power\\s*adapter|เคส|ฟิล์ม|สายชาร์จ|หัวชาร์จ|แบตเตอรี่|อะไหล่|กล่องเปล่า|บอร์ด|หน้าจออะไหล่|หูฟัง|ชาร์จ\\s*ไร้สาย|buds\\s*plus|(?:samsung\\s*)?buds|อุปกรณ์\\s*(?:apple|iphone|ไอโฟน)|apple\\s*(?:20w\\s*adapter|magsafe))|^iphone\\s+(?:leather\\s+wallet|wallet)|^power\\s+support.*(?:เคส|case)|^ของแท้\\s*apple\\s*ที่ชาร์จ|^[# ]*อุปกรณ์\\s*(?:iphone|apple)",
+  "other_device_pattern": "^[^a-zA-Zก-๙0-9]*(?:ขาย(?:\\s*/\\s*แลก)?[.\\s]*)?(?:ไอแพด|i\\s*pad|i\\s*pod|macbook|imac|apple\\s*watch|ipod)",
+  "service_pattern": "^[^a-zA-Zก-๙0-9]*(?:รับซื้อ|รับซ่อม|รับจำนำ|ตามหา|ต้องการซื้อ)",
+  "non_apple_models": {
+    "Samsung": "(?:samsung\\s*(?:galaxy\\s*)?|galaxy\\s*)(s\\s*\\d{1,2}\\s*(?:ultra|plus|fe)?|z\\s*(?:fold|flip)\\s*\\d{1,2}|note\\s*\\d{1,2}\\s*(?:ultra|plus)?|[ajm]\\s*\\d{1,3}\\s*(?:s|pro|prime)?)",
+    "Oppo": "oppo\\s*(find\\s*[nx]\\s*\\d{1,2}\\s*(?:flip|pro|ultra)?|reno\\s*\\d{1,2}\\s*(?:pro|z|f)?|[af]\\s*\\d{1,2}\\s*(?:s|pro)?)",
+    "Vivo": "vivo\\s*(x\\s*fold\\s*\\d?|[vxy]\\s*\\d{1,3}\\s*(?:pro|plus|s)?)",
+    "Xiaomi": "xiaomi\\s*(\\d{1,2}\\s*(?:pro|ultra|lite)?)",
+    "Realme": "realme\\s*(\\d{1,2}\\s*(?:pro\\s*plus|pro|i)?|gt\\s*\\d{0,2}\\s*(?:pro)?)",
+    "Huawei": "huawei\\s*([pm]\\s*\\d{1,2}\\s*(?:pocket|pro|lite)?|mate\\s*\\d{1,2}\\s*(?:pro|lite)?)",
+    "Motorola": "(?:moto|motorola)\\s*(g\\s*\\d{1,3})",
+    "Lenovo": "lenovo\\s*(legion\\s*phone\\s*duel\\s*\\d)",
+    "Asus": "(?:asus\\s*)?rog\\s*phone\\s*(\\d{1,2}\\s*s?\\s*(?:pro|d)?)"
+  },
+  "damage_pattern": "จอแตก|หน้าจอแตก|จอร้าว|จอขอบร้าว|จอเป็นเส้น|จอมีเส้น|จอเส้น|เส้นเขียว|จอเบิร์น|จอมีจุด(?:ดำ|ไบร้|ไบร์|ขาว)|ฝาหลังแตก|ฝาหลังร้าว|เปิดไม่ติด|เครื่องเสีย|(?:สแกน|แสกน)(?:หน้า|นิ้ว)\\s*(?:เสีย(?!ง)|ใช้(?:งาน)?ไม่ได้|ไม่ได้|ไม่ทำงาน)|ติดไอคลาวด์|ติดไอคราว|ติด\\s*(?:icloud|apple\\s*id)|ติดล็อค|ติดล็อก|ห้ามรี(?:เซ็ต)?|ห้ามอัพ|(?:face|touch)\\s*id\\s*(?:เสีย(?!ง)|ใช้(?:งาน)?ไม่ได้|ไม่ทำงาน)|ทัชไม่ได้|ทัชไม่ติด|เครื่องมีปัญหา|ปุ่ม(?:โฮม|home|ปิด|ล็อก|ล็อค|mute|เพิ่มเสียง|ลดเสียง|เพิ่ม|ลด)\\s*(?:เสีย(?!ง)|ใช้ไม่ได้|ไม่ทำงาน)|ลำโพง(?:แตก|พัง|เสีย(?!ง))|กล้อง(?:หน้า|หลัง)?\\s*(?:เสีย(?!ง)|ใช้ไม่ได้|สั่น|เบลอ)|บายพาส|bypass|ติดสัญญา|ติดผ่อน",
+  "partial_price_pattern": "ราคาดาวน์|ขายดาวน์|เงินดาวน์|ราคาเฉพาะดาวน์|ค่างวดละ|ผ่อนงวดละ|เหลือผ่อน|ส่งต่ออีก[0-9]+งวด",
+  "negation_prefix_pattern": "(?:ไม่|ไม่มี|ไม่ได้|ไม่เคย|ไม่พบ|ไม่ใช่|ไม่มีอาการ|กรณี|หาก|ถ้า|ถ้าเกิด|เผื่อไว้ถ้าเกิด)\\s*$"
+}

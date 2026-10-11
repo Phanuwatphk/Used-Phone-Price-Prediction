@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "updated_on": "2026-10-11",
+  "merged_dataset": {
+    "snapshot": "ennxo_20261005_mac2hand_20261006",
+    "usable_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
+    "typed_jsonl": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl",
+    "records": 10032,
+    "source_counts": {
+      "ennxo": 1279,
+      "mac2hand": 8753
+    },
+    "schema": "config/shared/dataset_schema.json",
+    "summary": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/summary.json",
+    "documentation": "docs/details/shared/combined_dataset.md",
+    "status": "eda_review_closed_model_input_selected",
+    "deduplicated": false,
+    "eda": {
+      "report_directory": "reports/eda/ennxo_20261005_mac2hand_20261006",
+      "summary": "reports/eda/ennxo_20261005_mac2hand_20261006/summary.json",
+      "documentation": "docs/details/shared/eda.md",
+      "private_review_directory": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006",
+      "outlier_candidates": 205,
+      "text_candidate_components": 280,
+      "text_candidate_rows": 617,
+      "dataset_modified": false,
+      "review_status": "closed_without_further_review"
+    },
+    "final_directory": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection",
+    "intermediate_directory": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006",
+    "included_in_git": false,
+    "audit_directory": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit"
+  },
+  "datasets": {
+    "ennxo": {
+      "snapshot": "ennxo_20261005T231833_239519_Asia-Bangkok",
+      "raw_directory": "data/raw/ennxo_20261005T231833_239519_Asia-Bangkok",
+      "usable_csv": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/dataset.csv",
+      "usable_records": 1279,
+      "snapshot_records": 1381,
+      "summary": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/summary.json",
+      "documentation": "docs/summary/ennxo.md",
+      "status": "source_review_closed_accepted_retained",
+      "all_dates_retained": true,
+      "intermediate_directory": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok",
+      "final_directory": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok",
+      "review_policy": {
+        "decided_on": "2026-10-11",
+        "decided_by": "user",
+        "nonaccepted_rows": "exclude_from_first_model; no further review or evidence collection",
+        "historical_evidence": "retain for reproducibility",
+        "nonaccepted_records": 102
+      }
+    },
+    "mac2hand": {
+      "snapshot": "mac2hand_20261006T172805_252838_Asia-Bangkok",
+      "raw_directory": "data/raw/mac2hand_20261006T172805_252838_Asia-Bangkok",
+      "usable_csv": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/dataset.csv",
+      "usable_records": 8753,
+      "snapshot_records": 10220,
+      "summary": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/summary.json",
+      "documentation": "docs/summary/mac2hand.md",
+      "status": "source_review_closed_accepted_retained",
+      "all_dates_retained": true,
+      "intermediate_directory": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
+      "final_directory": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
+      "review_directory": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization",
+      "review_policy": {
+        "decided_on": "2026-10-11",
+        "decided_by": "user",
+        "nonaccepted_rows": "exclude_from_first_model; no further review or evidence collection",
+        "historical_evidence": "retain for reproducibility",
+        "nonaccepted_records": 1467
+      }
+    }
+  },
+  "model_input_dataset": {
+    "snapshot": "ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1",
+    "usable_csv": "data/final/dataset.csv",
+    "typed_jsonl": "data/final/dataset.jsonl",
+    "records": 9210,
+    "source_counts": {
+      "ennxo": 1202,
+      "mac2hand": 8008
+    },
+    "final_directory": "data/final",
+    "intermediate_directory": "data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1",
+    "summary": "data/final/summary.json",
+    "policy": "config/shared/model_input_policy.json",
+    "documentation": "docs/details/shared/model_input.md",
+    "status": "selected_ready_for_split",
+    "base_merged_records": 10032,
+    "excluded_records": 822,
+    "active_for_first_model": true,
+    "train_validation_test_split": false,
+    "model_trained": false,
+    "included_in_git": true
+  },
+  "default_dataset": "model_input_dataset"
+}

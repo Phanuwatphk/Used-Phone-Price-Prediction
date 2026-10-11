@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "baseline_sha256": "REPLACE_WITH_ACTUAL_BASELINE_SHA256",
+  "scope": "Replace with the actual review scope; empty reviews are not completed review",
+  "reviews": []
+}

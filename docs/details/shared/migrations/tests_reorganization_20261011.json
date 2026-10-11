@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-11",
+  "directory_move": {
+    "tests": "script/tests"
+  },
+  "changes": [
+    "Updated fixture imports to script.tests",
+    "Resolved test configuration paths relative to file location at the new depth",
+    "Updated unittest discovery command and CI"
+  ],
+  "files": {
+    "tests/test_ennxo_collection.py": {
+      "new": "script/tests/test_ennxo_collection.py",
+      "sha256_before": "503c3e7747b85cfae596f8ecfb716a4c69dc9cd4b6caf6c51eef8f2d59dff955",
+      "sha256_after": "503c3e7747b85cfae596f8ecfb716a4c69dc9cd4b6caf6c51eef8f2d59dff955"
+    },
+    "tests/test_ennxo_review.py": {
+      "new": "script/tests/test_ennxo_review.py",
+      "sha256_before": "2d71f675e4df31f9e76089046698f19fcad7163e46e52e914296d83e711469f8",
+      "sha256_after": "2d71f675e4df31f9e76089046698f19fcad7163e46e52e914296d83e711469f8"
+    },
+    "tests/test_mac2hand_review.py": {
+      "new": "script/tests/test_mac2hand_review.py",
+      "sha256_before": "ae99966be3974dbd28d5d7da58304b9743cc9e300100e47d96039ea7bf15a230",
+      "sha256_after": "14158d7e3c3edaa7b40faf1ca66cc8027595a7d5f502f22c33077fd576c76824"
+    },
+    "tests/__init__.py": {
+      "new": "script/tests/__init__.py",
+      "sha256_before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests/test_mac2hand.py": {
+      "new": "script/tests/test_mac2hand.py",
+      "sha256_before": "007766cddb0f3f6adb87935ebd9b21a1207489cf07bba214ab38c65605033c98",
+      "sha256_after": "007766cddb0f3f6adb87935ebd9b21a1207489cf07bba214ab38c65605033c98"
+    },
+    "tests/test_combined_dataset.py": {
+      "new": "script/tests/test_combined_dataset.py",
+      "sha256_before": "934f32f595281ecfa820422f5bedc2cfc8b99262e60800ea219c577234874d8b",
+      "sha256_after": "934f32f595281ecfa820422f5bedc2cfc8b99262e60800ea219c577234874d8b"
+    },
+    "tests/test_mac2hand_preparation.py": {
+      "new": "script/tests/test_mac2hand_preparation.py",
+      "sha256_before": "4c4abfab2ec5baf68e7903827eb59b3a7afbddebec592e89e76dd3cb7ba384a0",
+      "sha256_after": "352c025d6b08c7ab61133435453ac3a051b9605f07bcfae0670f8bf589b3a3f8"
+    },
+    "tests/test_ennxo_raw_audit.py": {
+      "new": "script/tests/test_ennxo_raw_audit.py",
+      "sha256_before": "b62f929d2508bc4e8db4d627664766305157e556009465446d11dca5f5e2726a",
+      "sha256_after": "b62f929d2508bc4e8db4d627664766305157e556009465446d11dca5f5e2726a"
+    },
+    "tests/test_ennxo_export.py": {
+      "new": "script/tests/test_ennxo_export.py",
+      "sha256_before": "cfc560fec7135eef82b23edd2028e0253e645164571e58186f6053422e18aeb6",
+      "sha256_after": "cfc560fec7135eef82b23edd2028e0253e645164571e58186f6053422e18aeb6"
+    },
+    "tests/test_mac2hand_cleaning.py": {
+      "new": "script/tests/test_mac2hand_cleaning.py",
+      "sha256_before": "e6eb32db13f51bffe6c2ad35b2ff46b238a4b2e3c6e579ea8b2cc068925236fb",
+      "sha256_after": "565af1c9270b2b3011f6b219a6d4cf9098ccc366e0546baadf9270bd1fc94eb0"
+    },
+    "tests/test_ennxo_extraction.py": {
+      "new": "script/tests/test_ennxo_extraction.py",
+      "sha256_before": "110fae1d81fd9ab60696c37f72bd9654489f66c4813afc855d0537c55acb147a",
+      "sha256_after": "110fae1d81fd9ab60696c37f72bd9654489f66c4813afc855d0537c55acb147a"
+    },
+    "tests/test_ennxo_manual_review.py": {
+      "new": "script/tests/test_ennxo_manual_review.py",
+      "sha256_before": "fa6848bac79b71867d0b852a29d6456aeb997b7bd11ba5bc1ddd281018a837fc",
+      "sha256_after": "e705a585046f671c13109fe73ee66d777b7ad24f1d67c9b799a18f458cd50d16"
+    },
+    "tests/test_ennxo_cleaning.py": {
+      "new": "script/tests/test_ennxo_cleaning.py",
+      "sha256_before": "1ce03e334776f6035ed73f0ad9a5b99e2c62ed4ef6d35825983fe3d09c70ad1d",
+      "sha256_after": "1ce03e334776f6035ed73f0ad9a5b99e2c62ed4ef6d35825983fe3d09c70ad1d"
+    },
+    "tests/README.md": {
+      "new": "script/tests/README.md",
+      "sha256_before": "4a13856ec0e521d25e299d03833b4a9362ea0cb5543e0828f755ff2cd4885302",
+      "sha256_after": "339086ce0b6e3048325f6ab3c30822b6c93a15e303c86e28fa5586a3f957278f"
+    },
+    "tests/test_mac2hand_finalization.py": {
+      "new": "script/tests/test_mac2hand_finalization.py",
+      "sha256_before": "d331cf59824865334f3405f2e75c342a6704b190cd288388cf79d0b3b5baa502",
+      "sha256_after": "080efbc047b2d53092a2ae0310edf711738503bd055d04d5eb31dd6e147c7dd2"
+    },
+    "tests/test_eda.py": {
+      "new": "script/tests/test_eda.py",
+      "sha256_before": "73bd5a2c493efecdb61c6ec11d2055d3710f163dd4bd7a82c096362e317ede48",
+      "sha256_after": "6b56ef41480b7e501745b5fec6432e53475f04753f61d2fd868881b3e03d9559"
+    }
+  },
+  "validation": {
+    "root_unittest_discovery_passed": 125,
+    "other_cwd_unittest_discovery_passed": 125,
+    "other_cwd": "/tmp",
+    "ci_command": "python -B -m unittest discover -s script/tests -t .",
+    "datasets_modified": false
+  }
+}

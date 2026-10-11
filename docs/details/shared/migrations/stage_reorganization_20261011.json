@@ -1,0 +1,736 @@
+{
+  "date": "2026-10-11",
+  "purpose": "Separate collection, preparation, EDA and raw/intermediate/final data stages",
+  "directory_moves": {
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok",
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006",
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006": "data/final/combined/ennxo_20261005_mac2hand_20261006"
+  },
+  "code_moves": {
+    "scraper/ennxo/audit_ennxo_raw.py": "preparation/ennxo/audit_ennxo_raw.py",
+    "scraper/ennxo/extract_ennxo_raw.py": "preparation/ennxo/extract_ennxo_raw.py",
+    "scraper/ennxo/clean_ennxo.py": "preparation/ennxo/clean_ennxo.py",
+    "scraper/ennxo/cleaning_rules.py": "preparation/ennxo/cleaning_rules.py",
+    "scraper/ennxo/description_sections.py": "preparation/ennxo/description_sections.py",
+    "scraper/ennxo/review_ennxo_queue.py": "preparation/ennxo/review_ennxo_queue.py",
+    "scraper/ennxo/finalize_ennxo_manual_review.py": "preparation/ennxo/finalize_ennxo_manual_review.py",
+    "scraper/mac2hand/prepare_mac2hand.py": "preparation/mac2hand/prepare_mac2hand.py",
+    "scraper/mac2hand/clean_mac2hand.py": "preparation/mac2hand/clean_mac2hand.py",
+    "scraper/mac2hand/review_mac2hand_queue.py": "preparation/mac2hand/review_mac2hand_queue.py",
+    "scraper/mac2hand/finalize_mac2hand.py": "preparation/mac2hand/finalize_mac2hand.py",
+    "scraper/mac2hand/resolution_rules.py": "preparation/mac2hand/resolution_rules.py",
+    "scraper/shared/prepare_combined_dataset.py": "preparation/shared/prepare_combined_dataset.py",
+    "analysis/run_eda.py": "analysis/eda/run_eda.py",
+    "analysis/eda_statistics.py": "analysis/eda/eda_statistics.py",
+    "analysis/eda_plots.py": "analysis/eda/eda_plots.py"
+  },
+  "data_files": {
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/mac2hand_audit.json": {
+      "new": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/mac2hand_audit.json",
+      "sha256": "8b7a0eab0f72cd173c101e373a23a59d4252c9e46e23f8e7675880315bc07533"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/summary.json": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/summary.json",
+      "sha256": "d53e7b990ab7b1251f8cfa32031b060af2c320ddc317713c7c654ca4fa6a30c0"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/lineage.jsonl": {
+      "new": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/lineage.jsonl",
+      "sha256": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/report.md": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/report.md",
+      "sha256": "8c9ebeaa5c99b4bcfbe97dc3ce621f49151dda33a830f89ef565cfdbce429624"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/dataset.jsonl": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/dataset.jsonl",
+      "sha256": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/run_metadata.json": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/run_metadata.json",
+      "sha256": "58018b5b65a458f46ed71578b22f53af1752186fa3f0fa894a41ba872d73e1d2"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/price_review.csv": {
+      "new": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/price_review.csv",
+      "sha256": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/normalization_changes.json": {
+      "new": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/normalization_changes.json",
+      "sha256": "c5cb08b9515a8cb74984dfdde160e2ab3d411654783b03fa5c79ccaa0cc89817"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/ennxo_audit.json": {
+      "new": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/ennxo_audit.json",
+      "sha256": "7e010acd38f0fd14aeb59345dc3d32472ec703b7d0c8d83d0dd24dce828ac92a"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/dataset.csv": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/dataset.csv",
+      "sha256": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/validation.json": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/validation.json",
+      "sha256": "e3fa2e58f202bcd440f158dc01d69e88f5b601af30b33ad518bc8906ca761165"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/schema.json": {
+      "new": "data/final/combined/ennxo_20261005_mac2hand_20261006/schema.json",
+      "sha256": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/duplicate_memberships.csv": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/duplicate_memberships.csv",
+      "sha256": "5f369425bddfb524f43b433933346185f79999c66357e9c99b2b84f4bb9ece60"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/text_candidate_components.json": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/text_candidate_components.json",
+      "sha256": "d8dd4eebe91e61affe20bb4fa05475bc485587ecce06e2a81a0ddb2da4fc8c56"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/price_extremes.csv": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv",
+      "sha256": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/duplicate_groups.json": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/duplicate_groups.json",
+      "sha256": "325a684437fd890aecd62ecc91e33b30fddfe2a862e4c421c96b49ecda2b528f"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/validation.json": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/validation.json",
+      "sha256": "26f62867769b6a08e0d6a01733f021365a370e48292d81c6ce7e3253b0ef1f06"
+    },
+    "data/processed/combined/ennxo_20261005_mac2hand_20261006/eda/outlier_candidates.csv": {
+      "new": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv",
+      "sha256": "44305404d8fac94ae4d65eab115ecbcf31f15a20d8839e7fb4f4bfd10e55a359"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/summary.json",
+      "sha256": "3255a1306a7aa2710ccbda28e0826c75736b832f808ec2555e18dd4dd657c1be"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/report.md",
+      "sha256": "ac35049d94fc75b9224ab4628fa8275ae5f62a079b407d042472fd3e7644819d"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/model_catalog.json",
+      "sha256": "1f8f587a699e96c260c8515a634399a926c436674cbac9db72256b35e6abe827"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/corrections.json",
+      "sha256": "7959e860c316c2b8f9654ba8f3592ef73d0df93948a8dc8b4cf75022a2d4486a"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/run_metadata.json",
+      "sha256": "4ea854b80b2e5db76a486c6b355e733b419d5b64f4f85238d53ebf0d41550fb2"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/excluded.csv",
+      "sha256": "465e37d65be4fb77f01e03e59f2fb1e2f20d4edc9fed4e86e37a7515cd201087"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/accepted.csv",
+      "sha256": "ba414c6feb5b2c8ed354c25254826b9c5fc774eda5319fb310143f20861f3971"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/ennxo_cleaned.jsonl",
+      "sha256": "3a271dc752ab9d7e24a95a9502aee391b33fb5d74b0ba39dbcb451044d616956"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/rules.json",
+      "sha256": "190d4e15a4ccaad05cca7bf769373c9addf785020c526ef46076d45028021530"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/review_plan.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/review_plan.json",
+      "sha256": "539075336269fd3b5664b9d8f4c61048d569b315c660888af3c4f97e55ac0694"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/needs_review.csv",
+      "sha256": "ccc39e415bbdfcfc436d34c6512498d0b6a7d2947273b54c6ad0794a7cccadd3"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/field_profile.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/field_profile.csv",
+      "sha256": "245dccdfd1dc77e929f279d17295a1eaceb7abb7d240651e9376718968739deb"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/report.md",
+      "sha256": "51d5a4c8a788581f0362704f5ac38a8dd2e32f25b87419656dffa6cc2d5974f0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/run_metadata.json",
+      "sha256": "dbf57d94fd6de84bff64193d0b7e89e7209da92f1266599fd6bae04ca8a4a8ee"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/issues.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/issues.csv",
+      "sha256": "8d641a8da879c7523a9bf8f003e6802df03b6e6e599bb4b985d77f5f4ee74849"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/page_accounting.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/page_accounting.json",
+      "sha256": "33b022fa6d1bb6ced2660133adcf6e500e4ac1de8208228c35143c94d2235170"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/profile.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/profile.json",
+      "sha256": "484d1cedace2d751d8d59471976f5a3c15a1fd2f7833ea6f83a03cba1ca78d1a"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/summary.json",
+      "sha256": "fa64f7d69e85634c348139733c88b4b0b3a632acea269f03670683395d1a36bb"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/report.md",
+      "sha256": "66f6dc77360657d5c65a17a1bc8895a22299a0a5e62b256cb8dbae2207496ea4"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/run_metadata.json",
+      "sha256": "4102b3573bbaf14935ffa78d85144f28fbaf44e2796512fac713710ebbb7349f"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/ennxo_extracted.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/ennxo_extracted.jsonl",
+      "sha256": "013357d187c28420a7d4b3a60ca0520bcd1309833c9666b5f495a2c038b81810"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/observations.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/observations.csv",
+      "sha256": "1d28bd488a9a28a2889886371429d7e6d5735abdd2898e52075400b502eaee77"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/summary.json",
+      "sha256": "74f425543903fa8afb5537fbb3bdd548010e9ec3994f1cd85517fb6f8ed2a018"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/review_evidence.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/review_evidence.json",
+      "sha256": "1e207e639f896ed3dff135a3b9d2c887a457df4fa8579868622abd910c35ece9"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/report.md",
+      "sha256": "a6a16153fb9fa094d3d1e38109f60653866bbe9576e659160dc3ff8db21c5c34"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/run_metadata.json",
+      "sha256": "8dd8c958212f951877537179e9a7c5359020d5480fe3299d1999485cfaacf13b"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/review_rows.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/review/review_rows.csv",
+      "sha256": "cc5cf102f0048bb0cbfffc65e533381f8a5a5f56df71ea4be5b404ead27155aa"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/summary.json",
+      "sha256": "4676711bf5e1a010fffa0e2529826148fe03f4830260c03081c1aa7b780bd9c5"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/review_evidence.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/review_evidence.json",
+      "sha256": "9777404bb5789748da0527462dca8e7262b41003160d6d5e22b2d784a880300e"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/report.md",
+      "sha256": "9c9b6b47f7a079d0d379639ec834dd8ccc416622ed02f8004f7b56ee3e0d3a19"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/run_metadata.json",
+      "sha256": "2c367cffae62f16ab70a05f1f8df28600569bd5292003a9163fe8c1643235fd1"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/awaiting_evidence.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/awaiting_evidence.csv",
+      "sha256": "96c46967cbd289544ed6fcc00c5bf139695ebbd782378309670814e1764699a9"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/reviewed.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/reviewed.csv",
+      "sha256": "4d5c2908fffd2091733ae22926742f374aec1fa28e6689df91b4c55cee5b4458"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/excluded_from_queue.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/excluded_from_queue.csv",
+      "sha256": "1de140b50f9b1bc11df26b712a91f06614c04f68cbd24084c901dcd71b0345a6"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/accepted_from_queue.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/accepted_from_queue.csv",
+      "sha256": "66a9ab893eb8731546a8e084fcd6b3cba31b7b664f51a54847e2475d58606a08"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/confirmed_damage_or_lock.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/confirmed_damage_or_lock.csv",
+      "sha256": "c024866162010f8c70f293097961ee208c5f74fbf9171ac5af23d53e9c3836dc"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/manual_reviews.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/manual_reviews.json",
+      "sha256": "66ffe06fc247ce85633ffae1dbd0806ee0b1890f43399fcd32946074eda035c6"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/summary.json",
+      "sha256": "c9e4e89ba4f0cd34f696a76029daf1e1097d44885f581a192f6a762e7a830f2b"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/report.md",
+      "sha256": "f35982ea1e9db485171d03e0c774824b7b17c399d0fa5ba2148bdb540cbc5fbd"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/model_catalog.json",
+      "sha256": "9fcb7c33f3ab0c175c29e406f5fff091776f42781b42abd7fbd347a4c3636608"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/corrections.json",
+      "sha256": "55cc8337519d8a462133823a5feb416acb651c2c2382dcbcaea4561740639158"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/run_metadata.json",
+      "sha256": "48ed643f1b094e498195264f9b08d7978410b974f46797d99bca0129090970ab"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/excluded.csv",
+      "sha256": "f8543b6984d4bd0a33b41491209467981b52ac865a3c4103e311760ced93fdf7"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/accepted.csv",
+      "sha256": "e5dd77f3d7a1e30635a8621fc360852ddd5642f62ff594426cfb57783a63e431"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/ennxo_cleaned.jsonl",
+      "sha256": "7e97c113b4a9b40b21ea33b9bcd741a24719cc5c32cf38af34c1e654d1132202"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/rules.json",
+      "sha256": "3c95dd2b9594ef798240e0cc9a64b677f825f32cc2ab12f72e1945d11b980b51"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/review_plan.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/review_plan.json",
+      "sha256": "b46d3cc78a72b9729dec505461b9c0b4b57b41ee1388ca06a5ce333333ee1622"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v2/needs_review.csv",
+      "sha256": "2f684f9a90c0d49073da692028ef291a422409b0b0e665856ad316724100f23b"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/summary.json",
+      "sha256": "cd48762c13c3008e781a770c950f1b937164d4a82b1e4a27615ccc2aa7925e20"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/report.md",
+      "sha256": "3dd5772068fb9edce577064c1eec3ecb2c1176718985d69d5f22f1887929e8cc"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/model_catalog.json",
+      "sha256": "7ca752a20c72bf3fe63e96baa686bc8fa6a2362bcff0a6927f7725b1c134e398"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/corrections.json",
+      "sha256": "0929b56c286744ff4e0bdbc1932d12232e6eaa88b21f2b42b92a7122fe03eaaf"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/run_metadata.json",
+      "sha256": "ecdbb1e5bdf35cfcde88c27c518dda16d8a6373f1936d7064c7601f2f3a923fb"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/excluded.csv",
+      "sha256": "972646739b593012d84724148454a9950031a9e254f869008f86eb7cfdc90381"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/accepted.csv",
+      "sha256": "9c60dfa311240b8acf71121f7426394f8e1d929d02b3865dcc180b5e048bde52"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/ennxo_cleaned.jsonl",
+      "sha256": "86571c27f5fe832e18f072440abc01308535ac0452369e24a0fb281a9ad2af85"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/rules.json",
+      "sha256": "09a6d6f3ad6243c2d372d3f2a5eb81997792f79e4956818d59c8561d6998ed53"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/review_plan.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/review_plan.json",
+      "sha256": "99eef5f6c8673381b294f9c2ec2398964ba3b1c176b108100dee2a925b8bfc9c"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v5/needs_review.csv",
+      "sha256": "3357e7630c12873145769dd3b4024b06203b771b5bf8b3beaccd5308247da969"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/summary.json",
+      "sha256": "b93a38064501bc996418bec711804b375fecdd3de6455c8573f3630c128e0bc9"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/report.md",
+      "sha256": "2229cf852565ca88af1773a5734504fa0c5ee4186b25b7af75104edac30bb21e"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/model_catalog.json",
+      "sha256": "979cd65d3224f245fc3d2d82d1fec72f0f102e5874ef81877aee7bdff16d3e65"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/corrections.json",
+      "sha256": "55cc8337519d8a462133823a5feb416acb651c2c2382dcbcaea4561740639158"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/run_metadata.json",
+      "sha256": "42e82a3a58b2b05b48dc2cf51c5bca99e0a93e4e6dca050d88871a12571be9b4"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/excluded.csv",
+      "sha256": "4e1e24a112c37f85d5a0ab1658c602cd5f8635d7dc656eeb91532ea6b8e64eda"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/accepted.csv",
+      "sha256": "daaf01cf127c6503e5fb685fd29c87f68be9317103d0ec182b69d7972327c6e3"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/ennxo_cleaned.jsonl",
+      "sha256": "b2c53715f9badd248eaa02a4249195c3cb673c0dfd2be9bb5b063350e2d302fc"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/rules.json",
+      "sha256": "e77b8fd7f0cb3dd2205f29c0fbf90c6b748ef028a6c957dec47c9710737a5a2a"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/review_plan.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/review_plan.json",
+      "sha256": "a8f8292770f6c0d2f0e200a77dc9966a6039d65324b8f8990b4772a6e8511911"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v4/needs_review.csv",
+      "sha256": "748010de5cb19a679867f749ffa6b9d1d280b14fcfe5402092fee594b8ae09df"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/summary.json",
+      "sha256": "f70d2266f76de100c0751622846f38e8e334e71f2a93ca921b467b2e01460270"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/report.md",
+      "sha256": "ce44df417e8df218a15f17e8b137154d742211c036f9a6414d71031760aaf739"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/model_catalog.json",
+      "sha256": "979cd65d3224f245fc3d2d82d1fec72f0f102e5874ef81877aee7bdff16d3e65"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/corrections.json",
+      "sha256": "55cc8337519d8a462133823a5feb416acb651c2c2382dcbcaea4561740639158"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/run_metadata.json",
+      "sha256": "6bc10d8c2bf907653bbb39516450cfe5659ffeeddd3ddc49a1efdcf1d3805df6"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/excluded.csv",
+      "sha256": "c765e7430f214f17c043e2cc47b9e85c245ae09177c44f4ed2fca18e5bdf6350"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/accepted.csv",
+      "sha256": "34b517cf04c29f4088f86932e7e8d61bb55870c4533f4680ab79cef4228418ef"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/ennxo_cleaned.jsonl",
+      "sha256": "fdf7a4a44b24722e88300fde16c4e3f068f40555009d374225ef1a5340d607c0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/rules.json",
+      "sha256": "147399efb3e7c990c496ba8d45a11cfb9a4f70c24e61635f40ad5dd9e692ae77"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/review_plan.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/review_plan.json",
+      "sha256": "4f43543a05cd2a89017baab57d491108f0bbedcfd4f699fa31f055be4beb7d5b"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v3/needs_review.csv",
+      "sha256": "23ef4172066a6146558d7a9b5d6692a8ef095e5d61c1485b76fd40de218c0ace"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/summary.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/summary.json",
+      "sha256": "4e82cebbc3bf32eaa1c81abcf55b8f5818356f9475239c64de8f79e6caadc592"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/report.md": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/report.md",
+      "sha256": "8bc601cb465c7d39975f53836c414c74b76faf69cede3abfe6d658f8b17e5b09"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/model_catalog.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/model_catalog.json",
+      "sha256": "9fcb7c33f3ab0c175c29e406f5fff091776f42781b42abd7fbd347a4c3636608"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/corrections.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/corrections.json",
+      "sha256": "55cc8337519d8a462133823a5feb416acb651c2c2382dcbcaea4561740639158"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/run_metadata.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/run_metadata.json",
+      "sha256": "ced27bc0925f58786d8348c54ecd34fa3f1523a1e399b30282157918dc44739f"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/excluded.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/excluded.csv",
+      "sha256": "a57b1a422f0103185b2029ba37935d126b743b6cd0004aa651f36b1fefdfe459"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/accepted.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/accepted.csv",
+      "sha256": "95ed5f083bc32fae229f80448020268c12cf5eb8b74f6ee68b44ce240faaa584"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/ennxo_cleaned.jsonl": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/ennxo_cleaned.jsonl",
+      "sha256": "df9b168b1880fae88808fade75470ddd9a366152795722595a6d433ce392970f"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/rules.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/rules.json",
+      "sha256": "f8a257b9ab2b96afc61bef8e49592ca1553b074e5d038dd6ef6f54ec476e3a0c"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/raw_checksums.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/raw_checksums.json",
+      "sha256": "ea3229b1394c310f7350e724fbd7cd34ab9323173db74a9794c41188761287e0"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/validation.json": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/validation.json",
+      "sha256": "1ceedeeb4b479319360ff23000f53f971dc45b1a98520f4fed4879e65425c896"
+    },
+    "data/processed/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/needs_review.csv": {
+      "new": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/history/rules_v1/needs_review.csv",
+      "sha256": "a771ea90972c229d9a6bb34dc6cccf082e4bc7e3940b1e317febf5786313c22b"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/summary.json": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/summary.json",
+      "sha256": "47eca881bf23d10f661bdbf60f350b2ad7eedc09884955879221af0e194cd849"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/queue_decisions.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/queue_decisions.json",
+      "sha256": "074a6e579ed351018db2a0712b840be7afe25571b2cb1426cfe639b8061629e1"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/report.md": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/report.md",
+      "sha256": "20fe60cf80e4f4c1fed1f5cefdd7f35d2fd89644d6d7dcafc5a5fdbd096e4f89"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/missing_source.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/missing_source.csv",
+      "sha256": "edbbe6c52ba12fd9f8b005826b8b58584d6196d337b62c6dec2b446f1f9aa81c"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/run_metadata.json": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/run_metadata.json",
+      "sha256": "082b3795905d4f125518098897b53cf90198084601bea787cfe2fdf69c17470a"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/excluded.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/excluded.csv",
+      "sha256": "22a10da28a43c3f98c794fe930f80a949d721ba3f2978aec766593dc06a4a256"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/non_normal.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/non_normal.csv",
+      "sha256": "50572c7ce559211fbda4935ff3b90d24a4af6a1da936063e06591811780b6c29"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/iphone_model_names.json": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/iphone_model_names.json",
+      "sha256": "c57532c0368591580b48f3af7f7cd20e71256259331232317a42e417dba3d9ca"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/rules.json": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/rules.json",
+      "sha256": "0fc64cf736103460522c2e667640990dd69a4897eda1a4062ad8c2d6860dfda9"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/queue_decisions.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/queue_decisions.csv",
+      "sha256": "d085ec8922edc1477372c37f42a34a1dac89a301586639dd15bd67162d735120"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/mac2hand_final.jsonl": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/mac2hand_final.jsonl",
+      "sha256": "6280db0523bfb5a56261ac8bb14adf738d282622a4feab1333a586881c4fa76e"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/candidate_duplicate_groups.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/candidate_duplicate_groups.json",
+      "sha256": "f776fa2ca56a35ee069f87d159a28c08e744a2bfb61bafbfced7b515c6e095fa"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/dataset.csv": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/dataset.csv",
+      "sha256": "2176ab973d8afce0029de2389ad1532a56697f4eeca289a8d49e2f4207a41f77"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/ambiguous.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/ambiguous.csv",
+      "sha256": "8c1d34256d76f22ed1974543bdca1fc6b511af69ebde104f9b7fd578273a92d8"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/validation.json": {
+      "new": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/validation.json",
+      "sha256": "f7bdb35ba6bbd3191b5e1387e660d1215bdfdc86809629453d2223e66aa0a1b4"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/final/insufficient_data.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/insufficient_data.csv",
+      "sha256": "28708a611c63f1927a5d2e153733a5b025a3e8b92c44189b93773dbbcf1fb723"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/summary.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/summary.json",
+      "sha256": "38bce565ce16c89fc34a6d769eae35346832491f70d7e633fd5d5de5887c466c"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/report.md": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/report.md",
+      "sha256": "19708def0753a3ddef43cac1aab43e19b5cb1fbc455a8b96b460361e94513f88"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/run_metadata.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/run_metadata.json",
+      "sha256": "19253cddc2001a57849f7c1c30b6cc2b034bd66727363947bf6b12438c8c90c7"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/excluded.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/excluded.csv",
+      "sha256": "98d1aa5701cbd33f2598c64a5e874dbec18098d6137a8210d57093fe286255a8"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/accepted.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/accepted.csv",
+      "sha256": "e8ca8427597ee31b40f55e553b0a142a3db5d0b86a888999245ce4cbcf853e28"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/rules.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/rules.json",
+      "sha256": "c9cd94735223b64b73be2027b54a64fc49710153b70fd72ca9d5b5d4c348a193"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/candidate_duplicate_groups.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/candidate_duplicate_groups.json",
+      "sha256": "840c4e8dc3513acd611c3bcdce80cb22a347b65e8e5dd84c45b4cf794d96d971"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/mac2hand_cleaned.jsonl": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/mac2hand_cleaned.jsonl",
+      "sha256": "5331eb9d660ec3b4ae358199fdf2a3eba8a8d039a2de8a0903f95247cc12eec5"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/validation.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/validation.json",
+      "sha256": "4f3543500e618e41e3f23e00739eff3ba4ce3e455b1572540402d9ef71e97c11"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/needs_review.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/clean/needs_review.csv",
+      "sha256": "f5d7c23e6e146e4bd55b38e681efff97e82543c9dcf70592567a1a5eac81c576"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/summary.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/summary.json",
+      "sha256": "563acec383c551db5a234dbfc9cf0022251916e8fb892474ae9fe0e0eead4635"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/report.md": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/report.md",
+      "sha256": "f18477ec1de486456599eefcc1df6de26b13ecb87363b4954d9683de13d7dfc3"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/issues.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/issues.json",
+      "sha256": "c1a9ba5dce05c3d9877e86a9b47a47a09760aaeacde6267107c1915b691d1c4f"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/raw_checksums.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/raw_audit/raw_checksums.json",
+      "sha256": "10971c12fc182883ec6ab44a644c2ca2bdc184e718aa0bbb33d3d4011731e35c"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/summary.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/summary.json",
+      "sha256": "563acec383c551db5a234dbfc9cf0022251916e8fb892474ae9fe0e0eead4635"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/run_metadata.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/run_metadata.json",
+      "sha256": "71632ca4c7ee8e450ead31921db3c034fbbcca4b8d5161c6bbe9154510c6a3ca"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/mac2hand_extracted.jsonl": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/extraction/mac2hand_extracted.jsonl",
+      "sha256": "45378c2b129744aa1d9f63f12addf5fb83ebc4ce6430f725a8f9f49bb1982793"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/review/spot_check.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/review/spot_check.json",
+      "sha256": "24a2977d64f109bfc5489e5ccbb69cbfe2a4990ef7aade869bd3785e46092aae"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/summary.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/summary.json",
+      "sha256": "3983a0b823a4ea3defaa51a5ed2c3b624bbb1e3ac2a6691b0dafcfa5d0bb75d0"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/report.md": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/report.md",
+      "sha256": "a8627929170e569d7187b851f2d888515e5ef212cf50f7d31103369a38bdbfa1"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/mac2hand_reviewed.jsonl": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/mac2hand_reviewed.jsonl",
+      "sha256": "e76687b3b52091ea84d7f5258a264a2779f345ec891628985b1531530b9107e9"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/run_metadata.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/run_metadata.json",
+      "sha256": "7f5a7306605c74543959685f03c27be14f00ce9d1f9eff0d74c397106442e3da"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/excluded.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/excluded.csv",
+      "sha256": "98d1aa5701cbd33f2598c64a5e874dbec18098d6137a8210d57093fe286255a8"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/accepted.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/accepted.csv",
+      "sha256": "738b5b1caadb94ff10102e44eaab3abedc6f1a8193db2c82acd3889f7049f111"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/manual_reviews.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/manual_reviews.json",
+      "sha256": "0c00ecbbc1bc63b3470655f3f53cd3c6a109fbc3f93836f6314fcd05ab4e1c24"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/validation.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/validation.json",
+      "sha256": "d72e37edd46123c0133230ed2be63965a03131fcbd53d5765ae3aabaabeb1bd7"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/needs_review.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/needs_review.csv",
+      "sha256": "5a3779e41239f424703d319a5d47a0f63a45fc7cf57dc683d166c720e046a162"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/queue_plan.csv": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/queue_plan.csv",
+      "sha256": "41a4ca1088596f65b140e77415c6f5bd69769f387b9dab30f9764f1bf8784a19"
+    },
+    "data/processed/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/queue_evidence.json": {
+      "new": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/manual_review/queue_evidence.json",
+      "sha256": "4bfd187ed3bfa2e62842261c29eff960afcdce4c227bb05a27f42a28f5bbeb21"
+    }
+  },
+  "moved_data_files": 168,
+  "all_moved_data_hashes_verified": true,
+  "historical_metadata_preserved": true,
+  "raw_files_before": 10924,
+  "output_file_moves": {
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/ambiguous.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/ambiguous.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/candidate_duplicate_groups.json": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/candidate_duplicate_groups.json",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/excluded.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/excluded.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/insufficient_data.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/insufficient_data.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/mac2hand_final.jsonl": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/mac2hand_final.jsonl",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/missing_source.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/missing_source.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/non_normal.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/non_normal.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/queue_decisions.csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/queue_decisions.csv",
+    "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/queue_decisions.json": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/queue_decisions.json",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/lineage.jsonl": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/lineage.jsonl",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/ennxo_audit.json": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/ennxo_audit.json",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/mac2hand_audit.json": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/mac2hand_audit.json",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/normalization_changes.json": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/normalization_changes.json",
+    "data/final/combined/ennxo_20261005_mac2hand_20261006/price_review.csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/price_review.csv"
+  },
+  "added_delivery": {
+    "source": "ennxo",
+    "input": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/accepted.csv",
+    "output": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/dataset.csv",
+    "script": "preparation/ennxo/export_ennxo_dataset.py",
+    "records": 1279,
+    "csv_bytes_unchanged": true
+  },
+  "configuration_changes": [
+    "ENNXO manual_review.json baseline path only updated from data/processed to data/intermediate; review decisions unchanged",
+    "data/datasets.json now uses intermediate_directory/final_directory and final accepted CSV paths"
+  ],
+  "eda_report_regenerated": "Updated command and data paths; all EDA statistics unchanged"
+}

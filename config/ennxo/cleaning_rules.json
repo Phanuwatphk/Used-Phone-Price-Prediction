@@ -1,0 +1,855 @@
+{
+  "version": 6,
+  "field_source_priority": "description_first",
+  "scope": "ประกาศขายมือถือในหมวดที่เก็บ รวมเครื่องที่ผู้ขายระบุ new และ used โดยเก็บสภาพต้นทางไว้ ราคาหมายถึงราคาทั้งเครื่อง ไม่ใช่เงินดาวน์หรืออะไหล่",
+  "accepted_conditions": [
+    "used",
+    "new"
+  ],
+  "condition_text_conflict_action": "note",
+  "verified_model_references": [
+    {
+      "brand": "Vivo",
+      "models": [
+        "V29e",
+        "V70",
+        "Y17s",
+        "Y03",
+        "X300 Pro",
+        "X300",
+        "Y04",
+        "V60",
+        "Y100",
+        "Y200",
+        "Y02",
+        "Y28",
+        "Y36",
+        "V50"
+      ],
+      "source_url": "https://www.vivo.com/en/product/productCompare/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Google",
+      "models": [
+        "Pixel 7 Pro",
+        "Pixel 6 Pro"
+      ],
+      "source_url": "https://support.google.com/pixelphone/answer/7158570?hl=en",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A98"
+      ],
+      "source_url": "https://www.oppo.com/en/smartphones/series-a/a98-5g/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A79"
+      ],
+      "source_url": "https://www.oppo.com/jp/smartphones/series-a/a79-5g/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno13 F"
+      ],
+      "source_url": "https://www.oppo.com/pt/smartphones/series-reno/reno13-f-5g/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno13"
+      ],
+      "source_url": "https://www.oppo.com/befr/smartphones/series-reno/reno13-5g/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A18"
+      ],
+      "source_url": "https://www.oppo.com/ro/smartphones/series-a/a18/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A58"
+      ],
+      "source_url": "https://www.oppo.com/br/smartphones/series-a/a58/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A17",
+        "Galaxy Z Fold7",
+        "Galaxy Z Flip7",
+        "Galaxy Z Fold6",
+        "Galaxy Z Flip6",
+        "Galaxy A35",
+        "Galaxy S23 FE"
+      ],
+      "source_url": "https://www.samsung.com/global/sustainability/policy-file/AYVhR1k6BicAIx95/LCA%20Results%20for%20Smartphones.pdf",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A06",
+        "Galaxy A01",
+        "Galaxy A03"
+      ],
+      "source_url": "https://images.samsung.com/is/content/samsung/assets/fr/paris-games-week/Final-TCs-FR-Paris_Games_Week-Oct25.pdf",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A33",
+        "Galaxy A50s"
+      ],
+      "source_url": "https://images.samsung.com/is/content/samsung/assets/id/offer/2023/01/tnc/Daftar_Harga_Trade_eStore_update.pdf",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "P30 Pro",
+        "P40 Pro",
+        "Mate 30 Pro",
+        "Mate 20"
+      ],
+      "source_url": "https://consumer.huawei.com/pl/support/content/pl-pl15769094/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "P20 Pro",
+        "P20",
+        "Mate 10 Pro"
+      ],
+      "source_url": "https://consumer.huawei.com/uk/support/content/en-gb15876900/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "P60 Pro"
+      ],
+      "source_url": "https://consumer.huawei.com/cl/phones/p60-pro/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Mi 10T Pro"
+      ],
+      "source_url": "https://www.mi.com/uk/mi-10t-pro/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Mi 11 Ultra"
+      ],
+      "source_url": "https://www.mi.com/global/certification/compliance/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi 13C",
+        "Redmi 13",
+        "Redmi Note 14"
+      ],
+      "source_url": "https://www.mi.com/global/certification/compliance/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "OnePlus",
+      "models": [
+        "OnePlus 8T"
+      ],
+      "source_url": "https://www.oneplus.com/ca_en/8t/specs?from=op8t_reviews",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "OnePlus",
+      "models": [
+        "OnePlus 7T"
+      ],
+      "source_url": "https://www.oneplus.com/us/7t/specs?from=7t",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Sony",
+      "models": [
+        "Xperia 1 III"
+      ],
+      "source_url": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-iii/specifications",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "C30s",
+        "GT Neo 3T",
+        "GT",
+        "11",
+        "C53",
+        "C51",
+        "Note 50",
+        "C63",
+        "14 Pro"
+      ],
+      "source_url": "https://www.realme.com/global/legal/AndroidSecurityAdvisories",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "nova 3i"
+      ],
+      "source_url": "https://consumer.huawei.com/en/support/phones/nova3i/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "Y9 Prime 2019"
+      ],
+      "source_url": "https://consumer.huawei.com/sa-en/support/content/en-us00726408/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "P30 Lite"
+      ],
+      "source_url": "https://consumer.huawei.com/jp/support/phones/p30-lite/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy Note 10 Plus",
+        "Galaxy S10 Plus",
+        "Galaxy S8 Plus",
+        "Galaxy S20 Ultra"
+      ],
+      "source_url": "https://images.samsung.com/is/content/samsung/assets/co/offer/p6_gro2/p6_initial_offer/trade-in-ses/tyc-trade-in-ses-septiembre.pdf",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy Note 10 Lite",
+        "Galaxy A52s"
+      ],
+      "source_url": "https://www.samsung.com/uk/support/mobile-devices/overview-of-the-one-ui-5-key-features/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Apple",
+      "models": [
+        "iPhone SE 2",
+        "iPhone SE 3",
+        "iPhone SE 2020"
+      ],
+      "source_url": "https://support.apple.com/en-us/108044",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno6 Z"
+      ],
+      "source_url": "https://www.oppo.com/sa-en/smartphones/series-reno/reno6-z-5g/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno8 Z",
+        "Reno7 Z"
+      ],
+      "source_url": "https://www.oppo.com/vn/smartphones/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi Note 8 Pro",
+        "Redmi Note 9S"
+      ],
+      "source_url": "https://www.mi.com/fr/redmi-note-8-pro/specs",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi Note 10 Pro"
+      ],
+      "source_url": "https://www.mi.com/global/product/redmi-note-10-pro/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Infinix",
+      "models": [
+        "Hot 50i"
+      ],
+      "source_url": "https://www.infinixmobility.com/HOT-50i",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Infinix",
+      "models": [
+        "Smart 10 Plus"
+      ],
+      "source_url": "https://www.infinixmobility.com/category/Smartphones",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Vivo",
+      "models": [
+        "V17 Pro",
+        "Y91C"
+      ],
+      "source_url": "https://www.vivo.com/sg/support/system-update",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Sony",
+      "models": [
+        "Xperia 1 V",
+        "Xperia 10 III"
+      ],
+      "source_url": "https://www.sony.com.tw/en/electronics/explore-xperia",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "OnePlus",
+      "models": [
+        "OnePlus 7T Pro",
+        "OnePlus 11"
+      ],
+      "source_url": "https://www.oneplus.com/th/support/spec",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno14",
+        "Reno14 F"
+      ],
+      "source_url": "https://www.oppo.com/en/smartphones/series-reno/reno14-f-5g/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A3x"
+      ],
+      "source_url": "https://www.oppo.com/sg/smartphones/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Find N3"
+      ],
+      "source_url": "https://bshop.oppo.com/shop/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Sony",
+      "models": [
+        "Xperia 1 II"
+      ],
+      "source_url": "https://www.sony.com/electronics/support/mobile-phones-tablets-mobile-phones/xperia-1-ii",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Infinix",
+      "models": [
+        "Hot 11 Play"
+      ],
+      "source_url": "https://tr.infinixmobility.com/hot-11-play",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "C17",
+        "6 Pro"
+      ],
+      "source_url": "https://event.realme.com/id/promo-4april",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Mi 10 Ultra",
+        "Mi 11"
+      ],
+      "source_url": "https://ir.mi.com/static-files/2aa1b494-9e5c-4f2a-adb6-96732087580c",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Vivo",
+      "models": [
+        "V20 Pro",
+        "X Fold5"
+      ],
+      "source_url": "https://www.vivo.com/en/product/productCompare/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Vivo",
+      "models": [
+        "V60 Lite"
+      ],
+      "source_url": "https://www.vivo.com/en/security",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "nova 12i"
+      ],
+      "source_url": "https://consumer.huawei.com/pt/support/phones/nova-12i/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Honor",
+      "models": [
+        "Honor 200 Lite"
+      ],
+      "source_url": "https://www.honor.com/global/phones/honor-200-lite/spec/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "OnePlus",
+      "models": [
+        "OnePlus 10 Pro"
+      ],
+      "source_url": "https://www.oneplus.com/us/10-pro/specs",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi 12"
+      ],
+      "source_url": "https://www.mi.com/eg/product-list/phone/redmi/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy Note 20 Ultra"
+      ],
+      "source_url": "https://www.samsung.com/uk/support/mobile-devices/overview-of-the-one-ui-5-key-features/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "Mate X5"
+      ],
+      "source_url": "https://consumer.huawei.com/cn/support/phones/mate-x5/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Xiaomi 14T Pro"
+      ],
+      "source_url": "https://www.mi.com/global/product/xiaomi-14t-pro/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Xiaomi Civi 3"
+      ],
+      "source_url": "https://www.mi.com/xiaomi-civi-3/specs",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi Note 15"
+      ],
+      "source_url": "https://www.mi.com/kh-en/product/redmi-note-15/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "5i",
+        "X2 Pro"
+      ],
+      "source_url": "https://www.realme.com/global/support/user-manuals?inviteId=474757038",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A8 Plus"
+      ],
+      "source_url": "https://news.samsung.com/br/galaxy-a8-e-galaxy-a8-trazem-recursos-de-seguranca-para-os-dados-armazenados",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A3s",
+        "F9 Pro",
+        "F11 Pro",
+        "Reno2 F"
+      ],
+      "source_url": "https://www.oppo.com/content/dam/oppo/in/mkt/investor-term/term/Airtel%20OPPO%20Offer.pdf",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno7"
+      ],
+      "source_url": "https://www.oppo.com/en/smartphones/series-reno/reno7-5g/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A16"
+      ],
+      "source_url": "https://www.oppo.com/in/smartphones/series-a/a16/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno4 Pro"
+      ],
+      "source_url": "https://www.oppo.com/ua/smartphones/series-reno/reno4-pro/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Reno8 Pro"
+      ],
+      "source_url": "https://www.oppo.com/en/smartphones/series-reno/reno8-pro-5g/specs/",
+      "checked_on": "2026-10-11"
+    },
+    {
+      "brand": "Apple",
+      "models": [
+        "iPhone 18 Pro"
+      ],
+      "source_url": "https://www.apple.com/newsroom/2026/09/apple-debuts-iphone-18-pro-and-iphone-18-pro-max/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy Z Fold8",
+        "Galaxy Z Flip8"
+      ],
+      "source_url": "https://www.samsung.com/ca/support/mobile-devices/galaxy-z-fold8-ultra-galaxy-z-fold8-and-galaxy-z-flip8-specifications-and-features/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy J7 Core"
+      ],
+      "source_url": "https://www.samsung.com/sa_en/support/model/SM-J701FZDDKSA/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A5 (2016)"
+      ],
+      "source_url": "https://semiconductor.samsung.com/processor/showcase/smartphone/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A7 (2018)"
+      ],
+      "source_url": "https://www.samsung.com/de/business/smartphones/galaxy-a/galaxy-a7-a750fds-sm-a750fzkudbt/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy A37"
+      ],
+      "source_url": "https://www.samsung.com/uk/smartphones/galaxy-a/galaxy-a37-5g-awesome-white-256gb-sm-a376bzwgeub/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A6x"
+      ],
+      "source_url": "https://www.oppo.com/uk/smartphones/series-a/a6x/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "A37"
+      ],
+      "source_url": "https://assorted.downloads.oppo.com/static/archives/files/in/Terms-and-Conditions-OPPO-WorldCup-Offer-Inclusion-of-A31.pdf",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Oppo",
+      "models": [
+        "Find X8"
+      ],
+      "source_url": "https://www.oppo.com/ke/smartphones/series-find-x/find-x8/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "5"
+      ],
+      "source_url": "https://www.realme.com/in/realme-5/specs",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "8"
+      ],
+      "source_url": "https://www.realme.com/global/realme-8-5g",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "GT Master Edition"
+      ],
+      "source_url": "https://www.realme.com/global/realme-gt-master-edition",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Realme",
+      "models": [
+        "10T"
+      ],
+      "source_url": "https://www.realme.com/th/realme-10t",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "POCO M6 Pro"
+      ],
+      "source_url": "https://www.mi.com/uk/support/faq/details/KA-243163/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "POCO F1"
+      ],
+      "source_url": "https://www.mi.com/sg/support/faq/details/KA-12741/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Xiaomi 12"
+      ],
+      "source_url": "https://www.mi.com/global/product/xiaomi-12/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Xiaomi",
+      "models": [
+        "Xiaomi 13"
+      ],
+      "source_url": "https://www.mi.com/global/product/xiaomi-13/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Redmi",
+      "models": [
+        "Redmi Note 11 Pro"
+      ],
+      "source_url": "https://www.mi.com/global/product/redmi-note-11-pro-5g/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Huawei",
+      "models": [
+        "nova Y70"
+      ],
+      "source_url": "https://consumer.huawei.com/pk/phones/nova-y70/specs/",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of the listed device storage or physical condition"
+    },
+    {
+      "brand": "Nokia",
+      "models": [
+        "Nokia 808 PureView"
+      ],
+      "source_url": "https://download-fds.webapps.microsoft.com/supportFiles/phones/files/pdf_guides/devices/808/Nokia_808_UG_en_APAC.pdf",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of actual device storage"
+    },
+    {
+      "brand": "Nokia",
+      "models": [
+        "Nokia G50"
+      ],
+      "source_url": "https://www.hmd.com/en_int/nokia-g-50/specs",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of actual device storage"
+    },
+    {
+      "brand": "Nokia",
+      "models": [
+        "Nokia N97"
+      ],
+      "source_url": "https://download-fds.webapps.microsoft.com/supportFiles/phones/files/pdf_guides/devices/N97/Nokia_N97_UG_zh_CN.pdf",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of actual device storage"
+    },
+    {
+      "brand": "Samsung",
+      "models": [
+        "Galaxy J2"
+      ],
+      "source_url": "https://news.samsung.com/in/samsung-introduces-galaxy-j2-makes-4g-accessible-and-relevant-for-india",
+      "checked_on": "2026-10-11",
+      "scope": "Name reference only; no imputation of actual device storage"
+    }
+  ],
+  "brands": {
+    "Apple": [
+      "apple",
+      "iphone",
+      "ไอโฟน"
+    ],
+    "Samsung": [
+      "samsung",
+      "ซัมซุง"
+    ],
+    "Oppo": [
+      "oppo",
+      "ออปโป้"
+    ],
+    "Vivo": [
+      "vivo",
+      "วีโว่"
+    ],
+    "Xiaomi": [
+      "xiaomi",
+      "เสี่ยวหมี่",
+      "poco"
+    ],
+    "Redmi": [
+      "redmi",
+      "เรดมี่"
+    ],
+    "Realme": [
+      "realme",
+      "เรียลมี"
+    ],
+    "Huawei": [
+      "huawei",
+      "หัวเว่ย"
+    ],
+    "Nokia": [
+      "nokia",
+      "โนเกีย"
+    ],
+    "OnePlus": [
+      "oneplus",
+      "one plus"
+    ],
+    "Google": [
+      "google pixel",
+      "pixel"
+    ],
+    "Honor": [
+      "honor"
+    ],
+    "Infinix": [
+      "infinix",
+      "อินฟินิกซ์",
+      "infinnix"
+    ],
+    "Sony": [
+      "sony"
+    ],
+    "YESPHONE": [
+      "yesphone"
+    ],
+    "Philips": [
+      "philips",
+      "ฟิลิปส์"
+    ]
+  },
+  "storage_gb": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "price_placeholders": [
+    1,
+    99999
+  ],
+  "accessory_title_pattern": "^(?:ขาย\\s*)?(?:ฟิล์ม|เคส|สายชาร์จ|หัวชาร์จ|แบตเตอรี่|(?:ชุด)?บอร์ด|หน้าจออะไหล่|อะไหล่|กล่องเปล่า)",
+  "other_device_title_pattern": "\\b(?:ipad|tablet|macbook|router|watch)\\b|แท็บเล็ต|นาฬิกา|เราเตอร์|home\\s*wi[ -]?fi",
+  "service_title_pattern": "^(?:รับซื้อ|รับซ่อม|รับจำนำ|รับจำนำ)",
+  "partial_price_pattern": "ราคาดาวน์|ขายดาวน์|เงินดาวน์|ราคาเฉพาะดาวน์|ค่างวดละ|ผ่อนงวดละ|ผ่อนเหลือ|เหลือผ่อน|ส่งต่ออีก[0-9]+งวด",
+  "damage_pattern": "จอแตก|จอร้าว|จอเป็นเส้น|จอเส้น|เส้นเขียว|จอเบิร์น|จอมีจุดดำ|จอมีตำหนิ|หน้าจอมีจุดดำ|หน้าจอมีตำหนิ|ฝาหลังแตก|ฝาหลังร้าว|เปิดไม่ติด|เครื่องเสีย|สแกนหน้าไม่ได้|สแกนนิ้วไม่ได้|ติดไอคลาวด์|ติด\\s*icloud|ติดล็อค|ติดล็อก|ห้ามรี(?:เซ็ต)?|ห้ามอัพ|จอ[^\\n]{0,30}กระพริบ|กล้อง[^\\n]{0,35}เบลอ|ปากกาเขียนไม่ได้|ขาซิมมีปัญหา|บล็อกรายเดือน|ติดล็อคผ่อน|เลนส์[^\\n]{0,20}เบลอ",
+  "negation_suffix_pattern": "(?:ไม่|ไม่มี|ไม่ได้|ไม่เคย|ไม่พบ|ไม่ใช่|ไม่มีอาการ|ประกัน)\\s*$",
+  "new_claim_pattern": "เครื่องใหม่|มือ\\s*1|มือหนึ่ง|เครื่องซีล",
+  "new_claim_context_ignore_pattern": "(?:เทียบ(?:ของ|เท่า)?|เหมือน|สภาพ|ซื้อ|เปลี่ยน|จอใหม่|ซื้อมา|ซื้อมาตั้งแต่|ราคา(?:เครื่อง)?)\\s*$",
+  "new_claim_suffix_ignore_pattern": "^\\s*(?:มาก|กริบ|กริ๊บ|ๆ)",
+  "used_claim_pattern": "ใช้เอง|ใช้งานมา|ใช้มา|ใช้งานแล้ว|มีรอยใช้งาน|มือสอง|เครื่องมือ2"
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "round": "example",
+  "baseline": "data/intermediate/ennxo/<snapshot>/history/rules_v5",
+  "review_scope": "Replace with the actual baseline and evidenced review scope",
+  "reviews": []
+}

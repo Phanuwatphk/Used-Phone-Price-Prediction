@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "outlier_group_fields": ["source", "brand", "model", "storage_gb", "condition", "publication_year"],
+  "outlier_min_group_size": 10,
+  "outlier_iqr_multiplier": 1.5,
+  "zero_iqr_policy": "skip; no statistical spread to estimate a fence",
+  "source_comparison_fields": ["brand", "model", "storage_gb", "condition", "publication_year"],
+  "source_comparison_min_per_source": 3,
+  "duplicate_min_description_length": 80,
+  "duplicate_description_fields": ["brand", "model", "storage_gb", "condition", "price_thb"],
+  "duplicate_policy": "Candidates only; no automatic removal or confirmed physical identity",
+  "top_models_in_chart": 15,
+  "price_histogram_bins": 45,
+  "all_dates_retained": true,
+  "training_performed": false
+}

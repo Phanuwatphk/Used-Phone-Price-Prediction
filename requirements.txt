@@ -1,0 +1,5 @@
+beautifulsoup4
+requests
+urllib3
+matplotlib
+numpy

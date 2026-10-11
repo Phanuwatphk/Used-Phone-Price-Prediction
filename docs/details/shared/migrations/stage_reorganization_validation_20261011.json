@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-11",
+  "python_modules_parsed": 32,
+  "cli_launch_checks": 32,
+  "unit_tests_passed": 125,
+  "moved_data_files_verified": 168,
+  "raw_files_unchanged": 10924,
+  "actual_workflows_from_other_cwd": [
+    "Mac2Hand finalization",
+    "combined merge",
+    "EDA",
+    "ENNXO manual review and accepted export"
+  ],
+  "dataset_csv_and_typed_jsonl_unchanged": true,
+  "eda_statistics_unchanged": true,
+  "registry_paths_and_counts_verified": true,
+  "scraping_started": false,
+  "ennxo_export_csv_bytes_unchanged": true,
+  "legacy_custom_output_bundle_supported": true,
+  "eda_report_output_hashes_verified": true,
+  "current_markdown_links_verified": true,
+  "github_export_files": 132,
+  "github_export_tests_passed": 125,
+  "private_data_excluded_from_github_export": true,
+  "dependency_check": "No broken requirements found."
+}

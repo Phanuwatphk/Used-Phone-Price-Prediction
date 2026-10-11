@@ -1,1 +1,40 @@
+# Local environment and credentials
 .env
+.env.*
+.venv/
+.codex/
+.aws/
+
+# Python and editor caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Snapshot data and historical experiments stay local
+/archive/*
+!/archive/README.md
+/data/*
+!/data/README.md
+!/data/datasets.json
+
+# Publish only the selected 9,210-row model input and its provenance.
+!/data/final/
+/data/final/*
+!/data/final/dataset.csv
+!/data/final/dataset.jsonl
+!/data/final/schema.json
+!/data/final/policy.json
+!/data/final/summary.json
+!/data/final/validation.json
+!/data/final/run_metadata.json
+!/data/final/report.md
+
+# Evidence ledgers contain snapshot-specific source text.
+# Keep the corresponding *.example.json templates in Git.
+/config/ennxo/corrections.json
+/config/ennxo/manual_review.json
+/config/mac2hand/manual_reviews.json
