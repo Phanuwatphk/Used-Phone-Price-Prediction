@@ -1,9 +1,12 @@
 """Offline UI contracts with a temporary, checked model rather than private artifacts."""
 import csv
+from importlib.metadata import version
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import sys
 import tempfile
 import unittest
@@ -56,6 +59,10 @@ class AppTests(unittest.TestCase):
             self.assertIsNone(app.number_input(key='battery').value)
             self.assertIsNone(app.number_input(key='warranty').value)
             self.assertIsNone(app.selectbox(key='box').value)
+            self.assertNotIn('source', [widget.key for widget in app.selectbox])
+            self.assertNotIn('condition', [widget.key for widget in app.selectbox])
+            app.session_state['source'] = 'ennxo'
+            app.session_state['condition'] = 'new'
             app.button[0].click().run()
             self.assertFalse(app.exception)
             self.assertEqual(app.metric[0].value, '12,000 บาท')
@@ -64,6 +71,8 @@ class AppTests(unittest.TestCase):
             self.assertIsNone(row['warranty_days'])
             self.assertIsNone(row['box_mentioned'])
             self.assertEqual(row['model'], 'iPhone 13')
+            self.assertEqual(row['source'], 'mac2hand')
+            self.assertEqual(row['condition'], 'used')
 
     def test_changing_brand_resets_model_and_removes_old_result(self):
         app = AppTest.from_file(str(APP), default_timeout=20).run()
@@ -75,14 +84,13 @@ class AppTests(unittest.TestCase):
         self.assertEqual(app.selectbox(key='phone_model').value, 'Galaxy S22')
         self.assertEqual(len(app.metric), 0)
 
-    def test_explicit_zero_and_source_date_reach_inference(self):
+    def test_explicit_zero_date_and_fixed_defaults_reach_inference(self):
         from datetime import date
         with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
             app = AppTest.from_file(str(APP), default_timeout=20).run()
             app.number_input(key='battery').set_value(90)
             app.number_input(key='warranty').set_value(0)
             app.selectbox(key='box').select(0)
-            app.selectbox(key='source').select('ennxo')
             app.date_input(key='day').set_value(date(2026, 10, 7))
             app.button[0].click().run()
             self.assertFalse(app.exception)
@@ -90,7 +98,8 @@ class AppTests(unittest.TestCase):
             self.assertEqual(row['battery_health_pct'], 90)
             self.assertEqual(row['warranty_days'], 0)
             self.assertEqual(row['box_mentioned'], 0)
-            self.assertEqual(row['source'], 'ennxo')
+            self.assertEqual(row['source'], 'mac2hand')
+            self.assertEqual(row['condition'], 'used')
             self.assertEqual(row['published_at'], '2026-10-07')
             self.assertEqual(len(app.info), 1)
 
@@ -140,6 +149,58 @@ class AppTests(unittest.TestCase):
             self.assertIn('Median absolute error', rendered)
             self.assertIn('ยังไม่ได้ทำ t-test', rendered)
             self.assertEqual(len(app.get('image')), 5)
+
+    def test_explorer_axes_start_at_zero_for_full_and_filtered_data(self):
+        import pandas as pd
+        from script.app.dashboard import explorer_charts
+
+        frame = pd.read_csv(self.dataset)
+        frame['year'] = pd.to_datetime(frame['published_at']).dt.year
+        for selected in [frame, frame[frame['source'] == 'ennxo']]:
+            bars, line = (chart.to_dict() for chart in explorer_charts(selected))
+            count_scale = bars['encoding']['x']['scale']
+            price_scale = line['encoding']['y']['scale']
+            for scale in [count_scale, price_scale]:
+                self.assertEqual(scale['domain'][0], 0)
+                self.assertFalse(scale['nice'])
+            self.assertGreater(count_scale['domain'][1], selected['brand'].value_counts().max())
+            self.assertGreater(price_scale['domain'][1], selected.groupby('year')['price_thb'].median().max())
+            self.assertEqual(bars['encoding']['y']['sort'], '-x')
+
+
+class DeploymentTests(unittest.TestCase):
+    def test_shipped_model_predicts_without_private_outputs_from_another_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            checkout = Path(directory) / 'checkout'
+            scripts = checkout / 'script'
+            scripts.mkdir(parents=True)
+            shutil.copy2(ROOT / 'script/__init__.py', scripts / '__init__.py')
+            shutil.copytree(ROOT / 'script/modeling', scripts / 'modeling',
+                            ignore=shutil.ignore_patterns('__pycache__'))
+            modeldir = checkout / 'models/asking_price_v2'
+            modeldir.mkdir(parents=True)
+            for name in ['model.joblib', 'metadata.json']:
+                shutil.copy2(ROOT / 'models/asking_price_v2' / name, modeldir / name)
+            result = subprocess.run(
+                [sys.executable, '-B', str(scripts / 'modeling/predict.py'),
+                 '--source', 'mac2hand', '--brand', 'Apple', '--model', 'iPhone 13',
+                 '--storage-gb', '128', '--condition', 'used', '--published-at', '2026-10-06'],
+                cwd=directory, capture_output=True, text=True, check=True, timeout=30,
+            )
+            prediction = json.loads(result.stdout)[0]
+            self.assertTrue(math.isfinite(prediction['predicted_price_thb']))
+            self.assertGreater(prediction['predicted_price_thb'], 0)
+            self.assertEqual(prediction['model'], 'age_hist_log_half_2')
+
+    def test_deployment_dependencies_match_shipped_artifact(self):
+        manifest = (ROOT / 'requirements.txt').read_text().splitlines()
+        self.assertIn('-r requirements-lock.txt', manifest)
+        locked = dict(line.split('==', 1) for line in (ROOT / 'requirements-lock.txt').read_text().splitlines()
+                      if '==' in line and not line.startswith('#'))
+        metadata = json.loads((ROOT / 'models/asking_price_v2/metadata.json').read_text())
+        for package, expected in metadata['versions'].items():
+            self.assertEqual(locked[package], expected, package)
+            self.assertEqual(version(package), expected, package)
 
 
 if __name__ == '__main__':

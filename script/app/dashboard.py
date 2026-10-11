@@ -2,13 +2,44 @@
 import json
 import logging
 import os
+import math
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_LABELS = {'ennxo': 'ENNXO', 'mac2hand': 'Mac2Hand'}
+
+
+def explorer_charts(frame):
+    """Fix count/price origins at zero while allowing maxima to follow the filters."""
+    counts = frame['brand'].value_counts().head(10).rename_axis('brand').reset_index(name='count')
+    trend = frame.groupby('year', as_index=False)['price_thb'].median()
+    count_max = max(1, math.ceil(counts['count'].max() * 1.12))
+    price_max = max(1, math.ceil(trend['price_thb'].max() * 1.12))
+    bars = alt.Chart(counts).mark_bar(color='#475569', cornerRadiusEnd=3).encode(
+        x=alt.X('count:Q', title='จำนวนประกาศ',
+                scale=alt.Scale(domain=[0, count_max], nice=False, clamp=True),
+                axis=alt.Axis(format=',d', tickMinStep=1)),
+        y=alt.Y('brand:N', title=None, sort='-x'),
+        tooltip=[alt.Tooltip('brand:N', title='ยี่ห้อ'),
+                 alt.Tooltip('count:Q', title='จำนวนประกาศ', format=',d')],
+    )
+    line = alt.Chart(trend).mark_line(color='#475569', point=True, strokeWidth=2).encode(
+        x=alt.X('year:Q', title='ปีประกาศ', scale=alt.Scale(zero=False),
+                axis=alt.Axis(format='d', tickMinStep=1, tickCount=6, labelAngle=0)),
+        y=alt.Y('price_thb:Q', title='ราคา (บาท)',
+                scale=alt.Scale(domain=[0, price_max], nice=False, clamp=True),
+                axis=alt.Axis(format=',.0f')),
+        tooltip=[alt.Tooltip('year:Q', title='ปีประกาศ', format='d'),
+                 alt.Tooltip('price_thb:Q', title='ราคามัธยฐาน (บาท)', format=',.0f')],
+    )
+    return tuple(chart.properties(height=280).configure_view(stroke=None).configure_axis(
+        labelColor='#64748b', titleColor='#475569', gridColor='#e2e8f0',
+        domain=False, tickSize=0, labelPadding=8, titlePadding=12,
+    ) for chart in (bars, line))
 
 
 @st.cache_data
@@ -36,21 +67,23 @@ def render_explorer():
         st.error('ยังเปิดชุดข้อมูลไม่ได้ กรุณาให้ผู้ดูแลตรวจไฟล์ข้อมูล')
         return
     st.caption(f"ชุดเต็ม {len(frame):,} ประกาศ · {frame['published_at'].min():%Y-%m-%d} ถึง {frame['published_at'].max():%Y-%m-%d} · ไม่ใช่ประกาศสดจากเว็บ")
-    left, middle, right = st.columns(3)
-    with left:
-        sources = st.multiselect('เว็บต้นทาง', sorted(frame['source'].unique()),
-                                 default=sorted(frame['source'].unique()), key='filter_sources',
-                                 format_func=lambda value: SOURCE_LABELS.get(value, value))
-    with middle:
-        brands = st.multiselect('ยี่ห้อ (เว้นว่าง = ทั้งหมด)', sorted(frame['brand'].unique()), key='filter_brands')
-    with right:
-        condition = st.selectbox('สภาพ', ['all', 'used', 'new'], key='filter_condition',
-                                format_func=lambda value: {'all': 'ทั้งหมด', 'used': 'มือสอง', 'new': 'ของใหม่ตามผู้ขาย'}[value])
-    query = st.text_input('ค้นหาชื่อรุ่น', placeholder='เช่น iPhone 13 หรือ Galaxy', key='filter_query')
-    year_min, year_max = int(frame['year'].min()), int(frame['year'].max())
-    years = (year_min, year_max)
-    if year_min < year_max:
-        years = st.slider('ปีที่ตั้งประกาศ', year_min, year_max, (year_min, year_max), key='filter_years')
+    with st.container(border=True):
+        st.subheader('ค้นหาประกาศ')
+        left, middle, right = st.columns(3)
+        with left:
+            sources = st.multiselect('เว็บต้นทาง', sorted(frame['source'].unique()),
+                                     default=sorted(frame['source'].unique()), key='filter_sources',
+                                     format_func=lambda value: SOURCE_LABELS.get(value, value))
+        with middle:
+            brands = st.multiselect('ยี่ห้อ (เว้นว่าง = ทั้งหมด)', sorted(frame['brand'].unique()), key='filter_brands')
+        with right:
+            condition = st.selectbox('สภาพ', ['all', 'used', 'new'], key='filter_condition',
+                                    format_func=lambda value: {'all': 'ทั้งหมด', 'used': 'มือสอง', 'new': 'ของใหม่ตามผู้ขาย'}[value])
+        query = st.text_input('ค้นหาชื่อรุ่น', placeholder='เช่น iPhone 13 หรือ Galaxy', key='filter_query')
+        year_min, year_max = int(frame['year'].min()), int(frame['year'].max())
+        years = (year_min, year_max)
+        if year_min < year_max:
+            years = st.slider('ปีที่ตั้งประกาศ', year_min, year_max, (year_min, year_max), key='filter_years')
     filtered = frame[frame['source'].isin(sources) & frame['year'].between(*years)]
     if brands:
         filtered = filtered[filtered['brand'].isin(brands)]
@@ -65,15 +98,14 @@ def render_explorer():
     first.metric('ประกาศที่พบ', f'{len(filtered):,}')
     second.metric('ราคามัธยฐาน', f"{filtered['price_thb'].median():,.0f} บาท")
     third.metric('จำนวนยี่ห้อ', f"{filtered['brand'].nunique():,}")
+    bars, line = explorer_charts(filtered)
     left, right = st.columns(2)
     with left:
         st.subheader('ยี่ห้อที่มีประกาศมากที่สุด')
-        st.bar_chart(filtered['brand'].value_counts().head(10).rename('จำนวนประกาศ'), horizontal=True)
+        st.altair_chart(bars, width='stretch')
     with right:
         st.subheader('ราคามัธยฐานตามปีประกาศ')
-        trend = filtered.groupby('year')['price_thb'].median().rename('ราคา (บาท)')
-        trend.index = trend.index.astype(str)
-        st.line_chart(trend)
+        st.altair_chart(line, width='stretch')
     st.caption('ราคาต่างปีอาจมาจากรุ่นและสภาพคนละกลุ่ม จึงไม่ใช่การลดราคาของเครื่องรุ่นเดียวกัน')
     st.subheader('รายการประกาศ')
     columns = ['source', 'brand', 'model', 'storage_gb', 'condition', 'price_thb', 'published_at']
@@ -105,6 +137,7 @@ def render_model_results():
     third.metric('R²', f"{summary['retrospective']['r2']:.3f}")
     st.info('ชุดประเมินเดิมเคยใช้พัฒนาแล้ว คะแนนนี้เป็นผลย้อนหลัง โมเดลใช้งานที่ฝึกครบทุกแถวยังไม่มีคะแนนทดสอบอิสระ')
     groups = [row for row in summary['groups'] if row['group'] == 'source']
+    st.subheader('ผลประเมินแยกเว็บไซต์')
     st.dataframe(pd.DataFrame([{'เว็บ': SOURCE_LABELS.get(row['value'], row['value']),
                                'จำนวนประกาศที่ประเมิน': row['rows'],
                                'MAE (บาท)': round(row['mae_thb'])} for row in groups]), hide_index=True)
@@ -124,10 +157,14 @@ def render_model_results():
                     # CSV links in Markdown are downloads in the browser section below.
                     piece = re.sub(r'\[([^\]]+)\]\(assets/[^)]+\.csv\)', r'\1', piece)
                     st.markdown(piece)
-    st.download_button('ดาวน์โหลดรายงานพร้อมกราฟ (HTML ไฟล์เดียว)',
-                       (report / 'report.html').read_bytes(), file_name='model_report.html', mime='text/html')
-    st.download_button('ดาวน์โหลดรายงานโมเดล (Markdown)', content.encode('utf-8'),
-                       file_name='model_report.md', mime='text/markdown')
+    st.subheader('ดาวน์โหลดรายงาน')
+    left, right = st.columns(2)
+    with left:
+        st.download_button('ดาวน์โหลดรายงานพร้อมกราฟ (HTML ไฟล์เดียว)',
+                           (report / 'report.html').read_bytes(), file_name='model_report.html', mime='text/html', width='stretch')
+    with right:
+        st.download_button('ดาวน์โหลดรายงานโมเดล (Markdown)', content.encode('utf-8'),
+                           file_name='model_report.md', mime='text/markdown', width='stretch')
     with st.expander('ตารางตัวเลขประกอบรายงาน (CSV)'):
         for path in sorted((report / 'tables').glob('*.csv')):
             st.download_button(path.name, path.read_bytes(), file_name=path.name, mime='text/csv',

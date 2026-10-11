@@ -1,11 +1,2 @@
-beautifulsoup4
-requests
-urllib3
-matplotlib
-numpy
-pandas
-scikit-learn
-catboost
-joblib
-threadpoolctl
-streamlit
+# Community Cloud reads this file. Match the environment that produced model.joblib.
+-r requirements-lock.txt

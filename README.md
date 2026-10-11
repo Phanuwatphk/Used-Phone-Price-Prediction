@@ -15,17 +15,13 @@ python -m streamlit run script/app/app.py
 
 เข้า **http://localhost:8501** มี 3 เมนู:
 
-- **ประเมินราคา** — เลือกรุ่น กรอกความจุ/สภาพ และข้อมูลเพิ่มเติมที่ทราบ
+- **ประเมินราคา** — เลือกรุ่น กรอกความจุ และข้อมูลเพิ่มเติมที่ทราบ สำหรับมือถือมือสอง
 - **สำรวจข้อมูล** — กรองเว็บ ยี่ห้อ รุ่น สภาพและปี ดูกราฟ/ตาราง และดาวน์โหลด CSV
 - **ผลโมเดล** — ดูผลประเมินย้อนหลัง แยกเว็บ และข้อจำกัด
 
-การประเมินต้องมี `models/asking_price_v2/model.joblib` และ `metadata.json` ในเครื่อง โมเดล binary ไม่อยู่ใน Git หลัง clone ให้คืนสำเนาที่เชื่อถือได้ หรือสร้างใหม่:
+โมเดลใช้งาน `models/asking_price_v2/model.joblib` และ `metadata.json` รวมใน Git แล้ว จึงประเมินได้หลัง clone โดยไม่ต้องเทรนเอง แอปไม่ scrape หรือเทรนระหว่างใช้งาน หากต้องการฝึกใหม่ ใช้ `python -u -B script/modeling/train_improved.py`
 
-```bash
-python -u -B script/modeling/train_improved.py
-```
-
-เมนูสำรวจข้อมูลและผลโมเดลเปิดได้โดยไม่ต้องมี binary แอปไม่ scrape หรือเทรนระหว่างใช้งาน
+Deploy บน Streamlit Community Cloud: เลือกไฟล์ **`script/app/app.py`**, Python **3.12** และ branch ที่ commit ไฟล์โมเดลทั้งสองแล้ว `requirements.txt` ใช้เวอร์ชันจาก `requirements-lock.txt` เพื่อให้ตรงกับ artifact อ่าน [วิธี deploy และแก้ปัญหา](docs/development.md#deploy)
 
 ## เอกสาร
 
@@ -52,7 +48,7 @@ script/
   tests/               โค้ดทดสอบ offline รวมฟอร์มเว็บ
 config/                กฎและแผนทดลอง
 data/{raw,intermediate,final}/  ต้นฉบับ ผลระหว่างทาง และชุดใช้ต่อ
-models/                binary และ metadata ในเครื่อง
+models/                โมเดลใช้งาน+metadata รวม Git; โมเดลทดลองเก็บในเครื่อง
 docs/                  เอกสารทั้งหมด อ่าน EDA ที่ eda.md และโมเดลที่ modeling.md
   assets/              กราฟ ตาราง และไฟล์ประกอบรายงาน
 .github/workflows/ci.yml       ตรวจอัตโนมัติบน GitHub

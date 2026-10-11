@@ -6,6 +6,7 @@
 |---|---|
 | [เปิดเว็บและคำสั่งหลัก](#คำสั่งหลัก) | เปิด/หยุด เปลี่ยนพอร์ต เทรนและรันต่อ |
 | [ตำแหน่งข้อมูล](#ข้อมูลอยู่ตรงไหน) | raw, intermediate, final, models และรายงาน |
+| [Deploy Streamlit](#deploy) | ไฟล์ที่ต้อง commit, entry point และ Python |
 | [CI และ tests](#ci-และ-tests) | ตรวจ locally/GitHub และสิ่งที่ workflow รัน |
 | [ไฟล์ขึ้น GitHub](#ไฟล์ขึ้น-github) | ไฟล์ public และสิ่งที่เก็บในเครื่อง |
 | [สคริปต์ทุกขั้น](#scripts) | แต่ละไฟล์ทำอะไร อ่าน/เขียนที่ไหน แยกเว็บ |
@@ -26,9 +27,39 @@
 
 `script/app/app.py` เป็น entry point/ฟอร์ม; `dashboard.py` อ่าน dataset และรายงานเพื่อแสดงกราฟ/ตัวกรอง; `run_app.py` เปิดเซิร์ฟเวอร์ ตัวทำนายร่วมคือ `script/modeling/predict.py` ธีมอยู่ `.streamlit/config.toml`
 
+หน้าเว็บใช้โทนขาว/เทาและปุ่มสีเข้ม ไม่มีอีโมจิ Sidebar จัดชื่อ คำอธิบาย และเมนูไว้กลาง พร้อมพื้นหลังระบุเมนูที่เลือก ยี่ห้อ/รุ่นและข้อมูลเพิ่มเติมเรียงสองช่องคู่กัน ช่องตัวเลขกรอกจำนวนเต็มโดยไม่มีปุ่มบวก/ลบ ยังตรวจขอบเขตเดิม (ความจุ 1–8,192 GB, แบตเตอรี่ 0–100%, ประกัน 0–999 วัน); optional ว่างคือไม่ทราบและ 0 คงเป็นศูนย์จริง แยกตัวกรองเป็นกรอบและตัวเลขสรุปเป็นการ์ด CSS ใน `apply_layout()` ของ app.py ปรับระยะห่าง/ขนาดสำหรับหน้าจอเล็ก โดยคง widgets และการใช้คีย์บอร์ด
+
+ฟอร์มประเมินไม่ให้เลือกเว็บต้นทางหรือสภาพ และไม่แสดงเว็บในข้อความผลลัพธ์ ใช้ `source=mac2hand` และ `condition=used` คงที่ตามค่าเริ่มต้นเดิม เพราะโมเดล V2 ที่ฝึกแล้วมีสอง features นี้อยู่ การซ่อนช่องไม่ใช่การนำ features ออกจากโมเดล หากต้องการให้โมเดลไม่ใช้สองค่านี้ ต้องฝึกและประเมินรอบใหม่ ส่วนหน้าสำรวจยังกรองเว็บ/สภาพของ dataset ได้ตามเดิม
+
+กราฟสำรวจใน `dashboard.py` ใช้ Altair: แกนจำนวนประกาศและราคามัธยฐานเริ่มที่ 0 เสมอ ขอบบนปรับตามข้อมูลที่กรองพร้อมพื้นที่เหนือค่าสูงสุด 12% ไม่เปิดการลากเปลี่ยนสเกล เรียงยี่ห้อตามจำนวนจากมากไปน้อย ปีแสดงเป็นจำนวนเต็มและ tooltip ระบุหน่วยชัดเจน การตั้งแกนนี้ใช้กับกราฟสำรวจสองกราฟ; กราฟ error ในรายงานโมเดลคงค่าคลาดเคลื่อนบวก/ลบตามจริง
+
 แอปอ่าน `data/final/dataset.csv`, `docs/assets/modeling/asking_price_v2/` และโมเดลใน `models/asking_price_v2/` ดาวน์โหลด CSV ตามตัวกรองได้ แต่ไม่เขียนทับ dataset ไม่ scrape/เทรนเอง
 
 กด `Ctrl+C` เพื่อหยุด ใช้ `--port 8502` เมื่อพอร์ตไม่ว่าง หรือ `--headless` ไม่เปิด browser อัตโนมัติ CLI รองรับ absolute path จาก directory อื่น Path ภายในอิงตำแหน่งไฟล์
+
+<a id="deploy"></a>
+
+## Deploy บน Streamlit Community Cloud
+
+ปัญหาเดิม: `.gitignore` กัน models ทั้งหมด ทำให้ server ไม่มี model.joblib/metadata.json แม้หน้าเว็บเปิดได้ และ requirements.txt เดิมไม่ตรึงเวอร์ชันของ scikit-learn ที่ใช้โหลด artifact
+
+| ต้องส่งขึ้น Git | หน้าที่ |
+|---|---|
+| `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ 9,210 แถว ขนาดประมาณ 555 KB |
+| `models/asking_price_v2/metadata.json` | checksum, เวอร์ชันไลบรารี และสัญญา features ของโมเดล |
+| `requirements.txt` + `requirements-lock.txt` | Cloud อ่าน requirements.txt ซึ่งอ้าง lock ให้ติดตั้งเวอร์ชันเดียวกับการฝึก |
+| `script/`, `config/`, `data/final/` และ `docs/` ตาม whitelist | โค้ด หน้าเว็บ ข้อมูลสำรวจ และรายงานที่ใช้งาน |
+
+1. Commit/push การแก้ไขพร้อมไฟล์โมเดลสองไฟล์ (ไม่ต้องใช้ git add -f เพราะ whitelist แล้ว)
+2. เลือก repository/branch ที่มี commit นี้ และ Main file path เป็น `script/app/app.py`
+3. ตั้ง Python 3.12 ใน Advanced settings ให้ตรง environment ที่ฝึก ถ้าแอปเดิมใช้ Python รุ่นอื่น ให้ deploy ใหม่ด้วยรุ่นนี้
+4. รอ build dependencies และเปิดประเมินราคา แอปอ่านโมเดลที่ฝึกแล้ว ไม่เทรนใหม่บน Cloud
+
+หากแอปยังใช้ commit เก่า ให้ตรวจ branch/commit ใน Manage app และ reboot หลัง push ถ้าล้มเหลวให้ดู logs: FileNotFoundError ตรวจสองไฟล์โมเดล; checksum mismatch ต้องส่ง model กับ metadata จากรอบเดียวกัน; sklearn/import error ตรวจ Python และการติดตั้ง lock การแก้ในเครื่องยังไม่ใช่การอัปเดต server จนกว่า commit จะถูก push
+
+ตรวจไฟล์ก่อน commit ด้วย `git status --short --untracked-files=all models` และ `git ls-files -co --exclude-standard models/asking_price_v2/` ต้องเห็น model.joblib กับ metadata.json; evaluation.joblib ยังถูก ignore การโหลดไฟล์ของโปรเจคยังตรวจ SHA-256 ตามเดิม
+
+อ้างอิง [การจัด dependencies ของ Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies) และ [การเลือก entry point/Python](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
 
 ## ข้อมูลอยู่ตรงไหน
 
@@ -45,7 +76,7 @@
 
 ## CI และ tests
 
-ใช้ **workflow เดียว** `.github/workflows/ci.yml` ชื่อ **CI** ตรวจ dependencies → compile Python → rebuild input จากข้อมูล public → unittest ทั้งหมด รวม Streamlit AppTest รันเมื่อ push/PR เข้า `main` หรือกด Actions → CI → Run workflow
+ใช้ **workflow เดียว** `.github/workflows/ci.yml` ชื่อ **CI** ติดตั้งผ่าน requirements.txt/lock แบบเดียวกับ deploy แล้วตรวจ dependencies → compile Python → rebuild input จากข้อมูล public → unittest ทั้งหมด รวม Streamlit AppTest รันเมื่อ push/PR เข้า `main` หรือกด Actions → CI → Run workflow
 
 `script/tests/` เป็นโค้ดทดสอบ ส่วน CI เรียกการตรวจอัตโนมัติ จึงไม่เปลี่ยนชื่อโฟลเดอร์ tests และไม่สร้าง workflow ซ้ำ ไม่ scrape หรือเทรนจริงใน CI Tests ใช้ fixtures ไม่ต้องมี raw, ledger หรือ model binary ส่วนตัว
 
@@ -60,13 +91,13 @@
 
 ## ไฟล์ขึ้น GitHub
 
-รวมโค้ด config/แม่แบบ ledger, เอกสาร รายงานผลรวม requirements/lock, workflow, ธีม และชุด final หลักพร้อม sidecar/ไฟล์กำกับ ตาม `.gitignore`
+รวมโค้ด config/แม่แบบ ledger, เอกสาร รายงานผลรวม requirements/lock, workflow, ธีม ชุด final หลักพร้อม sidecar/ไฟล์กำกับ และโมเดลใช้งาน V2 กับ metadata ตาม `.gitignore`
 
-เก็บ raw/intermediate, ledger จริง, binary, `.venv`, `.env` และ `.streamlit/secrets.toml` ในเครื่อง หลัง clone สร้าง V2 ใหม่จาก core + sidecar ได้ ไม่ต้องมี raw ส่วนทำซ้ำ scraping/clean/EDA เดิมต้องคืนหลักฐาน private ก่อน ไม่มี deploy อัตโนมัติใน workflow นี้
+เก็บ raw/intermediate, ledger จริง, evaluation/V1 binary, `.venv`, `.env` และ `.streamlit/secrets.toml` ในเครื่อง หลัง clone ใช้โมเดลที่รวมใน Git ได้ทันที หรือสร้าง V2 ใหม่จาก core + sidecar ได้โดยไม่ต้องมี raw ส่วนทำซ้ำ scraping/clean/EDA เดิมต้องคืนหลักฐาน private ก่อน ไม่มี deploy อัตโนมัติใน workflow นี้
 
 คำสั่งและหน้าที่ไฟล์ทุกขั้นอ่าน [คู่มือสคริปต์](#scripts); กฎแยกเว็บอ่าน [คู่มือ config](#config) แนวทาง CI: [GitHub Actions](https://docs.github.com/en/actions/get-started/understand-github-actions) รูปแบบ dashboard อ้างอิง [Gaming Statistics Dashboard](https://github.com/Phanuwatphk/Gaming-Statistics-Dashboard)
 
-ผลตรวจล่าสุด: 148 tests ผ่าน ทั้ง workspace และสำเนา public ที่ไม่มี raw/model binary; เปิดทั้ง 3 หน้าเว็บจาก directory อื่นได้ ตรวจลิงก์เอกสารและ checksum ข้อมูลหลักผ่าน ผล GitHub Actions ต้องดูหลัง push/PR จริง
+ผลตรวจล่าสุด: 151 tests ผ่าน ทั้ง workspace และสำเนา public ที่มีเฉพาะโมเดลใช้งาน ไม่มี raw/intermediate หรือโมเดล evaluation; เปิดทั้ง 3 หน้าเว็บจาก directory อื่นได้ ตรวจลิงก์เอกสารและ checksum ข้อมูลหลักผ่าน ผล GitHub Actions ต้องดูหลัง push/PR จริง
 
 <a id="model-artifacts"></a>
 
@@ -78,7 +109,7 @@
 | `evaluation.joblib` | fit 8,517 แถวก่อน cutoff สำหรับผลย้อนหลังบน test เดิม 693 แถว |
 | `metadata.json` | input/code/catalog/model hashes, versions และบทบาทของแต่ละ artifact |
 
-V1 ใน `models/asking_price_v1/` เป็นประวัติ Binary ไม่ขึ้น Git คืนสำเนาที่เชื่อถือได้หรือเทรน V2 ใหม่จาก core + public condition sidecar โหลดผ่าน `script/modeling/predict.py` เพื่อเช็ค checksum และ feature contract ของ V1/V2 ไม่เปิด joblib จากแหล่งที่ไม่เชื่อถือ ผล/ข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
+V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นประวัติในเครื่อง เฉพาะ V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; ฝึกใหม่ได้จาก core + public condition sidecar โหลดผ่าน `script/modeling/predict.py` เพื่อเช็ค checksum และ feature contract ของ V1/V2 ไม่เปิด joblib จากแหล่งที่ไม่เชื่อถือ ผล/ข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
 
 <a id="archive"></a>
 
@@ -126,7 +157,7 @@ V1 ใน `models/asking_price_v1/` เป็นประวัติ Binary ไ
 
 ธีม สี และการปิด usage statistics อยู่ใน `.streamlit/config.toml` ที่รากโปรเจค
 
-สำรวจ core CSV และรายงานใน Git ได้ทันที ประเมินราคาต้องมี model.joblib/metadata ที่เชื่อถือได้ใน `models/asking_price_v2/` หรือเทรนตาม [คู่มือพัฒนา](development.md) ไม่เปิด joblib จากแหล่งที่ไม่เชื่อถือ
+หลัง clone เปิดสำรวจ รายงาน และประเมินจากโมเดลที่รวมใน Git ได้ทันที โหลดเฉพาะ model.joblib/metadata ของโปรเจคที่ตรวจ checksum แล้วใน `models/asking_price_v2/` ไม่เปิด joblib จากแหล่งที่ไม่เชื่อถือ
 
 ทดสอบ `.venv/bin/python -m unittest script.tests.test_app` ใช้โมเดล/ข้อมูล fixture ตั้ง `PHONE_PRICE_MODEL_PATH` หรือ `PHONE_PRICE_DATASET_PATH` เพื่อเลือก input อื่นได้ Relative path อิงรากโปรเจค
 
@@ -274,7 +305,7 @@ V1 ใน `models/asking_price_v1/` เป็นประวัติ Binary ไ
 
 `test_modeling_improved.py` ตรวจ explicit/ambiguous description claims, อายุจาก frozen catalog, missing/unknown model inference, train-only recency weights และ regression ของ CatBoost clone
 
-`test_app.py` ตรวจฟอร์มภาษาไทย การเลือกรุ่นตามยี่ห้อ unknown/ศูนย์/source/วันที่ ตัวกรอง/empty state การไม่เปลี่ยน dataset การเปิดหน้าสำรวจ/ผลโมเดลโดยไม่มี binary และตัวเปิดจาก directory อื่น ใช้ fixture ชั่วคราว ไม่ต้องมี binary ส่วนตัว CI เรียก tests เหล่านี้ผ่าน `.github/workflows/ci.yml`
+`test_app.py` ตรวจโมเดลที่ส่งไป deploy จาก checkout แยก การตรึง dependencies ให้ตรง artifact และฟอร์มภาษาไทย การเลือกรุ่นตามยี่ห้อ unknown/ศูนย์/วันที่ และค่าคงที่ source=mac2hand, condition=used ตัวกรอง/empty state การไม่เปลี่ยน dataset การเปิดหน้าสำรวจ/ผลโมเดลโดยไม่มี binary และตัวเปิดจาก directory อื่น ใช้ fixture ชั่วคราว ไม่ต้องมี binary ส่วนตัว CI เรียก tests เหล่านี้ผ่าน `.github/workflows/ci.yml`
 
 `test_model_report.py` ตรวจตัวเลขรายงานกับ summary.json, การแยก metrics จาก hypothesis test, ตารางสูตร และ HTML ที่ฝังกราฟ 5 ภาพในไฟล์เดียว
 
