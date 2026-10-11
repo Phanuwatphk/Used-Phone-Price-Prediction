@@ -4,6 +4,7 @@
 .venv/
 .codex/
 .aws/
+.streamlit/secrets.toml
 
 # Python and editor caches
 __pycache__/
@@ -16,9 +17,7 @@ Thumbs.db
 
 # Snapshot data and historical experiments stay local
 /archive/*
-!/archive/README.md
 /data/*
-!/data/README.md
 !/data/datasets.json
 
 # Publish only the selected 9,210-row model input and its provenance.
@@ -41,8 +40,7 @@ Thumbs.db
 
 # Rebuild trained binaries locally; publish code, config and aggregate evaluation.
 /models/*
-!/models/README.md
-/reports/modeling/*/progress.json
+/docs/assets/modeling/*/progress.json
 
 # Audited numerical condition claims used to rebuild V2 features after clone.
 !/data/final/condition_features.csv

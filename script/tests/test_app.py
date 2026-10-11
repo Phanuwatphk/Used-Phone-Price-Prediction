@@ -1,4 +1,5 @@
 """Offline UI contracts with a temporary, checked model rather than private artifacts."""
+import csv
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,7 @@ from script.modeling.predict import predict_rows
 from script.modeling.split_dataset import sha
 
 ROOT = Path(__file__).resolve().parents[2]
-APP = ROOT / 'script/app/price_app.py'
+APP = ROOT / 'script/app/app.py'
 
 
 class AppTests(unittest.TestCase):
@@ -36,7 +37,15 @@ class AppTests(unittest.TestCase):
                     'fit_date_min': '2024-01-01', 'fit_date_max': '2026-10-06'}
         joblib.dump(artifact, path)
         path.with_name('metadata.json').write_text(json.dumps({'model_hashes': {path.name: sha(path)}}))
-        self.env = patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(path)})
+        self.dataset = Path(self.temp.name) / 'dataset.csv'
+        dataset_rows = [dict(row, price_thb=price) for row, price in zip(rows, [10000, 12000, 14000])]
+        dataset_rows[1]['source'] = 'ennxo'
+        with self.dataset.open('w', newline='') as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(dataset_rows[0]))
+            writer.writeheader()
+            writer.writerows(dataset_rows)
+        self.env = patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(path),
+                                          'PHONE_PRICE_DATASET_PATH': str(self.dataset)})
         self.env.start()
         self.addCleanup(self.env.stop)
 
@@ -98,6 +107,39 @@ class AppTests(unittest.TestCase):
         result = subprocess.run([sys.executable, str(ROOT / 'script/app/run_app.py'), '--help'],
                                 cwd=self.temp.name, capture_output=True, text=True, check=True)
         self.assertIn('--port', result.stdout)
+
+    def test_explorer_filters_and_empty_state_preserve_input(self):
+        before = self.dataset.read_bytes()
+        app = AppTest.from_file(str(APP), default_timeout=20).run()
+        app.radio(key='navigation').set_value('สำรวจข้อมูล').run()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.metric[0].value, '3')
+        app.multiselect(key='filter_sources').set_value(['ennxo']).run()
+        self.assertEqual(app.metric[0].value, '1')
+        self.assertEqual(app.dataframe[0].value.iloc[0]['เว็บ'], 'ENNXO')
+        app.text_input(key='filter_query').set_value('ไม่มีรุ่นนี้').run()
+        self.assertFalse(app.exception)
+        self.assertEqual(len(app.metric), 0)
+        self.assertIn('ไม่พบประกาศ', app.info[0].value)
+        self.assertEqual(self.dataset.read_bytes(), before)
+
+    def test_other_pages_work_without_model_binary(self):
+        with patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(Path(self.temp.name) / 'missing.joblib')}):
+            with patch('logging.Logger.exception'):
+                app = AppTest.from_file(str(APP), default_timeout=20).run()
+            app.radio(key='navigation').set_value('สำรวจข้อมูล').run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.metric[0].value, '3')
+            app.radio(key='navigation').set_value('ผลโมเดล').run()
+            self.assertFalse(app.exception)
+            self.assertEqual(len(app.metric), 3)
+            self.assertIn('ผลย้อนหลัง', app.info[0].value)
+            self.assertEqual(set(app.dataframe[0].value['เว็บ']), {'ENNXO', 'Mac2Hand'})
+            self.assertTrue(any('ใช้ตัววัดสถิติ' in item.label for item in app.expander))
+            rendered = '\n'.join(item.value for item in app.markdown)
+            self.assertIn('Median absolute error', rendered)
+            self.assertIn('ยังไม่ได้ทำ t-test', rendered)
+            self.assertEqual(len(app.get('image')), 5)
 
 
 if __name__ == '__main__':

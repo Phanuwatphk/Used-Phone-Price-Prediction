@@ -22,7 +22,7 @@ else:
 ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT = 'ennxo_20261005_mac2hand_20261006'
 DEFAULT_INPUT = ROOT / 'data/intermediate/combined' / SNAPSHOT / 'before_selection'
-DEFAULT_REPORT = ROOT / 'reports/eda' / SNAPSHOT
+DEFAULT_REPORT = ROOT / 'docs/assets/eda' / SNAPSHOT
 DEFAULT_PRIVATE = ROOT / 'data/intermediate/eda' / SNAPSHOT
 DEFAULT_DETAILS = ROOT / 'data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/mac2hand_final.jsonl'
 DEFAULT_RULES = ROOT / 'config/shared/eda_rules.json'
@@ -153,7 +153,6 @@ def make_reports(summary, figures, report):
     brief = ['# สรุป EDA ชุดรวม', '', source_table, '', *['- ' + point for point in findings[:6]], '',
              'อ่าน [รายงานรายละเอียด](report.md) หรือเปิด `report.html` ใน browser กราฟอยู่ใน `figures/` ตารางสรุปอยู่ใน `tables/`', '',
              'dataset ไม่เปลี่ยน ยังไม่ลบ candidate/outlier ไม่แบ่งข้อมูลหรือฝึกโมเดล']
-    (report / 'summary.md').write_text('\n'.join(brief) + '\n', encoding='utf-8')
     sensitivity_labels = {'all_rows': 'ทุกแถว', 'without_iqr_flags_diagnostic_only': 'สมมติพักแถวที่ IQR flag',
                           'one_per_text_candidate_component_assumption_only': 'สมมติเก็บ 1 แถวต่อกลุ่มข้อความ'}
     sensitivity_display = [{**row, 'scenario': sensitivity_labels[row['scenario']]} for row in summary['sensitivity']]
@@ -184,7 +183,13 @@ def make_reports(summary, figures, report):
         'รัน `.venv/bin/python -u -B script/analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น', '',
         '`summary.json` เก็บสถิติหลัก `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ `rules.json` เป็นสำเนากฎ `run_metadata.json` เก็บเวอร์ชันโค้ด dependencies และ input hashes', '',
         'รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `validation.json` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ']
-    (report / 'report.md').write_text('\n'.join(details) + '\n', encoding='utf-8')
+    markdown = '\n'.join(details) + '\n'
+    if report.resolve() == DEFAULT_REPORT.resolve():
+        document_path = ROOT / 'docs/eda.md'
+        markdown = markdown.replace('](figures/', '](assets/eda/' + SNAPSHOT + '/figures/')
+    else:
+        document_path = report / 'report.md'
+    document_path.write_text(markdown, encoding='utf-8')
     document = ['<!doctype html><html lang="th"><meta charset="utf-8">', '<meta name="viewport" content="width=device-width,initial-scale=1">',
         '<title>EDA ชุดรวมมือถือ</title><style>body{font:16px/1.65 system-ui,sans-serif;max-width:1080px;margin:auto;padding:32px;color:#223}h1,h2{line-height:1.3}img{max-width:100%;height:auto}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}th{background:#f5f7fa}figure{margin:28px 0}figcaption{color:#456}@media print{body{padding:0}figure{break-inside:avoid}}</style>',
         '<h1>รายงาน EDA ชุดรวม</h1><p>อ่านประกอบรายงาน Markdown และตาราง CSV; ทุกกราฟสร้างจาก snapshot เดียวกัน ไม่มีการลบแถว</p>']
@@ -268,6 +273,10 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
         'rows': len(rows), 'figures': figures, 'input_files_unchanged': True})
     dump(report / 'output_hashes.json', {str(p.relative_to(report)): sha(p)
          for p in sorted(report.rglob('*')) if p.is_file() and p.name != 'output_hashes.json'})
+    if report == DEFAULT_REPORT.resolve():
+        hashes = json.loads((report / 'output_hashes.json').read_text())
+        hashes['../../../eda.md'] = sha(ROOT / 'docs/eda.md')
+        dump(report / 'output_hashes.json', hashes)
     print(json.dumps({'records': len(rows), 'outlier_screening': summary['outlier_screening'],
         'duplicate_screening': summary['duplicate_screening'], 'matched_source_comparison_groups': len(tables['source_comparisons']),
         'report': str(report), 'private_review': str(private)}, ensure_ascii=False, indent=2))

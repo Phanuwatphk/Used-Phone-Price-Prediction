@@ -110,9 +110,9 @@ MAE คือค่าเฉลี่ยความผิดพลาดเป�
 | `data/intermediate/modeling/<รอบ>/split/` | train.csv, validation.csv, test.csv, assignments.csv, summary/validation/hashes JSON |
 | `data/intermediate/modeling/<รอบ>/*predictions.csv` | ราคาจริง/ทำนาย/ความผิดพลาดรายแถว เก็บในเครื่อง |
 | `models/<รอบ>/` | model.joblib (ตัวทำนาย + สัญญา feature), model.cbm เมื่อเป็น CatBoost, metadata.json |
-| `reports/modeling/<รอบ>/` | summary/report, HTML, config, selection, metrics, metadata, validation และ output hashes |
-| `reports/modeling/<รอบ>/figures/` | กราฟ PNG/SVG 4 ชนิด |
-| `reports/modeling/<รอบ>/tables/` | ผล validation ทุกตัว และ test รวม/แยกกลุ่ม |
+| `docs/assets/modeling/<รอบ>/` | summary/report, HTML, config, selection, metrics, metadata, validation และ output hashes |
+| `docs/assets/modeling/<รอบ>/figures/` | กราฟ PNG/SVG 4 ชนิด |
+| `docs/assets/modeling/<รอบ>/tables/` | ผล validation ทุกตัว และ test รวม/แยกกลุ่ม |
 
 เวลา training pipeline {metadata['duration_seconds']:.1f} วินาที ไม่รวมติดตั้ง dependencies และเขียนโค้ด เวอร์ชันที่ใช้: {', '.join(k + '=' + v for k, v in metadata['versions'].items())} config, seed และ code/input/output hashes บันทึกไว้สำหรับทำซ้ำ ไม่อ้างว่าบิตของไฟล์ binary เหมือนกันบนทุกระบบ
 

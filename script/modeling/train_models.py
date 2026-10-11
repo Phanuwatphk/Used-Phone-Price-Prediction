@@ -84,7 +84,7 @@ def group_metrics(rows, actual, predicted, fitted_models):
 def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, private_output=None):
     config_path = Path(config_path).resolve()
     config = json.loads(config_path.read_text())
-    report = Path(report_output or ROOT / 'reports/modeling' / config['run']).resolve()
+    report = Path(report_output or ROOT / 'docs/assets/modeling' / config['run']).resolve()
     model_dir = Path(model_output or ROOT / 'models' / config['run']).resolve()
     private = Path(private_output or ROOT / 'data/intermediate/modeling' / config['run']).resolve()
     dataset = ROOT / config['dataset']

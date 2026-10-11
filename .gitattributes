@@ -2,5 +2,5 @@
 *.csv whitespace=cr-at-eol
 
 # Matplotlib SVG path data contains generated trailing spaces.
-reports/eda/*/figures/*.svg -whitespace
-reports/modeling/*/figures/*.svg -whitespace
+docs/assets/eda/*/figures/*.svg -whitespace
+docs/assets/modeling/*/figures/*.svg -whitespace

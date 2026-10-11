@@ -14,7 +14,7 @@ def main():
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         parser.error('port must be between 1 and 65535')
-    command = [sys.executable, '-m', 'streamlit', 'run', str(Path(__file__).with_name('price_app.py')),
+    command = [sys.executable, '-m', 'streamlit', 'run', str(Path(__file__).with_name('app.py')),
                '--server.address', '127.0.0.1', '--server.port', str(args.port),
                '--browser.gatherUsageStats', 'false', '--server.headless', str(args.headless).lower()]
     print(f'เปิด http://localhost:{args.port} เพื่อใช้งาน กด Ctrl+C เพื่อหยุด', flush=True)

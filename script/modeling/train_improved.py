@@ -83,7 +83,7 @@ def artifact(model,spec,rows,catalog,dataset_hash):
 def run(config_path=DEFAULT_CONFIG, resume=False):
     config_path=Path(config_path).resolve();config=json.loads(config_path.read_text())
     start=time.monotonic();run_name=config['run']
-    report=ROOT/'reports/modeling'/run_name;private=ROOT/'data/intermediate/modeling'/run_name;modeldir=ROOT/'models'/run_name
+    report=ROOT/'docs/assets/modeling'/run_name;private=ROOT/'data/intermediate/modeling'/run_name;modeldir=ROOT/'models'/run_name
     dataset=ROOT/config['dataset'];catalog_path=ROOT/config['catalog']
     for output in [report,private/'evaluation',modeldir]: protected_output(output,[config_path,dataset,catalog_path])
     for output in [report/'tables',private/'evaluation',modeldir]:output.mkdir(parents=True,exist_ok=True)
@@ -186,6 +186,9 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
     from script.modeling.report_improved import render
     render(report,summary,comparisons,actual,pred)
     dump(report/'output_hashes.json',{str(p.relative_to(report)):sha(p) for p in report.rglob('*') if p.is_file() and p.name not in ('output_hashes.json','progress.json')})
+    if run_name == 'asking_price_v2':
+        hashes=json.loads((report/'output_hashes.json').read_text());hashes['../../../modeling.md']=sha(ROOT/'docs/modeling.md')
+        dump(report/'output_hashes.json',hashes)
     dump(report/'progress.json',{'phase':'completed','selected_model':spec['name'],'retrospective_mae':evaluation['mae_thb'],'deployment_rows':len(rows)})
     print('COMPLETE',json.dumps(summary,ensure_ascii=False),flush=True)
     return summary
