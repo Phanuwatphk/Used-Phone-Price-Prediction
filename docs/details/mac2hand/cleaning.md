@@ -9,11 +9,11 @@
 รันจากรากโปรเจคด้วย environment เดิม:
 
 ```bash
-.venv/bin/python -u -B preparation/mac2hand/prepare_mac2hand.py
-.venv/bin/python -B preparation/mac2hand/clean_mac2hand.py
+.venv/bin/python -u -B script/preparation/mac2hand/prepare_mac2hand.py
+.venv/bin/python -B script/preparation/mac2hand/clean_mac2hand.py
 ```
 
-ทั้งสองสคริปต์ใช้กับ Mac2Hand เท่านั้น ค่าเริ่มต้นอิงตำแหน่งสคริปต์ จึงรันผ่าน absolute path จากไดเรกทอรีอื่นได้ รองรับ `python -m preparation.mac2hand.<ชื่อสคริปต์>` ด้วย
+ทั้งสองสคริปต์ใช้กับ Mac2Hand เท่านั้น ค่าเริ่มต้นอิงตำแหน่งสคริปต์ จึงรันผ่าน absolute path จากไดเรกทอรีอื่นได้ รองรับ `python -m script.preparation.mac2hand.<ชื่อสคริปต์>` ด้วย
 
 | สคริปต์ | อ่าน | หน้าที่ | เขียน |
 |---|---|---|---|

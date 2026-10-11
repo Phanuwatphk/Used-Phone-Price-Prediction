@@ -16,13 +16,13 @@
 รันจากรากโปรเจคหลังติดตั้ง dependencies ตาม [README](../../../README.md) ใช้ตัวเก็บหนึ่งงานต่อรอบ:
 
 ```bash
-.venv/bin/python -u -B scraper/mac2hand/run_mac2hand_collection.py
+.venv/bin/python -u -B script/scraper/mac2hand/run_mac2hand_collection.py
 ```
 
 ตรวจความคืบหน้าในอีก Terminal:
 
 ```bash
-.venv/bin/python scraper/mac2hand/monitor_mac2hand.py
+.venv/bin/python script/scraper/mac2hand/monitor_mac2hand.py
 ```
 
 Monitor อัปเดตหน้าจอทุก 5 วินาที กด Ctrl+C ปิดหน้าดูได้โดยตัวเก็บยังทำงานต่อ ใช้ `--once` เพื่อดูครั้งเดียว ตัวเลขประมวลผลรอบนี้รวมการอ่าน cache เดิม จึงอาจต่างจากจำนวนหน้าที่มีผลเก็บแล้ว

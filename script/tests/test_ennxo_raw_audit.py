@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from preparation.ennxo.audit_ennxo_raw import audit, inventory, read_records
+from script.preparation.ennxo.audit_ennxo_raw import audit, inventory, read_records
 
 
 class RawAuditTests(unittest.TestCase):

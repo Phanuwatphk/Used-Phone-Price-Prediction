@@ -1,0 +1,221 @@
+{
+  "description": "Move executable packages under script; update imports, file-relative roots and current documentation. Historical metadata is preserved.",
+  "files": [
+    {
+      "old": "scraper/__init__.py",
+      "new": "script/scraper/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "scraper/README.md",
+      "new": "script/scraper/README.md",
+      "before_sha256": "6de174d522ed51b479b29f08f5c94a162253d4f4aded4fb2890ecd6025e3e5a9",
+      "after_sha256": "3c5eee3726e93f6d9bb3506b667fef4049e58e2f868e921763b5d992958efbb1"
+    },
+    {
+      "old": "scraper/ennxo/__init__.py",
+      "new": "script/scraper/ennxo/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "scraper/ennxo/ennxo_html.py",
+      "new": "script/scraper/ennxo/ennxo_html.py",
+      "before_sha256": "7e3a3bc3e38aa5e531321d728b810d1611b51c1991c278f21ce5ae9350ad4923",
+      "after_sha256": "7e3a3bc3e38aa5e531321d728b810d1611b51c1991c278f21ce5ae9350ad4923"
+    },
+    {
+      "old": "scraper/ennxo/collect_ennxo.py",
+      "new": "script/scraper/ennxo/collect_ennxo.py",
+      "before_sha256": "493e932526e14ca34b669c3bb49372b4fdd7212d65b1347d99a27c435eaefb6a",
+      "after_sha256": "d019e3079816fb4878c72e8c236e8d68ce64f3f8bd030954b73b0ac4cc5f7296"
+    },
+    {
+      "old": "scraper/mac2hand/mac2hand.py",
+      "new": "script/scraper/mac2hand/mac2hand.py",
+      "before_sha256": "706fb997751c122cf454ff90eb40b80f7e2d5070af14d68cf4c65cb886e55e5f",
+      "after_sha256": "706fb997751c122cf454ff90eb40b80f7e2d5070af14d68cf4c65cb886e55e5f"
+    },
+    {
+      "old": "scraper/mac2hand/collect_mac2hand.py",
+      "new": "script/scraper/mac2hand/collect_mac2hand.py",
+      "before_sha256": "fed3dbccb7667dae383e5f0dbc35cbb6c87bfd29e234f04dcaab21f439b141f5",
+      "after_sha256": "953974ecffdd1c5515d5650f127a0aa417b04f4cccd1c30f9dd2a9db49070d2e"
+    },
+    {
+      "old": "scraper/mac2hand/__init__.py",
+      "new": "script/scraper/mac2hand/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "scraper/mac2hand/run_mac2hand_collection.py",
+      "new": "script/scraper/mac2hand/run_mac2hand_collection.py",
+      "before_sha256": "2413651c368948e1a76ceb96e203b668da99f3021bbf5ccef72154cf2929fd30",
+      "after_sha256": "df974db70c016ccdadccf4ea8f2ca3d2fe72673b5e8a5f7d632bee5a612dec19"
+    },
+    {
+      "old": "scraper/mac2hand/monitor_mac2hand.py",
+      "new": "script/scraper/mac2hand/monitor_mac2hand.py",
+      "before_sha256": "e8f58ac6c922701c1d8086a1f91720040e12c5f32425978bb7a6bc2a640d6dd8",
+      "after_sha256": "942ce90de52bda9940a9f4bc9d927036c76506162419c22d3eaabab16f9aaa13"
+    },
+    {
+      "old": "preparation/__init__.py",
+      "new": "script/preparation/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "preparation/README.md",
+      "new": "script/preparation/README.md",
+      "before_sha256": "8fc59eeba9cb48751538cf94fc3bcca60e58f09c4261d59ee4a52f80c0e24003",
+      "after_sha256": "cd74ebe4b259f5d88050f9aec6c2299795ed772d1243b3dbf88a42ffb6730736"
+    },
+    {
+      "old": "preparation/ennxo/cleaning_rules.py",
+      "new": "script/preparation/ennxo/cleaning_rules.py",
+      "before_sha256": "89b622db85e148f1b3cea3c655d169ad9c45bebece139a77453c11cd16d99c1f",
+      "after_sha256": "89b622db85e148f1b3cea3c655d169ad9c45bebece139a77453c11cd16d99c1f"
+    },
+    {
+      "old": "preparation/ennxo/finalize_ennxo_manual_review.py",
+      "new": "script/preparation/ennxo/finalize_ennxo_manual_review.py",
+      "before_sha256": "de38b90f0dd87a5265ce27b40823dbda70693196b4eb8679e7d311080d936393",
+      "after_sha256": "de38b90f0dd87a5265ce27b40823dbda70693196b4eb8679e7d311080d936393"
+    },
+    {
+      "old": "preparation/ennxo/__init__.py",
+      "new": "script/preparation/ennxo/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "preparation/ennxo/extract_ennxo_raw.py",
+      "new": "script/preparation/ennxo/extract_ennxo_raw.py",
+      "before_sha256": "c5f37e53b60ac7eaf6b44b3d045f382adaf0c5559fb10f415ba484315c20aced",
+      "after_sha256": "ea26cc5a036d83a74db790bc0b1e92a9fcd0ad3d49f2bdf1d07566564aa38030"
+    },
+    {
+      "old": "preparation/ennxo/description_sections.py",
+      "new": "script/preparation/ennxo/description_sections.py",
+      "before_sha256": "798539c0d07d1955fd34c32329f12ff508b98dc05a73af9321fc7cc7a4363049",
+      "after_sha256": "798539c0d07d1955fd34c32329f12ff508b98dc05a73af9321fc7cc7a4363049"
+    },
+    {
+      "old": "preparation/ennxo/audit_ennxo_raw.py",
+      "new": "script/preparation/ennxo/audit_ennxo_raw.py",
+      "before_sha256": "82b94f74a602ef42edebd760d248807959041439c9b6b79b3703ec7399f2b603",
+      "after_sha256": "7213a1197d0696db89ef31d50e733ddc3f43cab7d4e06a4e51622a871c3860ad"
+    },
+    {
+      "old": "preparation/ennxo/review_ennxo_queue.py",
+      "new": "script/preparation/ennxo/review_ennxo_queue.py",
+      "before_sha256": "9197407b09a2028d716f68f136d8d901014c791830dc36fbf10569e5f29ae733",
+      "after_sha256": "9197407b09a2028d716f68f136d8d901014c791830dc36fbf10569e5f29ae733"
+    },
+    {
+      "old": "preparation/ennxo/export_ennxo_dataset.py",
+      "new": "script/preparation/ennxo/export_ennxo_dataset.py",
+      "before_sha256": "c2365050112f8a204f88b19395d4dd29106ddc7ad85e557aa0cfbe1b906263bc",
+      "after_sha256": "66d9b753fd274327c54c6d9fb0fe2f615b381708e2b33908c9e891eb2bf12ec0"
+    },
+    {
+      "old": "preparation/ennxo/clean_ennxo.py",
+      "new": "script/preparation/ennxo/clean_ennxo.py",
+      "before_sha256": "08b40d9bf47354c0cf1a8c923299eb007c7accf0b07ad5e1ae99dd75c2d814ab",
+      "after_sha256": "08b40d9bf47354c0cf1a8c923299eb007c7accf0b07ad5e1ae99dd75c2d814ab"
+    },
+    {
+      "old": "preparation/mac2hand/resolution_rules.py",
+      "new": "script/preparation/mac2hand/resolution_rules.py",
+      "before_sha256": "f4dcb6d519ef4ca411522686ec571927febb52c0867bd6516e79c2837f550b24",
+      "after_sha256": "f4dcb6d519ef4ca411522686ec571927febb52c0867bd6516e79c2837f550b24"
+    },
+    {
+      "old": "preparation/mac2hand/review_mac2hand_queue.py",
+      "new": "script/preparation/mac2hand/review_mac2hand_queue.py",
+      "before_sha256": "e7018852718e570de2601524a29ea8e808d09153514ec12c9d6aac3a019234e9",
+      "after_sha256": "2cb9d2009575789556cd33149895020090a972fee6118e0c7c8112f35c8209d9"
+    },
+    {
+      "old": "preparation/mac2hand/__init__.py",
+      "new": "script/preparation/mac2hand/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "preparation/mac2hand/clean_mac2hand.py",
+      "new": "script/preparation/mac2hand/clean_mac2hand.py",
+      "before_sha256": "2544f827af6d8ac15c122d27adc6ddaef17569fdf59b4677dcfac822446e27c7",
+      "after_sha256": "c24c9c36d23a752461a63e8d911a2a4f5a44faad5f205b7896fb2c9040b238f4"
+    },
+    {
+      "old": "preparation/mac2hand/prepare_mac2hand.py",
+      "new": "script/preparation/mac2hand/prepare_mac2hand.py",
+      "before_sha256": "c123da43336eae6c4c257b17984541527ce68cb443148053cf2fee9c620ab85b",
+      "after_sha256": "72b426c82d1d4f8092eab0d23a02002e7b361e29fa6866ebaae01483022b349a"
+    },
+    {
+      "old": "preparation/mac2hand/finalize_mac2hand.py",
+      "new": "script/preparation/mac2hand/finalize_mac2hand.py",
+      "before_sha256": "e2638e5ece39da18d57f7b73f6188b9c1f2749bbb85f0a46707c2f109bc9e239",
+      "after_sha256": "278eb97c9f08b101e891fe6b13432b3277ce735791fc273715ab3ee10f2f6271"
+    },
+    {
+      "old": "preparation/shared/select_model_input.py",
+      "new": "script/preparation/shared/select_model_input.py",
+      "before_sha256": "0963dbdb1ec552e8cee6f0b5179bef92b044d43c4ab7feb052701ae94dd3332d",
+      "after_sha256": "221ffe4990ade64680aa17570100df7dfed61b7dc5800cf9d41714535701a45c"
+    },
+    {
+      "old": "preparation/shared/__init__.py",
+      "new": "script/preparation/shared/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "preparation/shared/prepare_combined_dataset.py",
+      "new": "script/preparation/shared/prepare_combined_dataset.py",
+      "before_sha256": "3d0b9626ff52eb7b5c7c9137e847bd8d4804a67c331c7bbc9d8fb15a84e42062",
+      "after_sha256": "ff036e9dea11e0e090d3ef3aa545b5e9441326e04d17a8f40665a4cc189cd677"
+    },
+    {
+      "old": "analysis/__init__.py",
+      "new": "script/analysis/__init__.py",
+      "before_sha256": "844cc6c49042b4e6aca92c23896d02183b0fb9e445c00832d850f6b597c053d5",
+      "after_sha256": "844cc6c49042b4e6aca92c23896d02183b0fb9e445c00832d850f6b597c053d5"
+    },
+    {
+      "old": "analysis/README.md",
+      "new": "script/analysis/README.md",
+      "before_sha256": "6f3d65ca88b9004c0a0d03ad408fd4548028b336a40ce827d93161e62804f9c6",
+      "after_sha256": "a54c78e035880199d0bfaf651931aaf342eec5955938c54bb4034c5f27735ab5"
+    },
+    {
+      "old": "analysis/eda/eda_statistics.py",
+      "new": "script/analysis/eda/eda_statistics.py",
+      "before_sha256": "c38aca1575930ffb5c3fe3900b1453766d861790fb4c14fc19d48390f1a9a25c",
+      "after_sha256": "c38aca1575930ffb5c3fe3900b1453766d861790fb4c14fc19d48390f1a9a25c"
+    },
+    {
+      "old": "analysis/eda/__init__.py",
+      "new": "script/analysis/eda/__init__.py",
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old": "analysis/eda/run_eda.py",
+      "new": "script/analysis/eda/run_eda.py",
+      "before_sha256": "aadcf43f21b4cf86213f74d50504b3019316e82d634fb348a012ed6147d98435",
+      "after_sha256": "1255c01e3d895abd5958567b80a5b3d9fe54274aafcdf3cd00b7992da974edb8"
+    },
+    {
+      "old": "analysis/eda/eda_plots.py",
+      "new": "script/analysis/eda/eda_plots.py",
+      "before_sha256": "de11e78b850aa4254224aa4e6fba64fc65bb3c81cb8bf6d29e5650c5b3d18286",
+      "after_sha256": "de11e78b850aa4254224aa4e6fba64fc65bb3c81cb8bf6d29e5650c5b3d18286"
+    }
+  ]
+}

@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from preparation.ennxo.audit_ennxo_raw import dump
-from preparation.ennxo.review_ennxo_queue import review
+from script.preparation.ennxo.audit_ennxo_raw import dump
+from script.preparation.ennxo.review_ennxo_queue import review
 import json
 
 

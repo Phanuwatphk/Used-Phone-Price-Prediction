@@ -7,9 +7,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from analysis.eda.eda_statistics import analyze, duplicate_candidates, outlier_candidates, percentile, spearman, source_comparisons
-from analysis.eda.run_eda import DEFAULT_RULES, run, sha, attach_descriptions, body_html
-from preparation.shared.prepare_combined_dataset import DEFAULT_SCHEMA, prepare
+from script.analysis.eda.eda_statistics import analyze, duplicate_candidates, outlier_candidates, percentile, spearman, source_comparisons
+from script.analysis.eda.run_eda import DEFAULT_RULES, run, sha, attach_descriptions, body_html
+from script.preparation.shared.prepare_combined_dataset import DEFAULT_SCHEMA, prepare
 from script.tests.test_combined_dataset import fixture as source_fixture
 
 RULES = json.loads(DEFAULT_RULES.read_text())

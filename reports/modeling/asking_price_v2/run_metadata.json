@@ -1,0 +1,68 @@
+{
+  "run": "asking_price_v2",
+  "generated_at_utc": "2026-10-11T09:35:21.543142+00:00",
+  "config_sha256": "b657a135168a89452db47ffefda2744ba5d3858b57a1300c25dc68ecda26567c",
+  "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "enriched_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+  "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+  "model_hashes": {
+    "evaluation.joblib": "a8a04950734db8cf18f12d8bb0800566c0b404822d9aed784d390a883cf90377",
+    "model.joblib": "a5fd469e239dce5dfa353d8402ed0163277628113a3f5fd192497457f3029544"
+  },
+  "code_sha256": {
+    "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
+    "script/modeling/features.py": "dece45bfcc28f2d8997cacd95707fb627d9bd3ccf70a8a6dd4dcdc6f99c73d38",
+    "script/modeling/features_v2.py": "6bde67941edf905a636f2f0431cff14608f44c5a8b1c414a23388f0f59ef50d1",
+    "script/modeling/predict.py": "9422164bead69f61172ff4254b40d6c51657919063176587b781fc097daf51fa",
+    "script/modeling/prepare_features_v2.py": "4425e3a78ea905a43ccd1409e5b0346866e4a53649ef8b99847416ae4178594d",
+    "script/modeling/rebuild_features_v2.py": "ceb28759df357cbfcf596b523e03d8f9abf0b6b12195846725f922e33920576c",
+    "script/modeling/report.py": "cb7c9d3e688a8f2beaf00efead22dc92ee03e5ab0b4ea8457243b6f33a5577af",
+    "script/modeling/report_improved.py": "44f8abf2f750dd3c9f039366d3da096da160712421242342f86567181aaec996",
+    "script/modeling/split_dataset.py": "9f891b7f6a8f5018afc7e13d100a0fd5e15ba49ad5ed98f31f6b20133c0ad352",
+    "script/modeling/train_improved.py": "fd869911dbfee325de587f68553ecd6552362a1caa20bd495e5cf56f7b44a99c",
+    "script/modeling/train_models.py": "abaeb7b393de770f7079e1e680b697687e7690605d6c3353d79eb68fbf7b967f"
+  },
+  "versions": {
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "joblib": "1.6.0"
+  },
+  "fit_roles": {
+    "evaluation.joblib": {
+      "rows": 8517,
+      "test_excluded": true
+    },
+    "model.joblib": {
+      "rows": 9210,
+      "includes_old_test": true,
+      "independent_test_score": null
+    }
+  },
+  "selected_model": "age_hist_log_half_2",
+  "feature_contract": [
+    "source",
+    "brand",
+    "model",
+    "brand_model",
+    "model_family",
+    "condition",
+    "device_tier",
+    "storage_gb",
+    "log_storage",
+    "model_number",
+    "publication_days",
+    "publication_year",
+    "publication_month",
+    "release_year",
+    "model_age_years",
+    "release_known",
+    "battery_health_pct",
+    "battery_missing",
+    "warranty_days",
+    "warranty_missing",
+    "box_mentioned",
+    "box_missing"
+  ]
+}

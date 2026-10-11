@@ -42,7 +42,7 @@
 | วันที่ | วันประกาศต้องอ่านได้ มี timezone และไม่อยู่หลังเวลา scrape ของแถวนั้น |
 | ประกาศซ้ำ | URL ต้องไม่ซ้ำ ภาพ URL เดียวกันเป็นเพียง candidate group ไม่ลบแถวและยังไม่ยืนยันว่าเป็นเครื่องเดียวกัน |
 
-ค่าเกณฑ์และ regex ส่วนหนึ่งอยู่ใน `config/ennxo/cleaning_rules.json` วิธีประมวลผลอยู่ใน `preparation/ennxo/cleaning_rules.py` เก็บ hash ของโค้ดและสำเนา config ต่อรอบ กฎข้อความมีขอบเขตจำกัด จึงต้องตรวจตัวอย่างก่อนใช้ฝึกจริง
+ค่าเกณฑ์และ regex ส่วนหนึ่งอยู่ใน `config/ennxo/cleaning_rules.json` วิธีประมวลผลอยู่ใน `script/preparation/ennxo/cleaning_rules.py` เก็บ hash ของโค้ดและสำเนา config ต่อรอบ กฎข้อความมีขอบเขตจำกัด จึงต้องตรวจตัวอย่างก่อนใช้ฝึกจริง
 
 ## ตัวอย่างจากข้อมูลจริง
 
@@ -60,7 +60,7 @@
 จากรากโปรเจค:
 
 ```bash
-.venv/bin/python -B preparation/ennxo/clean_ennxo.py
+.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
 .venv/bin/python -B -m unittest discover -s script/tests -t .
 ```
 

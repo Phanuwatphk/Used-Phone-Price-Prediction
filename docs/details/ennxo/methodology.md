@@ -36,7 +36,7 @@ flowchart LR
 ```bash
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-lock.txt
-.venv/bin/python -B preparation/ennxo/audit_ennxo_raw.py
+.venv/bin/python -B script/preparation/ennxo/audit_ennxo_raw.py
 .venv/bin/python -B -m unittest discover -s script/tests -t . -p 'test_*.py'
 ```
 
@@ -59,7 +59,7 @@ python3 -m venv .venv
 ## ขั้นที่ 2 — ถอดข้อมูลจาก HTML
 
 ```bash
-.venv/bin/python -B preparation/ennxo/extract_ennxo_raw.py
+.venv/bin/python -B script/preparation/ennxo/extract_ennxo_raw.py
 ```
 
 อ่าน HTML ใหม่ จับคู่ครบทุกประกาศ เก็บค่าการ์ด ข้อมูลฝัง และ raw เดิมแยกกันพร้อมที่มา ผลอยู่ใน `data/intermediate/ennxo/<รอบ>/extraction/` ยังไม่ clean หรือตัดออก ดู [รายละเอียดและผลที่พบ](extraction.md)
@@ -67,7 +67,7 @@ python3 -m venv .venv
 ## ขั้นที่ 3 — ตรวจและ clean
 
 ```bash
-.venv/bin/python -B preparation/ennxo/clean_ennxo.py
+.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
 ```
 
 กฎเวอร์ชัน 6 พร้อม ledger และบันทึกตรวจคิว126รายการรันแล้วกับทุกประกาศ ผลแยก accepted/needs_review/excluded และนับกลับได้ครบ 1,381 แถว ดู [กฎ ตัวอย่าง คำแก้ และผลลัพธ์](cleaning.md) คิวที่ยังไม่ยืนยันไม่ถูกนำไปฝึกอัตโนมัติ หลักการที่ใช้มีดังนี้:

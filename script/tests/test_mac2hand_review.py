@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from preparation.mac2hand.review_mac2hand_queue import apply_decision, fingerprint, next_action, review, sha
-from preparation.mac2hand.clean_mac2hand import clean_row
+from script.preparation.mac2hand.review_mac2hand_queue import apply_decision, fingerprint, next_action, review, sha
+from script.preparation.mac2hand.clean_mac2hand import clean_row
 from script.tests.test_mac2hand_cleaning import extracted, RULES
 
 

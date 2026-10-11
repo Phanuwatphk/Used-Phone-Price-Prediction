@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from preparation.mac2hand.prepare_mac2hand import prepare, checksums
-from preparation.mac2hand.clean_mac2hand import clean_dataset
-from scraper.mac2hand.mac2hand import parse_detail
+from script.preparation.mac2hand.prepare_mac2hand import prepare, checksums
+from script.preparation.mac2hand.clean_mac2hand import clean_dataset
+from script.scraper.mac2hand.mac2hand import parse_detail
 from script.tests.test_mac2hand import detail_html
 
 

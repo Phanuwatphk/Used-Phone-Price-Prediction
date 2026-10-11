@@ -21,7 +21,7 @@
 
 ตรวจชุด clean เบื้องต้นและรวม schema แล้ว ดู [ชุดรวม](../details/shared/combined_dataset.md) ทำ [EDA ร่วม](eda.md) แล้ว ขั้นต่อไปคือตรวจ candidate/outlier ก่อนแบ่งข้อมูล ยังไม่ได้ฝึกโมเดล accepted หมายถึงผ่านเกณฑ์ปัจจุบัน ไม่ใช่การรับรองสเปคหรือสภาพจริงทุกเครื่อง
 
-ชุดผ่านส่งมอบอยู่ใน `data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/dataset.csv` 1,279แถว คัดลอก accepted เดิมทุก byte ด้วย `preparation/ennxo/export_ennxo_dataset.py` หลักฐานและทุกสถานะยังอยู่ intermediate
+ชุดผ่านส่งมอบอยู่ใน `data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/dataset.csv` 1,279แถว คัดลอก accepted เดิมทุก byte ด้วย `script/preparation/ennxo/export_ennxo_dataset.py` หลักฐานและทุกสถานะยังอยู่ intermediate
 
 นโยบายคิวล่าสุด (2026-10-11): ผู้ใช้เลือกไม่ดำเนินการต่อกับแถวที่ไม่ผ่านชุด clean จึงไม่ใช้กับโมเดลรอบแรกและไม่ติดตามหลักฐานเพิ่ม เก็บไฟล์เดิมเป็นประวัติ จำนวนชุดผ่านไม่เปลี่ยน การเลือกแถวจาก flags ของ EDA เป็นนโยบายแยกในขั้นเตรียมข้อมูลฝึก
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import requests
 
-from scraper.ennxo.collect_ennxo import START_URL, collect, compare, following_page, parse_page
+from script.scraper.ennxo.collect_ennxo import START_URL, collect, compare, following_page, parse_page
 
 
 def html(key, next_page=None):

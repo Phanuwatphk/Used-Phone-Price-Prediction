@@ -49,10 +49,10 @@ CSV ต้องกำหนด dtype เมื่อโหลด โดยเ�
 ## สคริปต์ที่รัน
 
 ```bash
-.venv/bin/python -u -B preparation/shared/prepare_combined_dataset.py
+.venv/bin/python -u -B script/preparation/shared/prepare_combined_dataset.py
 ```
 
-อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/final/<เว็บ>/<รอบ>/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม รองรับรันจาก directory อื่นผ่าน absolute path และ `python -m preparation.shared.prepare_combined_dataset` จากรากโปรเจค ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
+อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/final/<เว็บ>/<รอบ>/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม รองรับรันจาก directory อื่นผ่าน absolute path และ `python -m script.preparation.shared.prepare_combined_dataset` จากรากโปรเจค ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
 
 ## ไฟล์ผลเก็บอะไร
 

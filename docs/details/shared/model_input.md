@@ -5,10 +5,10 @@
 ## วิธีทำซ้ำ
 
 ```bash
-.venv/bin/python -B preparation/shared/select_model_input.py
+.venv/bin/python -B script/preparation/shared/select_model_input.py
 ```
 
-ใช้กับทั้ง ENNXO และ Mac2Hand ค่าเริ่มต้นอิงตำแหน่งไฟล์ รันจาก directory อื่นด้วย absolute path หรือ `python -m preparation.shared.select_model_input` จากรากโปรเจคได้ ทดลองโดยระบุ `--output` และ `--audit-output` ไปปลายทางใหม่ ใช้ `--policy` เลือกกฎที่ version และ hash ตรงข้อมูลนั้น
+ใช้กับทั้ง ENNXO และ Mac2Hand ค่าเริ่มต้นอิงตำแหน่งไฟล์ รันจาก directory อื่นด้วย absolute path หรือ `python -m script.preparation.shared.select_model_input` จากรากโปรเจคได้ ทดลองโดยระบุ `--output` และ `--audit-output` ไปปลายทางใหม่ ใช้ `--policy` เลือกกฎที่ version และ hash ตรงข้อมูลนั้น
 
 | ข้อมูลเข้า | หน้าที่ |
 |---|---|

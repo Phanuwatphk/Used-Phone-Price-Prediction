@@ -1,0 +1,104 @@
+"""Offline UI contracts with a temporary, checked model rather than private artifacts."""
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+import joblib
+from sklearn.dummy import DummyRegressor
+from streamlit.testing.v1 import AppTest
+
+from script.modeling.features_v2 import FEATURES, features
+from script.modeling.predict import predict_rows
+from script.modeling.split_dataset import sha
+
+ROOT = Path(__file__).resolve().parents[2]
+APP = ROOT / 'script/app/price_app.py'
+
+
+class AppTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        path = Path(self.temp.name) / 'model.joblib'
+        rows = [{'source': 'mac2hand', 'brand': brand, 'model': model, 'storage_gb': 128,
+                 'condition': 'used', 'published_at': '2026-10-06'}
+                for brand, model in [('Apple', 'iPhone 12'), ('Apple', 'iPhone 13'), ('Samsung', 'Galaxy S22')]]
+        model = DummyRegressor(strategy='median').fit(features(rows, {}), [10000, 12000, 14000])
+        artifact = {'model': model, 'feature_version': 2, 'feature_names': FEATURES,
+                    'reference_catalog': {}, 'candidate_name': 'fixture',
+                    'fitted_brands': ['Apple', 'Samsung'],
+                    'fitted_models': [r['brand'] + ':' + r['model'] for r in rows],
+                    'fit_date_min': '2024-01-01', 'fit_date_max': '2026-10-06'}
+        joblib.dump(artifact, path)
+        path.with_name('metadata.json').write_text(json.dumps({'model_hashes': {path.name: sha(path)}}))
+        self.env = patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(path)})
+        self.env.start()
+        self.addCleanup(self.env.stop)
+
+    def test_submission_preserves_unknowns_and_returns_price(self):
+        with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
+            app = AppTest.from_file(str(APP), default_timeout=20).run()
+            self.assertFalse(app.exception)
+            self.assertIsNone(app.number_input(key='battery').value)
+            self.assertIsNone(app.number_input(key='warranty').value)
+            self.assertIsNone(app.selectbox(key='box').value)
+            app.button[0].click().run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.metric[0].value, '12,000 บาท')
+            row = predict.call_args.args[1][0]
+            self.assertIsNone(row['battery_health_pct'])
+            self.assertIsNone(row['warranty_days'])
+            self.assertIsNone(row['box_mentioned'])
+            self.assertEqual(row['model'], 'iPhone 13')
+
+    def test_changing_brand_resets_model_and_removes_old_result(self):
+        app = AppTest.from_file(str(APP), default_timeout=20).run()
+        app.button[0].click().run()
+        self.assertEqual(len(app.metric), 1)
+        app.selectbox(key='brand').select('Samsung').run()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.selectbox(key='phone_model').options, ['Galaxy S22'])
+        self.assertEqual(app.selectbox(key='phone_model').value, 'Galaxy S22')
+        self.assertEqual(len(app.metric), 0)
+
+    def test_explicit_zero_and_source_date_reach_inference(self):
+        from datetime import date
+        with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
+            app = AppTest.from_file(str(APP), default_timeout=20).run()
+            app.number_input(key='battery').set_value(90)
+            app.number_input(key='warranty').set_value(0)
+            app.selectbox(key='box').select(0)
+            app.selectbox(key='source').select('ennxo')
+            app.date_input(key='day').set_value(date(2026, 10, 7))
+            app.button[0].click().run()
+            self.assertFalse(app.exception)
+            row = predict.call_args.args[1][0]
+            self.assertEqual(row['battery_health_pct'], 90)
+            self.assertEqual(row['warranty_days'], 0)
+            self.assertEqual(row['box_mentioned'], 0)
+            self.assertEqual(row['source'], 'ennxo')
+            self.assertEqual(row['published_at'], '2026-10-07')
+            self.assertEqual(len(app.info), 1)
+
+    def test_missing_model_shows_recovery_message(self):
+        with patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(Path(self.temp.name) / 'missing.joblib')}):
+            with patch('logging.Logger.exception'):
+                app = AppTest.from_file(str(APP), default_timeout=20).run()
+        self.assertFalse(app.exception)
+        self.assertEqual(len(app.error), 1)
+        self.assertIn('ผู้ดูแล', app.error[0].value)
+        self.assertEqual(len(app.button), 0)
+
+    def test_launcher_runs_from_another_directory(self):
+        result = subprocess.run([sys.executable, str(ROOT / 'script/app/run_app.py'), '--help'],
+                                cwd=self.temp.name, capture_output=True, text=True, check=True)
+        self.assertIn('--port', result.stdout)
+
+
+if __name__ == '__main__':
+    unittest.main()

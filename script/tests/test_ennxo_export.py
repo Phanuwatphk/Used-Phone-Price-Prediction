@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from preparation.ennxo.export_ennxo_dataset import export
+from script.preparation.ennxo.export_ennxo_dataset import export
 
 
 class ENNXOExportTests(unittest.TestCase):

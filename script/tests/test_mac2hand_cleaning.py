@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 import unittest
-from preparation.mac2hand.clean_mac2hand import clean_row, models, storage_claims
+from script.preparation.mac2hand.clean_mac2hand import clean_row, models, storage_claims
 
 RULES = json.loads((Path(__file__).resolve().parents[2] / 'config/mac2hand/cleaning_rules.json').read_text())
 

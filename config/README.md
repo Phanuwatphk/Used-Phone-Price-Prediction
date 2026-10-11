@@ -15,3 +15,5 @@ Mac2Hand มี `cleaning_rules.json` สำหรับ baseline, `manual_revie
 ## ไฟล์ที่เก็บใน Git
 
 เก็บกฎ catalogue และ `*.example.json` เป็นแม่แบบ ไฟล์จริง `ennxo/corrections.json`, `ennxo/manual_review.json`, `mac2hand/manual_reviews.json` อยู่ในเครื่องและถูก ignore เพราะมีหลักฐานรายประกาศ ดู [วิธีใช้หลัง clone](../docs/details/shared/github.md) ห้ามใช้แม่แบบว่างแทน ledger ของ snapshot เดิม
+
+`modeling/training.json` เก็บ hash/split/seed/พารามิเตอร์ที่ใช้กับทั้งสองเว็บ ดู [คู่มือ modeling](modeling/README.md)

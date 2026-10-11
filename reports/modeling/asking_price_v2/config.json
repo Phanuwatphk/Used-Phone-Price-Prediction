@@ -1,0 +1,111 @@
+{
+  "run": "asking_price_v2",
+  "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+  "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+  "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "expected_rows": 9210,
+  "catalog": "config/modeling/iphone_release_years.json",
+  "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+  "seed": 42,
+  "threads": 4,
+  "folds": [
+    {
+      "start": "2024-01-01",
+      "end": "2024-05-21"
+    },
+    {
+      "start": "2024-05-22",
+      "end": "2025-01-07"
+    }
+  ],
+  "retrospective_test_start": "2025-01-09",
+  "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+  "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+  "candidates": [
+    {
+      "name": "v1_reference",
+      "kind": "v1",
+      "half_life": 0
+    },
+    {
+      "name": "age_hist_mae_half_0",
+      "kind": "hist",
+      "log_target": false,
+      "loss": "absolute_error",
+      "half_life": 0
+    },
+    {
+      "name": "age_hist_log_half_0",
+      "kind": "hist",
+      "log_target": true,
+      "loss": "squared_error",
+      "half_life": 0
+    },
+    {
+      "name": "age_hist_mae_half_2",
+      "kind": "hist",
+      "log_target": false,
+      "loss": "absolute_error",
+      "half_life": 2
+    },
+    {
+      "name": "age_hist_log_half_2",
+      "kind": "hist",
+      "log_target": true,
+      "loss": "squared_error",
+      "half_life": 2
+    },
+    {
+      "name": "age_hist_mae_half_4",
+      "kind": "hist",
+      "log_target": false,
+      "loss": "absolute_error",
+      "half_life": 4
+    },
+    {
+      "name": "age_hist_log_half_4",
+      "kind": "hist",
+      "log_target": true,
+      "loss": "squared_error",
+      "half_life": 4
+    },
+    {
+      "name": "age_transfer_log_half_2",
+      "kind": "hist",
+      "log_target": true,
+      "transfer_only": true,
+      "half_life": 2
+    },
+    {
+      "name": "age_transfer_log_half_4",
+      "kind": "hist",
+      "log_target": true,
+      "transfer_only": true,
+      "half_life": 4
+    },
+    {
+      "name": "age_catboost_log_depth_6",
+      "kind": "catboost",
+      "depth": 6,
+      "log_target": true,
+      "half_life": 2
+    },
+    {
+      "name": "age_catboost_log_depth_8",
+      "kind": "catboost",
+      "depth": 8,
+      "log_target": true,
+      "half_life": 2
+    },
+    {
+      "name": "age_catboost_transfer_log",
+      "kind": "catboost",
+      "depth": 6,
+      "log_target": true,
+      "half_life": 2,
+      "transfer_only": true
+    }
+  ],
+  "condition_features": "data/final/condition_features.csv",
+  "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
+}

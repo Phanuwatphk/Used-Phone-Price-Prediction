@@ -2,7 +2,7 @@ import json
 import unittest
 import tempfile
 from pathlib import Path
-from scraper.mac2hand.mac2hand import parse_category, parse_detail, price_value, read_jsonl
+from script.scraper.mac2hand.mac2hand import parse_category, parse_detail, price_value, read_jsonl
 
 
 def detail_html(key='123'):

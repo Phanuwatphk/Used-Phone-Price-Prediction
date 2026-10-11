@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 
 from bs4 import BeautifulSoup
-from preparation.ennxo.audit_ennxo_raw import inventory
-from scraper.ennxo.ennxo_html import embedded_products, page_evidence
-from preparation.ennxo.extract_ennxo_raw import extract
+from script.preparation.ennxo.audit_ennxo_raw import inventory
+from script.scraper.ennxo.ennxo_html import embedded_products, page_evidence
+from script.preparation.ennxo.extract_ennxo_raw import extract
 
 
 def hydration(text):

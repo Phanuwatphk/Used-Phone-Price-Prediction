@@ -3,3 +3,4 @@
 
 # Matplotlib SVG path data contains generated trailing spaces.
 reports/eda/*/figures/*.svg -whitespace
+reports/modeling/*/figures/*.svg -whitespace

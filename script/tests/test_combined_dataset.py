@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from preparation.shared.prepare_combined_dataset import DEFAULT_SCHEMA, normalize, prepare, standard_date
+from script.preparation.shared.prepare_combined_dataset import DEFAULT_SCHEMA, normalize, prepare, standard_date
 
 SCHEMA = json.loads(DEFAULT_SCHEMA.read_text())
 

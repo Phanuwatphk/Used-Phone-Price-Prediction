@@ -48,9 +48,9 @@
 ## รันซ้ำ
 
 ```bash
-.venv/bin/python -B preparation/ennxo/clean_ennxo.py
-.venv/bin/python -B preparation/ennxo/review_ennxo_queue.py
-.venv/bin/python -B preparation/ennxo/finalize_ennxo_manual_review.py
+.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
+.venv/bin/python -B script/preparation/ennxo/review_ennxo_queue.py
+.venv/bin/python -B script/preparation/ennxo/finalize_ennxo_manual_review.py
 .venv/bin/python -B -m unittest discover -s script/tests -t .
 ```
 

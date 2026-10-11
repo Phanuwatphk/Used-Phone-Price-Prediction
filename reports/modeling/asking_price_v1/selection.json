@@ -1,0 +1,31 @@
+{
+  "criterion": "validation_mae_thb",
+  "candidate": {
+    "name": "hist_boost_31_log",
+    "kind": "hist_boost",
+    "log_target": true,
+    "parameters": {
+      "max_iter": 350,
+      "max_leaf_nodes": 31,
+      "learning_rate": 0.06,
+      "l2_regularization": 10.0,
+      "early_stopping": false
+    }
+  },
+  "validation_metrics": {
+    "name": "hist_boost_31_log",
+    "kind": "hist_boost",
+    "rows": 690,
+    "mae_thb": 4905.258298818405,
+    "rmse_thb": 6848.9518107118965,
+    "median_absolute_error_thb": 3623.0203337519506,
+    "r2": 0.7288856996272775,
+    "mape_pct": 82.75389184233177,
+    "within_20pct": 0.2797101449275362,
+    "bias_thb": 299.75063228860387,
+    "fit_seconds": 8.94,
+    "iterations": null
+  },
+  "refit_rows": 8517,
+  "test_used_for_selection": false
+}

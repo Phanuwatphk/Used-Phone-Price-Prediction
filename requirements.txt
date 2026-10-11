@@ -3,3 +3,9 @@ requests
 urllib3
 matplotlib
 numpy
+pandas
+scikit-learn
+catboost
+joblib
+threadpoolctl
+streamlit

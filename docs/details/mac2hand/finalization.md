@@ -34,15 +34,15 @@
 ## สคริปต์ที่รันและข้อมูลเข้า
 
 ```bash
-.venv/bin/python -u -B preparation/mac2hand/finalize_mac2hand.py
+.venv/bin/python -u -B script/preparation/mac2hand/finalize_mac2hand.py
 ```
 
-ใช้กับ **Mac2Hand เท่านั้น** ค่าเริ่มต้นอิงตำแหน่งไฟล์สคริปต์ รองรับรันจาก directory อื่นด้วย absolute path หรือ `python -m preparation.mac2hand.finalize_mac2hand` จากรากโปรเจค
+ใช้กับ **Mac2Hand เท่านั้น** ค่าเริ่มต้นอิงตำแหน่งไฟล์สคริปต์ รองรับรันจาก directory อื่นด้วย absolute path หรือ `python -m script.preparation.mac2hand.finalize_mac2hand` จากรากโปรเจค
 
 | ไฟล์ | หน้าที่ |
 |---|---|
-| `preparation/mac2hand/finalize_mac2hand.py` | ตรวจ hash และบัญชีข้อมูล เรียกกฎทุกแถว เขียน CSV/JSONL และรายงาน |
-| `preparation/mac2hand/resolution_rules.py` | ตรวจและแก้เฉพาะค่าที่มีหลักฐานตรงกัน กำหนดเหตุผล/สถานะ; ไม่รันแยก |
+| `script/preparation/mac2hand/finalize_mac2hand.py` | ตรวจ hash และบัญชีข้อมูล เรียกกฎทุกแถว เขียน CSV/JSONL และรายงาน |
+| `script/preparation/mac2hand/resolution_rules.py` | ตรวจและแก้เฉพาะค่าที่มีหลักฐานตรงกัน กำหนดเหตุผล/สถานะ; ไม่รันแยก |
 | `config/mac2hand/finalization_rules.json` | กฎรูปแบบชื่อ ความจุ ราคา ขอบเขต และสภาพ |
 | `config/mac2hand/iphone_model_names.json` | ชื่อรุ่น iPhone พร้อม URL ที่มาและวันที่ตรวจ |
 | `manual_review/mac2hand_reviewed.jsonl` | ข้อมูลเข้าทุกแถวพร้อมต้นฉบับและคำตัดสินก่อนหน้า |

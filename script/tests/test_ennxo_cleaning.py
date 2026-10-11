@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from preparation.ennxo.audit_ennxo_raw import ROOT, inventory, dump
-from preparation.ennxo.clean_ennxo import clean
-from preparation.ennxo.cleaning_rules import clean_row, apply_correction, model_key, storage_claims, text_models
+from script.preparation.ennxo.audit_ennxo_raw import ROOT, inventory, dump
+from script.preparation.ennxo.clean_ennxo import clean
+from script.preparation.ennxo.cleaning_rules import clean_row, apply_correction, model_key, storage_claims, text_models
 
 RULES = json.loads((ROOT / 'config/ennxo/cleaning_rules.json').read_text())
 DESCRIPTION_RULES = copy.deepcopy(RULES)

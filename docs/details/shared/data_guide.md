@@ -59,7 +59,7 @@
 | `data/final/mac2hand/<รอบ>/` | `dataset.csv` 8,753แถว; summary/report/validation/metadata; `rules.json`, `iphone_model_names.json` สำเนากฎ/catalogue |
 | `data/intermediate/combined/<รอบ>/before_selection/` | `dataset.csv`, `dataset.jsonl` 10,032แถว schemaกลาง13คอลัมน์ พร้อม source; `schema.json` สำเนา schema; summary/report/validation/metadata |
 
-CSV เฉพาะเว็บมีฟิลด์ประกอบต่างกัน ชุด combined ปรับมาตรฐานแล้ว อ่าน [schema](data_schema.md) และ [วิธีรวม](combined_dataset.md) `final` ยังไม่ได้แบ่ง train/test และยังไม่ยืนยัน candidate ซ้ำ
+CSV เฉพาะเว็บมีฟิลด์ประกอบต่างกัน ชุด combined ปรับมาตรฐานแล้ว อ่าน [schema](data_schema.md) และ [วิธีรวม](combined_dataset.md) `final` คงชุดก่อน split ไว้ครบ; split/โมเดลสร้างแยกแล้ว ส่วน candidate ซ้ำยังไม่ใช่ข้อยืนยันเครื่องเดียวกัน
 
 ## Reports และงานย้อนหลัง
 
@@ -68,3 +68,5 @@ CSV เฉพาะเว็บมีฟิลด์ประกอบต่า�
 `archive/` คือการทดลองและงานเก่าที่ไม่ใช่ผลปัจจุบัน ไม่ย้ายกลับมาใช้แทน final metadata เก่าคง path เดิม ให้ตาม [บัญชีย้ายรอบล่าสุด](migrations/stage_reorganization_20261011.json) และบัญชีรอบก่อนในโฟลเดอร์เดียวกันเพื่อหาตำแหน่งปัจจุบัน สำรอง raw/intermediate/ผลผ่านเฉพาะเว็บและ ledger จริงแยกจาก Git ชุดหลัก data/final/dataset.csv และไฟล์กำกับรวมในGit
 
 ชุดใช้ต่อสำหรับโมเดล9,210แถวอยู่ data/final/ หลักฐานคัดและexcluded_rows/selection_decisions/lineage อยู่ data/intermediate/model_input/<รอบ>/ อ่าน [หน้าที่ทุกไฟล์](model_input.md)
+
+ขั้นโมเดลอ่าน [วิธีและทุกไฟล์](modeling.md) สรุปผลอยู่ [modeling summary](../../summary/modeling.md)

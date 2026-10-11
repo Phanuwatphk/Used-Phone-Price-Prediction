@@ -1,0 +1,174 @@
+{
+  "run": "asking_price_v1",
+  "dataset": "data/final/dataset.csv",
+  "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "expected_rows": 9210,
+  "random_seed": 42,
+  "threads": 4,
+  "required_training_sources": [
+    "ennxo",
+    "mac2hand"
+  ],
+  "split": {
+    "train_fraction": 0.85,
+    "validation_fraction": 0.075
+  },
+  "selection_metric": "validation_mae_thb",
+  "test_policy": "Evaluate the selected model once after refitting on train + validation; never select using test scores. Fixed median baseline also evaluated.",
+  "selection_bias": "The 822-row EDA exclusion was decided on the full pre-split dataset; scores describe the retained subset, not an unbiased estimate for all listings.",
+  "candidates": [
+    {
+      "name": "median_baseline",
+      "kind": "median",
+      "parameters": {}
+    },
+    {
+      "name": "ridge_log_alpha_10",
+      "kind": "ridge",
+      "log_target": true,
+      "parameters": {
+        "alpha": 10.0
+      }
+    },
+    {
+      "name": "ridge_log_alpha_100",
+      "kind": "ridge",
+      "log_target": true,
+      "parameters": {
+        "alpha": 100.0
+      }
+    },
+    {
+      "name": "extra_trees_leaf_2",
+      "kind": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "min_samples_leaf": 2,
+        "max_features": 0.8
+      }
+    },
+    {
+      "name": "extra_trees_leaf_8",
+      "kind": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "min_samples_leaf": 8,
+        "max_features": 0.8
+      }
+    },
+    {
+      "name": "hist_boost_15_raw",
+      "kind": "hist_boost",
+      "log_target": false,
+      "parameters": {
+        "max_iter": 350,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.06,
+        "l2_regularization": 10.0,
+        "early_stopping": false
+      }
+    },
+    {
+      "name": "hist_boost_15_log",
+      "kind": "hist_boost",
+      "log_target": true,
+      "parameters": {
+        "max_iter": 350,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.06,
+        "l2_regularization": 10.0,
+        "early_stopping": false
+      }
+    },
+    {
+      "name": "hist_boost_31_raw",
+      "kind": "hist_boost",
+      "log_target": false,
+      "parameters": {
+        "max_iter": 350,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.06,
+        "l2_regularization": 10.0,
+        "early_stopping": false
+      }
+    },
+    {
+      "name": "hist_boost_31_log",
+      "kind": "hist_boost",
+      "log_target": true,
+      "parameters": {
+        "max_iter": 350,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.06,
+        "l2_regularization": 10.0,
+        "early_stopping": false
+      }
+    },
+    {
+      "name": "catboost_depth_6_mae",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 6,
+        "learning_rate": 0.04,
+        "loss_function": "MAE",
+        "l2_leaf_reg": 5.0
+      }
+    },
+    {
+      "name": "catboost_depth_6_rmse",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 6,
+        "learning_rate": 0.04,
+        "loss_function": "RMSE",
+        "l2_leaf_reg": 5.0
+      }
+    },
+    {
+      "name": "catboost_depth_8_mae",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 8,
+        "learning_rate": 0.04,
+        "loss_function": "MAE",
+        "l2_leaf_reg": 5.0
+      }
+    },
+    {
+      "name": "catboost_depth_8_rmse",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 8,
+        "learning_rate": 0.04,
+        "loss_function": "RMSE",
+        "l2_leaf_reg": 5.0
+      }
+    },
+    {
+      "name": "catboost_depth_10_mae",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 10,
+        "learning_rate": 0.04,
+        "loss_function": "MAE",
+        "l2_leaf_reg": 5.0
+      }
+    },
+    {
+      "name": "catboost_depth_10_rmse",
+      "kind": "catboost",
+      "parameters": {
+        "iterations": 1200,
+        "depth": 10,
+        "learning_rate": 0.04,
+        "loss_function": "RMSE",
+        "l2_leaf_reg": 5.0
+      }
+    }
+  ]
+}

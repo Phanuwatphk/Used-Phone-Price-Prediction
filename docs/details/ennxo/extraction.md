@@ -5,7 +5,7 @@
 ## รันสคริปต์อะไร
 
 ```bash
-.venv/bin/python -B preparation/ennxo/extract_ennxo_raw.py
+.venv/bin/python -B script/preparation/ennxo/extract_ennxo_raw.py
 ```
 
 `extract_ennxo_raw.py` อ่านทุกประกาศจากบัญชี raw จับคู่การ์ดและข้อมูลฝังด้วยรหัสสินค้า ตรวจจำนวน URL และบันทึกผล `ennxo_html.py` เป็นโมดูลอ่าน HTML/JSON ที่ตัวรันใช้ ไม่ใช่ตัวรันแยก

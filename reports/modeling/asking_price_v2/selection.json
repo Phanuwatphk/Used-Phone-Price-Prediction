@@ -1,0 +1,23 @@
+{
+  "candidate": {
+    "name": "age_hist_log_half_2",
+    "kind": "hist",
+    "log_target": true,
+    "loss": "squared_error",
+    "half_life": 2
+  },
+  "validation_metrics": {
+    "name": "age_hist_log_half_2",
+    "rows": 1054.0,
+    "mae_thb": 4339.414781578945,
+    "rmse_thb": 6518.779959170459,
+    "median_absolute_error_thb": 2633.0734901523283,
+    "r2": 0.7765901647843589,
+    "mape_pct": 99.71512943752239,
+    "within_20pct": 0.45351043643263755,
+    "bias_thb": 522.3862377620286,
+    "fit_seconds": 18.11
+  },
+  "old_test_used_for_selection": false,
+  "evaluation_status": "retrospective reuse of previously inspected v1 test; not a fresh independent holdout"
+}

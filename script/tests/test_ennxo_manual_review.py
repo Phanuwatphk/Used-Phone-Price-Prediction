@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from preparation.ennxo.audit_ennxo_raw import dump
-from preparation.ennxo.finalize_ennxo_manual_review import finalize
-from preparation.ennxo.cleaning_rules import apply_correction, clean_row
+from script.preparation.ennxo.audit_ennxo_raw import dump
+from script.preparation.ennxo.finalize_ennxo_manual_review import finalize
+from script.preparation.ennxo.cleaning_rules import apply_correction, clean_row
 from script.tests.test_ennxo_cleaning import row, RULES
 
 

@@ -11,10 +11,10 @@
 3. ใช้สคริปต์ตรวจ hash ของ baseline และแถว ตรวจว่าข้อความหลักฐานมีจริง แล้วนำคำแก้ไปสร้างผลใหม่ ไม่แก้ raw หรือ clean baseline
 
 ```bash
-.venv/bin/python -B preparation/mac2hand/review_mac2hand_queue.py
+.venv/bin/python -B script/preparation/mac2hand/review_mac2hand_queue.py
 ```
 
-ใช้กับ Mac2Hand เท่านั้น รองรับการรันไฟล์ผ่าน absolute path จากไดเรกทอรีอื่น และ `python -m preparation.mac2hand.review_mac2hand_queue` ไม่ส่ง request เพิ่ม ไม่ทำ EDA ไม่แก้ ENNXO
+ใช้กับ Mac2Hand เท่านั้น รองรับการรันไฟล์ผ่าน absolute path จากไดเรกทอรีอื่น และ `python -m script.preparation.mac2hand.review_mac2hand_queue` ไม่ส่ง request เพิ่ม ไม่ทำ EDA ไม่แก้ ENNXO
 
 ## อ่านอะไร เขียนอะไร
 

@@ -6,10 +6,10 @@ import tempfile
 import csv
 import contextlib
 import io
-from preparation.mac2hand.finalize_mac2hand import finalize, next_action
-from preparation.mac2hand.prepare_mac2hand import checksums
-from preparation.mac2hand.clean_mac2hand import clean_row
-from preparation.mac2hand.resolution_rules import resolve, alias_text, card_price, price_claims
+from script.preparation.mac2hand.finalize_mac2hand import finalize, next_action
+from script.preparation.mac2hand.prepare_mac2hand import checksums
+from script.preparation.mac2hand.clean_mac2hand import clean_row
+from script.preparation.mac2hand.resolution_rules import resolve, alias_text, card_price, price_claims
 from script.tests.test_mac2hand_cleaning import extracted, RULES as CLEAN_RULES
 
 ROOT=Path(__file__).resolve().parents[2]

@@ -1,6 +1,6 @@
 # Mac2Hand config
 
-`cleaning_rules.json` เป็นกฎสำหรับ `preparation/mac2hand/clean_mac2hand.py` เท่านั้น มีเวอร์ชัน ขอบเขต ค่าความจุที่อ่านได้ ราคา placeholder และ regex ตรวจอุปกรณ์/บริการ/เงินดาวน์/เครื่องเสีย/คำปฏิเสธ
+`cleaning_rules.json` เป็นกฎสำหรับ `script/preparation/mac2hand/clean_mac2hand.py` เท่านั้น มีเวอร์ชัน ขอบเขต ค่าความจุที่อ่านได้ ราคา placeholder และ regex ตรวจอุปกรณ์/บริการ/เงินดาวน์/เครื่องเสีย/คำปฏิเสธ
 
 ทุกครั้งที่ clean จะเก็บสำเนา config และ hash ในผลลัพธ์ ดู [วิธีทำและข้อจำกัด](../../docs/details/mac2hand/cleaning.md) ไม่ใช้กฎนี้แก้ raw และไม่ใช้กับ ENNXO
 

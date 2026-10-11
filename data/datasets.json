@@ -88,13 +88,45 @@
     "summary": "data/final/summary.json",
     "policy": "config/shared/model_input_policy.json",
     "documentation": "docs/details/shared/model_input.md",
-    "status": "selected_ready_for_split",
+    "status": "split_and_trained",
     "base_merged_records": 10032,
     "excluded_records": 822,
     "active_for_first_model": true,
-    "train_validation_test_split": false,
-    "model_trained": false,
+    "train_validation_test_split": true,
+    "model_trained": true,
     "included_in_git": true
   },
-  "default_dataset": "model_input_dataset"
+  "default_dataset": "model_input_dataset",
+  "modeling_run": {
+    "run": "asking_price_v2",
+    "input": "model_input_dataset",
+    "condition_features": "data/final/condition_features.csv",
+    "config": "config/modeling/improved.json",
+    "deployment_model": "models/asking_price_v2/model.joblib",
+    "deployment_fit_rows": 9210,
+    "evaluation_model": "models/asking_price_v2/evaluation.joblib",
+    "evaluation_fit_rows": 8517,
+    "retrospective_evaluation_rows": 693,
+    "fresh_independent_holdout": false,
+    "deployment_independent_test_score": null,
+    "report": "reports/modeling/asking_price_v2/summary.md",
+    "status": "trained_with_temporal_validation_and_retrospective_comparison",
+    "model_included_in_git": false
+  },
+  "modeling_history": {
+    "asking_price_v1": {
+      "run": "asking_price_v1",
+      "input": "model_input_dataset",
+      "train_rows": 7827,
+      "validation_rows": 690,
+      "test_rows": 693,
+      "fit_rows": 8517,
+      "split_directory": "data/intermediate/modeling/asking_price_v1/split",
+      "model": "models/asking_price_v1/model.joblib",
+      "report": "reports/modeling/asking_price_v1/summary.md",
+      "config": "config/modeling/training.json",
+      "status": "trained_evaluated",
+      "model_included_in_git": false
+    }
+  }
 }

@@ -23,3 +23,9 @@
 `test_ennxo_export.py` ตรวจการส่งออก final ให้ CSV ทุก byte ตรงกลุ่มผ่าน ตรวจค่ากับหลักฐาน และป้องกันเขียนทับ input ส่วน tests ของ finalization/merge/EDA ตรวจปลายทาง final กับ intermediate ที่แยกกันด้วย
 
 `test_model_input_selection.py` ตรวจunionคิวที่ซ้อนกัน unknown ID/hash/count mismatch การไม่เปลี่ยนค่า/lineage การทำซ้ำ และป้องกันoutputทับinput
+
+`test_modeling.py` ตรวจ split ตามวัน ไม่ใช้ target/ID เป็น feature, encoder ไม่ฟิตกับ validation, input/hash และปลายทางที่ห้ามทับ, หน่วย metric, workflow fixture และ model roundtrip พร้อม test แยกจาก fit
+
+`test_modeling_improved.py` ตรวจ explicit/ambiguous description claims, อายุจาก frozen catalog, missing/unknown model inference, train-only recency weights และ regression ของ CatBoost clone
+
+`test_app.py` ตรวจฟอร์มภาษาไทย การเลือกรุ่นตามยี่ห้อ การส่ง unknown/ศูนย์/source/วันที่ไปทำนาย ข้อความกู้ระบบเมื่อไม่มีโมเดล และตัวเปิดแอปจาก directory อื่น ใช้โมเดล fixture ชั่วคราว ไม่ต้องมี binary ส่วนตัว

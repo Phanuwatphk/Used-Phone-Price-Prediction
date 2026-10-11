@@ -1,0 +1,18 @@
+[
+  {
+    "fold": 1,
+    "train_rows": 7463,
+    "validation_rows": 364,
+    "train_max": "2023-12-30",
+    "validation_min": "2024-01-02",
+    "validation_max": "2024-05-21"
+  },
+  {
+    "fold": 2,
+    "train_rows": 7827,
+    "validation_rows": 690,
+    "train_max": "2024-05-21",
+    "validation_min": "2024-05-22",
+    "validation_max": "2025-01-07"
+  }
+]

@@ -7,7 +7,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from preparation.shared.select_model_input import select
+from script.preparation.shared.select_model_input import select
 
 
 class ModelInputSelectionTests(unittest.TestCase):
