@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import math
+import unicodedata
 from pathlib import Path
 
 import altair as alt
@@ -18,6 +19,17 @@ if not __package__:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from script.artifacts import read_metadata
+from script.report_links import website_report_links
+
+def normalize_model_search(value):
+    """Match casing, compatibility characters, spacing and punctuation uniformly."""
+    return ''.join(character for character in unicodedata.normalize('NFKC', value).casefold()
+                   if character.isalnum())
+
+
+def clear_model_selection():
+    st.session_state['filter_model'] = None
+
 
 def explorer_charts(frame):
     """Fix count/price origins at zero while allowing maxima to follow the filters."""
@@ -85,7 +97,23 @@ def render_explorer():
         with right:
             condition = st.selectbox('สภาพ', ['all', 'used', 'new'], key='filter_condition',
                                     format_func=lambda value: {'all': 'ทั้งหมด', 'used': 'มือสอง', 'new': 'ของใหม่ตามผู้ขาย'}[value])
-        query = st.text_input('ค้นหาชื่อรุ่น', placeholder='เช่น iPhone 13 หรือ Galaxy', key='filter_query')
+        query = st.text_input('ค้นหาชื่อรุ่น', placeholder='เช่น iphone13 หรือ Galaxy', key='filter_query',
+                              on_change=clear_model_selection)
+        search = normalize_model_search(query)
+        candidates = frame[frame['source'].isin(sources)]
+        if brands:
+            candidates = candidates[candidates['brand'].isin(brands)]
+        if condition != 'all':
+            candidates = candidates[candidates['condition'].eq(condition)]
+        if search:
+            candidates = candidates[candidates['model'].map(normalize_model_search).str.contains(search, regex=False)]
+        matches = sorted(set(zip(candidates['brand'], candidates['model'])))
+        if st.session_state.get('filter_model') not in matches:
+            st.session_state['filter_model'] = None
+        selected_model = st.selectbox('เลือกรุ่นจากผลค้นหา', [None, *matches], key='filter_model',
+            disabled=not matches,
+            format_func=lambda value: (f'{value[0]} {value[1]}' if value else
+                                      'ทุกรุ่นที่ตรงกับคำค้น' if matches else 'ไม่พบรุ่นที่ตรงกับคำค้น'))
         year_min, year_max = int(frame['year'].min()), int(frame['year'].max())
         years = (year_min, year_max)
         if year_min < year_max:
@@ -95,8 +123,10 @@ def render_explorer():
         filtered = filtered[filtered['brand'].isin(brands)]
     if condition != 'all':
         filtered = filtered[filtered['condition'].eq(condition)]
-    if query.strip():
-        filtered = filtered[filtered['model'].str.contains(query.strip(), case=False, regex=False, na=False)]
+    if search:
+        filtered = filtered[filtered['model'].map(normalize_model_search).str.contains(search, regex=False)]
+    if selected_model is not None:
+        filtered = filtered[filtered['brand'].eq(selected_model[0]) & filtered['model'].eq(selected_model[1])]
     if filtered.empty:
         st.info('ไม่พบประกาศตามตัวกรอง ลองเปลี่ยนยี่ห้อ รุ่น หรือช่วงปี')
         return
@@ -153,16 +183,14 @@ def render_model_results():
     sections = re.split(r'^## ', content, flags=re.MULTILINE)[1:]
     for section in sections:
         heading, _, body = section.partition('\n')
-        with st.expander(heading, expanded=heading.startswith('สรุป')):
+        with st.expander(heading, expanded=heading.startswith('สรุป') or 'Android และ iOS' in heading):
             pieces = re.split(r'(!\[[^\]]*\]\(assets/[^)]+\.png\))', body)
             for piece in pieces:
                 match = re.fullmatch(r'!\[([^\]]*)\]\((assets/[^)]+\.png)\)', piece)
                 if match:
                     st.image(str(ROOT / 'docs' / match.group(2)), caption=match.group(1))
                 elif piece.strip():
-                    # CSV links in Markdown are downloads in the browser section below.
-                    piece = re.sub(r'\[([^\]]+)\]\(assets/[^)]+\.(?:csv|json)(?:#[^)]+)?\)', r'\1', piece)
-                    st.markdown(piece)
+                    st.markdown(website_report_links(piece))
     st.subheader('ดาวน์โหลดรายงาน')
     left, right = st.columns(2)
     with left:

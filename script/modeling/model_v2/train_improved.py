@@ -6,7 +6,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import sys,time
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[3]
 if not __package__: sys.path.insert(0,str(ROOT))
 import joblib
 import numpy as np
@@ -17,10 +17,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
 from threadpoolctl import threadpool_limits
-from script.modeling import features_v2
+from script.modeling.model_v2 import features_v2
 from script.modeling.features import features as original_features,prices
 from script.modeling.split_dataset import read_dataset,sha,dump,write_csv,protected_output
-from script.modeling.train_models import build_model as original_model,metrics,group_metrics
+from script.modeling.common import build_model as original_model,metrics,group_metrics
 
 DEFAULT_CONFIG=ROOT/'config/modeling/current.json'
 
@@ -58,7 +58,7 @@ def build(spec,seed=42,threads=4):
         estimator=CatBoostRegressor(iterations=spec.get('iterations',800),depth=spec.get('depth',6),learning_rate=spec.get('learning_rate',.045),loss_function=spec.get('loss','RMSE'),
                                   cat_features=tuple(categorical),random_seed=seed,thread_count=threads,has_time=True,verbose=False,allow_writing_files=False)
         from sklearn.preprocessing import FunctionTransformer
-        from script.modeling.train_improved import select_columns
+        from script.modeling.common import select_columns
         model=Pipeline([('selection',FunctionTransformer(select_columns,kw_args={'columns':categorical+numeric})),('regressor',estimator)])
     else:
         transform=ColumnTransformer([('categorical',OneHotEncoder(handle_unknown='ignore',sparse_output=False),categorical),
@@ -68,8 +68,6 @@ def build(spec,seed=42,threads=4):
     return TransformedTargetRegressor(regressor=model,func=np.log,inverse_func=np.exp) if spec.get('log_target') else model
 
 
-def select_columns(frame,columns):
-    return frame[columns]
 
 
 def get_frame(spec,rows,catalog):
@@ -107,7 +105,7 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
     for output in [report,private/'evaluation',modeldir]: protected_output(output,[config_path,dataset,catalog_path])
     for output in [report/'tables',private/'evaluation',modeldir]:output.mkdir(parents=True,exist_ok=True)
     if not dataset.exists():
-        from script.modeling.rebuild_features_v2 import rebuild
+        from script.modeling.model_v2.rebuild_features_v2 import rebuild
         rebuild(config)
     rows=sorted(read_dataset(dataset,config['dataset_sha256']),key=lambda r:(r['published_at'],r['listing_id']))
     if len(rows)!=config['expected_rows']:raise ValueError('Enriched row count mismatch')
@@ -199,7 +197,7 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         summary['previous_round']=config['previous_round']
     meta={'run':run_name,'generated_at_utc':datetime.now(timezone.utc).isoformat(),'config_sha256':sha(config_path),'dataset_sha256':core_hash,
           'enriched_sha256':sha(dataset),'catalog_sha256':sha(catalog_path),'model_hashes':{p.name:sha(p) for p in modeldir.glob('*.joblib')},
-          'code_sha256':{str(p.relative_to(ROOT)):sha(p) for p in sorted((ROOT/'script/modeling').glob('*.py'))},
+          'code_sha256':{str(p.relative_to(ROOT)):sha(p) for p in sorted((ROOT/'script/modeling').rglob('*.py'))},
           'versions':{x:importlib.metadata.version(x) for x in ['scikit-learn','catboost','pandas','numpy','joblib']},
           'fit_roles':{'evaluation.joblib':{'rows':len(training),'test_excluded':True},'model.joblib':{'rows':len(rows),'includes_old_test':True,'independent_test_score':None}},
           'selected_model':spec['name'],'feature_contract':deployment_artifact['feature_names']}
@@ -208,8 +206,8 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
              'unknown_optional_values_not_imputed_in_dataset':True,'winner_chosen_before_retrospective_scoring':True,
              'model_roundtrip':True,'fresh_independent_holdout':False,'deployment_has_independent_test_score':False})
     if run_name == 'asking_price_v2':
-        from script.modeling.report_improved import render
-        render(report,summary,comparisons,actual,pred)
+        from script.modeling.model_v2.report_improved import render
+        render(report,summary,comparisons,actual,pred,evaluation_rows=test)
     write_metadata(report, 'hashes', collect_output_hashes(report))
     if run_name == 'asking_price_v2':
         hashes=read_metadata(report, 'hashes');hashes['../../modeling.md']=sha(ROOT/'docs/modeling.md')

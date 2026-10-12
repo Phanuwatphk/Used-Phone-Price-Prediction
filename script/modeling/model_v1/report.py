@@ -9,12 +9,11 @@ import numpy as np
 
 if not __package__:
     import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+from script.modeling.common import table
 from script.artifacts import write_metadata
 
-def table(headers, rows):
-    return '| ' + ' | '.join(headers) + ' |\n|' + '|'.join(['---'] * len(headers)) + '|\n' + '\n'.join('| ' + ' | '.join(str(v) for v in row) + ' |' for row in rows) + '\n'
 
 
 def render_report(report, summary, metadata, comparisons, actual, predicted):
@@ -110,9 +109,9 @@ MAE คือค่าเฉลี่ยความผิดพลาดเป�
 |---|---|
 | `script/modeling/features.py` | ตรวจ input และสร้าง 12 features จากหกฟิลด์ที่ทราบตอนประกาศ |
 | `script/modeling/split_dataset.py` | อ่าน CSV ตรึง hash แบ่งวันตามเวลา ตรวจ ID/URL และเขียน split |
-| `script/modeling/train_models.py` | ทดลองตาม config เลือก/refit/test บันทึก artifact และผลตรวจ |
+| `script/modeling/model_v1/train_models.py` | ทดลองตาม config เลือก/refit/test บันทึก artifact และผลตรวจ |
 | `script/modeling/predict.py` | โหลด artifact ตรวจ checksum แล้วทำนายพร้อม coverage flags |
-| `script/modeling/report.py` | เขียนรายงานสรุป/รายละเอียด HTML กราฟและตารางรวม |
+| `script/modeling/model_v1/report.py` | เขียนรายงานสรุป/รายละเอียด HTML กราฟและตารางรวม |
 | `data/intermediate/modeling/<รอบ>/split/` | train.csv, validation.csv, test.csv, assignments.csv, summary/validation/hashes JSON |
 | `data/intermediate/modeling/<รอบ>/*predictions.csv` | ราคาจริง/ทำนาย/ความผิดพลาดรายแถว เก็บในเครื่อง |
 | `models/<รอบ>/` | model.joblib (ตัวทำนาย + สัญญา feature), model.cbm เมื่อเป็น CatBoost, metadata.json |

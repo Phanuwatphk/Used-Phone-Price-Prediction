@@ -5,7 +5,7 @@ import re
 import numpy as np
 from script.modeling.features import features as base_features
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 CATEGORICAL = ['source','brand','model','brand_model','model_family','condition','device_tier']
 NUMERIC = ['storage_gb','log_storage','model_number','publication_days','publication_year','publication_month',
            'release_year','model_age_years','release_known','battery_health_pct','battery_missing',

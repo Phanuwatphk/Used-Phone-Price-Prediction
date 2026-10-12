@@ -185,8 +185,7 @@ def make_reports(summary, figures, report):
     details += ['## กราฟ', '']
     for item in figures:
         details += [f"![{item['name']}](figures/{item['name']}.png)", '', item['caption'], '']
-    details += ['## ไฟล์และวิธีทำซ้ำ', '',
-        'รัน `.venv/bin/python -u -B script/analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น', '',
+    details += ['## ไฟล์ประกอบรายงาน', '',
         '`metadata.json` รวม summary (สถิติ), rules (กฎ), provenance (เวอร์ชันโค้ด dependencies/input hashes) และ validation; `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ', '',
         'รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `metadata.json#validation` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ']
     markdown = '\n'.join(details) + '\n'

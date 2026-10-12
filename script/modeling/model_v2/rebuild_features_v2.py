@@ -2,7 +2,7 @@
 import argparse,csv,json
 from pathlib import Path
 import sys
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[3]
 if not __package__:sys.path.insert(0,str(ROOT))
 from script.modeling.split_dataset import read_dataset,sha,write_csv,protected_output
 

@@ -10,7 +10,7 @@ import numpy as np
 from script.modeling.features import features, prices
 from script.modeling.predict import predict_rows, load_model
 from script.modeling.split_dataset import read_dataset, sha, split_rows, protected_output
-from script.modeling.train_models import build_model, metrics, train
+from script.modeling.model_v1.train_models import build_model, metrics, train
 
 
 

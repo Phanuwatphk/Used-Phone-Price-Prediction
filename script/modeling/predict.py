@@ -20,11 +20,15 @@ def load_model(path=DEFAULT_MODEL):
     metadata = json.loads(path.with_name('metadata.json').read_text())
     if sha(path) != metadata['model_hashes'][path.name]:
         raise ValueError('Model artifact checksum differs')
+    # Historical artifacts reference this selector before the version-folder move.
+    # Register its shared implementation without rewriting the trained artifact.
+    from script.modeling import common
+    sys.modules.setdefault('script.modeling.train_improved', common)
     artifact = joblib.load(path)
     version = artifact.get('feature_version', 1)
     if version not in (1, 2):
         raise ValueError('Unsupported model feature version')
-    from script.modeling.features_v2 import FEATURES as V2_FEATURES
+    from script.modeling.model_v2.features_v2 import FEATURES as V2_FEATURES
     if artifact['feature_names'] != (V2_FEATURES if version == 2 else FEATURES):
         raise ValueError('Model feature contract differs from inference code')
     return artifact
@@ -32,7 +36,7 @@ def load_model(path=DEFAULT_MODEL):
 
 def predict_rows(artifact, rows):
     if artifact.get('feature_version', 1) == 2:
-        from script.modeling.features_v2 import features as improved_features
+        from script.modeling.model_v2.features_v2 import features as improved_features
         frame = improved_features(rows, artifact['reference_catalog'])
     else:
         frame = features(rows)

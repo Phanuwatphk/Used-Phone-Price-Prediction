@@ -31,6 +31,22 @@ def anchors(text):
 
 
 class ProjectIntegrityTests(unittest.TestCase):
+    def test_reader_documents_use_online_website_without_setup_instructions(self):
+        readme = (ROOT / 'README.md').read_text()
+        self.assertIn('https://secondhand-phone-price-prediction.streamlit.app/', readme)
+        paths = [ROOT / 'README.md', *sorted((ROOT / 'docs').glob('*.md')),
+                 ROOT / 'docs/assets/eda/report.html', ROOT / 'docs/assets/modeling/report.html']
+        for path in paths:
+            content = path.read_text()
+            if path.suffix == '.md':
+                headings = re.findall(r'^#{1,6} (.+)$', content, flags=re.MULTILINE)
+                for heading in headings:
+                    self.assertNotRegex(heading, r'อะไร|ไหน|อย่างไร|ทำไม|หรือไม่|ไหม|มั้ย')
+            for instruction in ['localhost', 'Main file path', 'pip install',
+                                'streamlit run', '.venv/bin/python', '```bash']:
+                with self.subTest(file=str(path.relative_to(ROOT)), instruction=instruction):
+                    self.assertNotIn(instruction, content)
+
     def assert_local_reference(self, target, base):
         if target.startswith(('http:', 'https:', 'mailto:')):
             return

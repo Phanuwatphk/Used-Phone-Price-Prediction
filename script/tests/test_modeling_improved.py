@@ -6,9 +6,9 @@ from pathlib import Path
 import joblib
 import numpy as np
 from script.tests.test_modeling import listing
-from script.modeling.features_v2 import features
-from script.modeling.prepare_features_v2 import extract_description
-from script.modeling.train_improved import weights,build,get_frame
+from script.modeling.model_v2.features_v2 import features
+from script.modeling.model_v2.prepare_features_v2 import extract_description
+from script.modeling.model_v2.train_improved import weights,build,get_frame
 from script.modeling.predict import predict_rows
 
 

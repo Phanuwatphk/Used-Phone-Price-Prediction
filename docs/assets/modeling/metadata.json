@@ -1,8 +1,8 @@
 {
   "report_refresh": {
-    "refreshed_at": "2026-10-12T11:13:32.408489+00:00",
+    "refreshed_at": "2026-10-12T14:04:54.170331+00:00",
     "training_repeated": false,
-    "renderer_sha256": "9d7abfd269cc57f5f88d4227b1fe8cbd192b6aaee2c990d96d58b442d66188b9",
+    "renderer_sha256": "3301d7de1804fe1c29d362adff5dfe2980f0966d2523714f7439eb086846e114",
     "predictions_sha256": "b1a61ef3b4e0d68ec9d3e59b14cca4ff1e1fd5af3ddcee44ff32364144d97ab8",
     "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
   },
@@ -338,6 +338,59 @@
         "within_20pct": 0.4054834054834055,
         "bias_thb": -3830.005181217784
       }
+    },
+    "platform_evaluation": {
+      "classification": "Inferred from brand/model, not observed OS. Apple iPhone=iOS; Android brand allowlist; all others unconfirmed.",
+      "android_brands": [
+        "Asus",
+        "Google",
+        "Honor",
+        "Infinix",
+        "Motorola",
+        "OnePlus",
+        "Oppo",
+        "Realme",
+        "Redmi",
+        "Samsung",
+        "Sony",
+        "Vivo",
+        "Xiaomi"
+      ],
+      "groups": {
+        "iOS": {
+          "rows": 442,
+          "mae_thb": 4583.658474305491,
+          "rmse_thb": 6492.90351939385,
+          "median_absolute_error_thb": 2750.0171112730177,
+          "r2": 0.714481028053036,
+          "mape_pct": 20.99242836910352,
+          "within_20pct": 0.5610859728506787,
+          "bias_thb": -3475.217691988524
+        },
+        "Android": {
+          "rows": 240,
+          "mae_thb": 5361.96107400302,
+          "rmse_thb": 8547.14438913244,
+          "median_absolute_error_thb": 2515.532261120899,
+          "r2": 0.26642994689539645,
+          "mape_pct": 50.21387277684379,
+          "within_20pct": 0.20833333333333334,
+          "bias_thb": -2904.4195663623673
+        },
+        "unconfirmed": {
+          "rows": 11,
+          "mae_thb": 1930.6773503557272,
+          "rmse_thb": 2995.642882504682,
+          "median_absolute_error_thb": 587.2762535580487,
+          "r2": 0.35415309018155505,
+          "mape_pct": 26.234716641303983,
+          "within_20pct": 0.45454545454545453,
+          "bias_thb": -1823.8998497088096
+        }
+      },
+      "unconfirmed_brands": [
+        "Huawei"
+      ]
     }
   },
   "selection": {
@@ -490,7 +543,7 @@
     "figures/validation_comparison.png": "45b4a71ad112203d28423e8eca688b995f7c87e467f1b3e52d5e334cc82bd219",
     "figures/validation_comparison.svg": "0cd337da61de57073256a272a536309fead7505257631229e8bbae84f0398774",
     "history.zip": "7ac10e2d7efab7494e08791a35c178bd0e0eb8fbb47a48d7ff62c9f4c7ee49a5",
-    "report.html": "e610e6e5530ff171281875790deb0d1eaa100936e48e8ec24311552ad0c1d10e",
+    "report.html": "717687b30b50f5cbe647657cb8402cf38ecbca29dbe23570f6a6d6b789829657",
     "tables/fold_metrics.csv": "b2ba0ddc25dfb3816c0c8d150c314f052639f202c55d1702da0f1a9865e9dd40",
     "tables/retrospective_by_group.csv": "f7d3b882d90f785f9250d20f8d72e29d9b3eeead52268928e8c9f19ec6dec836",
     "tables/retrospective_metrics.csv": "372c6a8c41f208fe4f2243437eb352da1b355f89af9bb16b74759b95b2b6461d",
@@ -498,8 +551,8 @@
     "tables/tuning_group_comparison.csv": "eed3ef20c73839c9b99473cfc9d07d4b6f1d8ec77aac7343723cb781849bfeac",
     "tables/tuning_validation.csv": "31f0928da8fe74f95b23e840fd8b12bf3cb8fab106c72eacb573cf74137e67e4",
     "tables/validation_comparison.csv": "def397a71cad881e3a730473c4090a19c5a75c86727444f55b4273b333d6a101",
-    "metadata.json#report_refresh": "c921f117540cecffc6695cfe9d4aaad99e93c1900545b7f2c804db58c8c82f4f",
-    "metadata.json#summary": "1a2a1144689d9d39ec6b51e49525f453e3ad1a0de75279ad7ece1863c3d75e98",
+    "metadata.json#report_refresh": "4cc66c64e0bf2cd7d81293c1ad2ac40a027dd8643ca4fd18d07759f232dfc115",
+    "metadata.json#summary": "e92b20451228685ad6ef4c6fb2e7569b58b03347a014bdc4f56aba9430c2a427",
     "metadata.json#selection": "183ac68c2f35bd43c0d118fe4611348baf6f6d5ed2904fedbfd502db4b5cc45b",
     "metadata.json#workflow_validation": "57058807d561959d452f4016e11524c1e2cc15e8579de952e11afada9c75ad0b",
     "metadata.json#provenance": "b3365dee900bf28a659a8f93eac05e062fe27c19b721e82208ebe5f8693ddbc4",
@@ -507,7 +560,7 @@
     "metadata.json#config": "663e6803528813688aaa2c615c9f1cc62d10ce25b2e900410f0c788d1b3115f5",
     "metadata.json#folds": "66c6bc8d3c88d1a9ef44d2381642686770fe39157b452a2a6e67e15a68c03801",
     "metadata.json#validation": "0783e5ba12f6c00bbead1260de5d152efa629a819abf43708ee1dda924435979",
-    "../../modeling.md": "cfb249bd3e17bfcbdcfe14deaf04f2ecef5a7a63145143eeec8319596172d638"
+    "../../modeling.md": "dcbee4c9b9e743f328b2f7af2c35cc65813d154930ddca0ccd8581dcc3fec5b1"
   },
   "tuning_review": {
     "date": "2026-10-12",

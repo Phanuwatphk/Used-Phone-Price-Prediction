@@ -1,6 +1,5 @@
 """Compare predeclared candidates on validation, then evaluate a frozen winner on test."""
 import argparse
-from collections import defaultdict
 from datetime import datetime, timezone
 import importlib.metadata
 import json
@@ -8,20 +7,12 @@ from pathlib import Path
 import sys
 import time
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 if not __package__:
     sys.path.insert(0, str(ROOT))
 
 import joblib
 import numpy as np
-from catboost import CatBoostRegressor
-from sklearn.compose import ColumnTransformer, TransformedTargetRegressor
-from sklearn.dummy import DummyRegressor
-from sklearn.ensemble import ExtraTreesRegressor, HistGradientBoostingRegressor
-from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_absolute_error, mean_squared_error, median_absolute_error, r2_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from threadpoolctl import threadpool_limits
 
 from script.modeling.features import CATEGORICAL, NUMERIC, FEATURES, features, prices
@@ -29,59 +20,13 @@ from script.modeling.split_dataset import DEFAULT_CONFIG, ROOT, create_split, du
 
 
 
+from script.modeling.common import build_model, metrics, group_metrics
 from script.artifacts import collect_output_hashes, reference_json, write_metadata
 
-def metrics(actual, predicted):
-    actual, predicted = np.asarray(actual, dtype=float), np.asarray(predicted, dtype=float)
-    error = np.abs(actual - predicted)
-    return {'rows': len(actual), 'mae_thb': float(mean_absolute_error(actual, predicted)),
-            'rmse_thb': float(mean_squared_error(actual, predicted) ** .5),
-            'median_absolute_error_thb': float(median_absolute_error(actual, predicted)),
-            'r2': float(r2_score(actual, predicted)) if len(actual) > 1 and np.var(actual) > 0 else None,
-            'mape_pct': float(np.mean(error / actual) * 100),
-            'within_20pct': float(np.mean(error / actual <= .2)),
-            'bias_thb': float(np.mean(predicted - actual))}
 
 
-def build_model(spec, seed=42, threads=4, iterations=None):
-    parameters = dict(spec['parameters'])
-    kind = spec['kind']
-    if kind == 'catboost':
-        if iterations is not None:
-            parameters['iterations'] = iterations
-        return CatBoostRegressor(**parameters, cat_features=CATEGORICAL, random_seed=seed,
-                                 thread_count=threads, eval_metric='MAE', has_time=True,
-                                 allow_writing_files=False, verbose=False)
-    if kind == 'median':
-        estimator = DummyRegressor(strategy='median')
-    elif kind == 'ridge':
-        estimator = Ridge(**parameters)
-    elif kind == 'extra_trees':
-        estimator = ExtraTreesRegressor(**parameters, random_state=seed, n_jobs=threads)
-    elif kind == 'hist_boost':
-        estimator = HistGradientBoostingRegressor(**parameters, random_state=seed)
-    else:
-        raise ValueError('Unknown candidate: ' + kind)
-    preprocessing = ColumnTransformer([
-        ('categorical', OneHotEncoder(handle_unknown='ignore', sparse_output=False), CATEGORICAL),
-        ('numeric', StandardScaler(), NUMERIC),
-    ], sparse_threshold=0)
-    model = Pipeline([('features', preprocessing), ('regressor', estimator)])
-    if spec.get('log_target'):
-        model = TransformedTargetRegressor(regressor=model, func=np.log, inverse_func=np.exp)
-    return model
 
 
-def group_metrics(rows, actual, predicted, fitted_models):
-    groups = defaultdict(list)
-    for i, row in enumerate(rows):
-        attributes = {'source': row['source'], 'brand': row['brand'], 'year': row['published_at'][:4],
-                      'condition': row['condition'], 'model_coverage': 'seen' if row['brand'] + ':' + row['model'] in fitted_models else 'unseen',
-                      'brand_model': row['brand'] + ':' + row['model']}
-        for field, value in attributes.items():
-            groups[(field, value)].append(i)
-    return [{'group': field, 'value': value, **metrics(actual[idx], predicted[idx])}
-            for (field, value), idx in sorted(groups.items())]
 
 
 def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, private_output=None):
@@ -174,7 +119,7 @@ def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, pri
     output_hashes = {p.name: sha(p) for p in model_dir.iterdir() if p.suffix in ('.joblib', '.cbm')}
     metadata = {'run': config['run'], 'started_at_utc': started, 'finished_at_utc': datetime.now(timezone.utc).isoformat(),
                 'duration_seconds': round(time.monotonic() - clock, 3), 'dataset': config['dataset'], 'dataset_sha256': sha(dataset),
-                'config_sha256': sha(config_path), 'code_sha256': {str(p.relative_to(ROOT)): sha(p) for p in sorted(Path(__file__).parent.glob('*.py'))},
+                'config_sha256': sha(config_path), 'code_sha256': {str(p.relative_to(ROOT)): sha(p) for p in sorted((ROOT / 'script/modeling').rglob('*.py'))},
                 'versions': {p: importlib.metadata.version(p) for p in ['numpy', 'pandas', 'scipy', 'scikit-learn', 'catboost', 'joblib', 'matplotlib']},
                 'feature_names': FEATURES, 'excluded_features': ['price_thb (target)', 'listing_id', 'product_id', 'url', 'source_snapshot', 'published_at_raw', 'published_at_precision'],
                 'seed': config['random_seed'], 'model_hashes': output_hashes, 'final_fit': 'train + validation; test excluded',
@@ -190,7 +135,7 @@ def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, pri
     for section, content in [('summary', summary), ('provenance', metadata), ('validation', validation), ('config', config), ('split', split_summary)]:
         write_metadata(report, section, content)
     dump(model_dir / 'metadata.json', {**metadata, 'selected_model': winner_spec['name'], 'test_metrics': evaluation})
-    from script.modeling.report import render_report
+    from script.modeling.model_v1.report import render_report
     render_report(report, summary, metadata, comparisons, y_test, prediction)
     write_metadata(report, 'hashes', collect_output_hashes(report))
     write_metadata(report, 'progress', {'phase': 'completed', 'selected_model': winner_spec['name'], 'test_mae_thb': evaluation['mae_thb'], 'duration_seconds': metadata['duration_seconds']})
@@ -210,3 +155,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

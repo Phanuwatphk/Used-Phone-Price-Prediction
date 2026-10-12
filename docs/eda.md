@@ -105,9 +105,7 @@ new/used เป็นช่องผู้ขาย; correlation รวมไม
 
 เทียบรุ่น/ความจุ/สภาพ/ปีเดียวกัน ขั้นต่ำ 3 แถวต่อเว็บ ตัวเลขวงเล็บคือ n ของ ENNXO, Mac2Hand; ยังไม่ควบคุมเดือนหรือสภาพเครื่องจริง
 
-## ไฟล์และวิธีทำซ้ำ
-
-รัน `.venv/bin/python -u -B script/analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น
+## ไฟล์ประกอบรายงาน
 
 `metadata.json` รวม summary (สถิติ), rules (กฎ), provenance (เวอร์ชันโค้ด dependencies/input hashes) และ validation; `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ
 
@@ -119,15 +117,11 @@ new/used เป็นช่องผู้ขาย; correlation รวมไม
 
 วิเคราะห์ 10,032 แถวจากชุดรวมหลัง clean ทุกวันที่ของ snapshot ไม่มีการเปลี่ยน dataset อ่าน [สรุป EDA](eda.md) หรือ [รายงานละเอียด](eda.md)
 
-### สคริปต์ที่รัน
+### เครื่องมือที่ใช้
 
-```bash
-.venv/bin/python -u -B script/analysis/eda/run_eda.py
-```
+ใช้ทั้ง ENNXO และ Mac2Hand อ่าน `dataset.csv`, `dataset.jsonl`, `lineage.jsonl` และ `metadata.json` (schema/summary/provenance) ของชุดรวม และอ่าน `mac2hand_final.jsonl` เพิ่มสำหรับข้อความที่ไม่มีใน CSV dataset/schema/summary/metadata อยู่ใน `data/intermediate/combined/<รอบ>/before_selection/`; lineage/audit อยู่ใน `data/intermediate/combined/<รอบ>/audit/` และ JSONL ทุกแถว Mac2Hand อยู่ `data/intermediate/mac2hand/<รอบ>/finalization/` ใช้ lineage เป็นหลักฐาน ตรวจ hash, ชนิดข้อมูล, จำนวน, key และความตรงกันก่อนวิเคราะห์ ตรวจ hash ซ้ำหลังทำงาน
 
-ใช้ทั้ง ENNXO และ Mac2Hand อ่าน `dataset.csv`, `dataset.jsonl`, `lineage.jsonl` และ `metadata.json` (schema/summary/provenance) ของชุดรวม และอ่าน `mac2hand_final.jsonl` เพิ่มสำหรับข้อความที่ไม่มีใน CSV dataset/schema/summary/metadata อยู่ใน `data/intermediate/combined/<รอบ>/before_selection/`; lineage/audit อยู่ใน `data/intermediate/combined/<รอบ>/audit/` และ JSONL ทุกแถว Mac2Hand อยู่ `data/intermediate/mac2hand/<รอบ>/finalization/` ใช้ `--evidence` เลือก lineage directory ตรวจ hash, ชนิดข้อมูล, จำนวน, key และความตรงกันก่อนวิเคราะห์ ตรวจ hash ซ้ำหลังทำงาน
-
-`script/analysis/eda/run_eda.py` เรียก `eda_statistics.py` คำนวณสถิติ และ `eda_plots.py` สร้างกราฟ ค่าเริ่มต้นอิงตำแหน่งไฟล์ รันจาก `/tmp` ด้วย absolute path หรือรันโมดูลจากรากโปรเจคได้
+`script/analysis/eda/run_eda.py` เรียก `eda_statistics.py` คำนวณสถิติ และ `eda_plots.py` สร้างกราฟ
 
 ### หลักเกณฑ์
 

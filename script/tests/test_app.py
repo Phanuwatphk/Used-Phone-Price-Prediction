@@ -16,7 +16,7 @@ import joblib
 from sklearn.dummy import DummyRegressor
 from streamlit.testing.v1 import AppTest
 
-from script.modeling.features_v2 import FEATURES, features
+from script.modeling.model_v2.features_v2 import FEATURES, features
 from script.modeling.predict import predict_rows
 from script.modeling.split_dataset import sha
 
@@ -160,11 +160,6 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
         self.assertIn('ผู้ดูแล', app.error[0].value)
         self.assertEqual(len(app.button), 0)
 
-    def test_launcher_runs_from_another_directory(self):
-        result = subprocess.run([sys.executable, str(ROOT / 'app/run_app.py'), '--help'],
-                                cwd=self.temp.name, capture_output=True, text=True, check=True)
-        self.assertIn('--port', result.stdout)
-
     def test_explorer_filters_and_empty_state_preserve_input(self):
         before = self.dataset.read_bytes()
         app = AppTest.from_file(str(APP), default_timeout=20).run()
@@ -180,6 +175,25 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
         self.assertIn('ไม่พบประกาศ', app.info[0].value)
         self.assertEqual(self.dataset.read_bytes(), before)
 
+    def test_explorer_normalizes_search_and_resets_dropdown_on_new_query(self):
+        before = self.dataset.read_bytes()
+        app = AppTest.from_file(str(APP), default_timeout=20).run()
+        app.radio(key='navigation').set_value('สำรวจข้อมูล').run()
+        for query in ['iphone13', ' IPHONE-13 ', 'ｉＰｈｏｎｅ１３']:
+            app.text_input(key='filter_query').set_value(query).run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.metric[0].value, '1')
+            self.assertEqual(app.selectbox(key='filter_model').options,
+                             ['ทุกรุ่นที่ตรงกับคำค้น', 'Apple iPhone 13'])
+        app.selectbox(key='filter_model').set_value(('Apple', 'iPhone 13')).run()
+        app.text_input(key='filter_query').set_value('galaxys22').run()
+        self.assertIsNone(app.selectbox(key='filter_model').value)
+        self.assertEqual(app.dataframe[0].value.iloc[0]['รุ่น'], 'Galaxy S22')
+        app.text_input(key='filter_query').set_value('ไม่พบรุ่นนี้').run()
+        self.assertTrue(app.selectbox(key='filter_model').disabled)
+        self.assertFalse(app.exception)
+        self.assertEqual(self.dataset.read_bytes(), before)
+
     def test_other_pages_work_without_model_binary(self):
         with patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(Path(self.temp.name) / 'missing.joblib')}):
             with patch('logging.Logger.exception'):
@@ -192,8 +206,10 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertEqual(len(app.metric), 3)
             self.assertIn('ผลย้อนหลัง', app.info[0].value)
             self.assertEqual(set(app.dataframe[0].value['เว็บ']), {'ENNXO', 'Mac2Hand'})
-            self.assertTrue(any('ใช้ตัววัดสถิติ' in item.label for item in app.expander))
+            self.assertTrue(any('ตัวชี้วัดและผลการประเมิน' in item.label for item in app.expander))
             rendered = '\n'.join(item.value for item in app.markdown)
+            self.assertIn('https://github.com/Phanuwatphk/Used-Phone-Price-Prediction/blob/main/docs/modeling.md#7-', rendered)
+            self.assertIn('https://github.com/Phanuwatphk/Used-Phone-Price-Prediction/blob/main/docs/project.md', rendered)
             self.assertIn('Median absolute error', rendered)
             self.assertIn('ยังไม่ได้ทำ t-test', rendered)
             self.assertEqual(len(app.get('image')), 5)

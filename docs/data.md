@@ -8,11 +8,11 @@
 
 `data/final/condition_features.csv` เป็น sidecar 9,210 แถว: listing_id + battery_health_pct/warranty_days/box_mentioned ไม่มีข้อความหรือข้อมูลติดต่อ ใช้ rebuild V2 หลัง clone โดยคง schema ชุดหลักเดิม ค่าว่างคือไม่ทราบ อ่าน [การใช้ features และโมเดล](modeling.md)
 
-ข้อจำกัดที่ตรวจเพิ่ม: พบ 15 แถวที่ความจุประกาศไม่อยู่ในสเปก iPhone ของรุ่นที่ normalize ไว้ ยังไม่ยืนยันว่ารุ่นหรือความจุผิด จึงคงข้อมูลเดิมและบันทึกไว้ใน [รายงานโมเดล](modeling.md#10-รอบปรับปรุง-2026-10-12) หน้าเว็บใช้ตัวเลือกความจุจากผู้ผลิตแล้ว การผ่าน clean หมายถึงผ่านกฎและหลักฐานของ snapshot ไม่ใช่การยืนยันสภาพเครื่องหรือทุกสเปกจากผู้ผลิต
+ข้อจำกัดที่ตรวจเพิ่ม: พบ 15 แถวที่ความจุประกาศไม่อยู่ในสเปก iPhone ของรุ่นที่ normalize ไว้ ยังไม่ยืนยันว่ารุ่นหรือความจุผิด จึงคงข้อมูลเดิมและบันทึกไว้ใน [รายงานโมเดล](modeling.md#11-รอบปรับปรุง-2026-10-12) หน้าเว็บใช้ตัวเลือกความจุจากผู้ผลิตแล้ว การผ่าน clean หมายถึงผ่านกฎและหลักฐานของ snapshot ไม่ใช่การยืนยันสภาพเครื่องหรือทุกสเปกจากผู้ผลิต
 
 เนื้อหารายขั้นบันทึกผล ณ รอบที่ทำ; การแบ่ง/ฝึกเสร็จแล้ว อ่านผลล่าสุดใน [รายงานโมเดล](modeling.md)
 
-## เลือกอ่านตามขั้น
+## สารบัญตามขั้นตอน
 
 | หัวข้อ | เนื้อหา |
 |---|---|
@@ -22,7 +22,7 @@
 | [รวมและคัดข้อมูล](#stage-combined_dataset) | schema กลาง ตรวจรายเว็บ และคัดชุด 9,210 แถว |
 | [รายการไฟล์ตามขั้น](#stage-data_guide) | แต่ละไฟล์เก็บอะไร อยู่ raw/intermediate/final ไหน |
 
-รายละเอียดรายเว็บอยู่ในหัวข้อที่กดเปิดได้ด้านล่าง ตัวเลขระหว่างทางเป็นบันทึกย้อนหลัง ไม่ใช่คิวที่ต้องทำต่อ คำสั่งและ config ทุกขั้นอ่านใน [คู่มือรัน](development.md)
+รายละเอียดรายเว็บอยู่ในหัวข้อที่กดเปิดได้ด้านล่าง ตัวเลขระหว่างทางเป็นบันทึกย้อนหลัง ไม่ใช่คิวที่ต้องทำต่อ หน้าที่เครื่องมือและ config อ่านใน [ภาพรวมโครงการ](project.md)
 
 <a id="workflow"></a>
 
@@ -77,7 +77,7 @@ HTML อยู่ `data/raw/<รอบ>/{pages,details}/`; `listings.jsonl` เ�
 
 ใช้ forward validation ตามเวลา เลือกวิธีจาก MAE บน validation แล้วแยก estimator สำหรับเปรียบเทียบย้อนหลังกับ estimator สำหรับใช้งานที่ฝึกครบ รายละเอียด features, folds, พารามิเตอร์, ตัววัด และกราฟอยู่ใน [รายงานโมเดล V2 ไฟล์เดียว](modeling.md)
 
-คำสั่งรันอ่าน [คู่มือพัฒนา](development.md) ข้อมูลและนโยบายคัดอ่าน [ข้อมูล](data.md) วิธีเฉพาะเว็บอ่าน [ENNXO](#ennxo) หรือ [Mac2Hand](#mac2hand)
+หน้าที่เครื่องมืออ่าน [ภาพรวมโครงการ](project.md) ข้อมูลและนโยบายคัดอ่าน [ข้อมูล](data.md) วิธีเฉพาะเว็บอ่าน [ENNXO](#ennxo) หรือ [Mac2Hand](#mac2hand)
 
 <a id="ennxo"></a>
 
@@ -139,18 +139,9 @@ flowchart LR
 
 <a id="ennxo-ขั้นที่-1--ทำซ้ำได้อย่างไร"></a>
 
-#### ขั้นที่ 1 — ทำซ้ำได้อย่างไร
+#### ขั้นที่ 1 — ตรวจข้อมูลดิบ
 
-จากรากโปรเจค ใช้ Python 3.10 ขึ้นไปและ dependencies ที่ระบุเวอร์ชัน:
-
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-lock.txt
-.venv/bin/python -B script/preparation/ennxo/audit_ennxo_raw.py
-.venv/bin/python -B -m unittest discover -s script/tests -t . -p 'test_*.py'
-```
-
-ต้องมี raw snapshot ในเครื่อง การติดตั้ง dependencies ต้องใช้อินเทอร์เน็ต แต่สคริปต์ audit อ่านไฟล์ที่มีเท่านั้น ไม่เรียก ENNXO ไม่แก้ raw ไม่เติมค่า และไม่ตัดประกาศออก Output แยกอยู่ที่ `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/`
+ต้องมี raw snapshot ในเครื่อง สคริปต์ audit อ่านไฟล์ที่มีเท่านั้น ไม่เรียก ENNXO ไม่แก้ raw ไม่เติมค่า และไม่ตัดประกาศออก Output แยกอยู่ที่ `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/raw_audit/`
 
 | ไฟล์ผลลัพธ์ | ใช้ทำอะไร |
 |---|---|
@@ -162,7 +153,7 @@ python3 -m venv .venv
 | `raw_checksums.json` | SHA-256 ของไฟล์ raw ทุกไฟล์ |
 | `metadata.json` | provenance: เวลา Python/BeautifulSoup/SoupSieve และ hash ของโค้ดที่ใช้ |
 
-เมื่อ raw, โค้ด และ environment เดียวกัน ไฟล์ผลควรเหมือนกันทุก byte ยกเว้น `metadata.json#provenance` ซึ่งบันทึกเวลาแต่ละรัน ปรับ `--raw <raw-dir>` และ `--output <output-dir>` ได้; path ค่าเริ่มต้นอิงตำแหน่งสคริปต์ ไม่อิง working directory สคริปต์ไม่ยอมเขียนผลทับโฟลเดอร์ raw
+เมื่อ raw, โค้ด และ environment เดียวกัน ไฟล์ผลควรเหมือนกันทุก byte ยกเว้น `metadata.json#provenance` ซึ่งบันทึกเวลาแต่ละรัน สคริปต์ไม่ยอมเขียนผลทับโฟลเดอร์ raw
 
 ผลตรวจบัญชีผ่านหมายถึง URL/จำนวนในไฟล์ที่เก็บตรงกัน ยังไม่พิสูจน์ว่าเนื้อหา สเปค ราคา และสภาพสินค้าถูกต้อง `model_contains_only_brand` ตรวจชื่อยี่ห้อที่พบในชุดนี้ เป็นสัญญาณคุณภาพ ไม่ใช่การเลือกหรือแก้รุ่น
 
@@ -170,19 +161,11 @@ python3 -m venv .venv
 
 #### ขั้นที่ 2 — ถอดข้อมูลจาก HTML
 
-```bash
-.venv/bin/python -B script/preparation/ennxo/extract_ennxo_raw.py
-```
-
 อ่าน HTML ใหม่ จับคู่ครบทุกประกาศ เก็บค่าการ์ด ข้อมูลฝัง และ raw เดิมแยกกันพร้อมที่มา ผลอยู่ใน `data/intermediate/ennxo/<รอบ>/extraction/` ยังไม่ clean หรือตัดออก ดู [รายละเอียดและผลที่พบ](#ennxo-stage-extraction)
 
 <a id="ennxo-ขั้นที่-3--ตรวจและ-clean"></a>
 
 #### ขั้นที่ 3 — ตรวจและ clean
-
-```bash
-.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
-```
 
 กฎเวอร์ชัน 6 พร้อม ledger และบันทึกตรวจคิว126รายการรันแล้วกับทุกประกาศ ผลแยก accepted/needs_review/excluded และนับกลับได้ครบ 1,381 แถว ดู [กฎ ตัวอย่าง คำแก้ และผลลัพธ์](#ennxo-stage-cleaning) คิวที่ยังไม่ยืนยันไม่ถูกนำไปฝึกอัตโนมัติ หลักการที่ใช้มีดังนี้:
 
@@ -236,7 +219,7 @@ Raw ที่ใช้เริ่มใหม่อยู่ใน `data/raw/en
 
 ข้อมูลดิบไม่เท่ากับข้อมูลพร้อมฝึก รุ่น ความจุ ราคา และสภาพอาจขัดกัน ต้องสำรวจและตรวจด้วยกฎใหม่ก่อนใช้ ไม่มีการนำค่าที่แก้หรือการตัดออกจาก pipeline เดิมมาใช้โดยอัตโนมัติ
 
-สร้างขั้นตรวจ raw ใหม่แล้ว โดยอ่านจากไฟล์ต้นฉบับและเก็บรายงานแยก ยังไม่แก้ค่าหรือสร้าง clean dataset ถอดข้อมูลจาก HTML ใหม่พร้อมหลักฐานแล้ว ดู [วิธีทำ ENNXO](#ennxo-stage-methodology) สำหรับผลและคำสั่งรันซ้ำ
+สร้างขั้นตรวจ raw ใหม่แล้ว โดยอ่านจากไฟล์ต้นฉบับและเก็บรายงานแยก ยังไม่แก้ค่าหรือสร้าง clean dataset ถอดข้อมูลจาก HTML ใหม่พร้อมหลักฐานแล้ว ดู [วิธีทำ ENNXO](#ennxo-stage-methodology) สำหรับผลและหลักฐาน
 
 <a id="ennxo-stage-extraction"></a>
 
@@ -246,21 +229,17 @@ Raw ที่ใช้เริ่มใหม่อยู่ใน `data/raw/en
 
 ขั้นที่ 2 ต่อจาก [การตรวจ raw](#ennxo-stage-methodology) อ่าน HTML หน้ารวมโดยตรง ไม่ใช้คำตัดสินเก่าและไม่ใช้ `ennxo_public_payload.json` เดิมเป็นต้นทาง ไม่มีการเรียกเว็บไซต์เพิ่ม
 
-<a id="ennxo-รันสคริปต์อะไร"></a>
+<a id="ennxo-เครื่องมือที่ใช้ในการถอดข้อมูล"></a>
 
-#### รันสคริปต์อะไร
-
-```bash
-.venv/bin/python -B script/preparation/ennxo/extract_ennxo_raw.py
-```
+#### เครื่องมือที่ใช้ในการถอดข้อมูล
 
 `extract_ennxo_raw.py` อ่านทุกประกาศจากบัญชี raw จับคู่การ์ดและข้อมูลฝังด้วยรหัสสินค้า ตรวจจำนวน URL และบันทึกผล `ennxo_html.py` เป็นโมดูลอ่าน HTML/JSON ที่ตัวรันใช้ ไม่ใช่ตัวรันแยก
 
-ผลอยู่ใน `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/` ค่าเริ่มต้นอิงตำแหน่งโค้ด ปรับ `--raw` และ `--output` ได้ Output ต้องแยกจาก raw
+ผลอยู่ใน `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/` Output ต้องแยกจาก raw
 
-<a id="ennxo-เก็บอะไรในแต่ละแถว"></a>
+<a id="ennxo-ข้อมูลที่เก็บต่อประกาศ"></a>
 
-#### เก็บอะไรในแต่ละแถว
+#### ข้อมูลที่เก็บต่อประกาศ
 
 | กลุ่ม | ข้อมูล |
 |---|---|
@@ -291,9 +270,9 @@ Raw ที่ใช้เริ่มใหม่อยู่ใน `data/raw/en
 
 ตัวเลขช่องรุ่นมีแต่ยี่ห้อจาก audit ขั้นที่ 1 เป็น 183 เพราะใช้รายชื่อแบรนด์ที่พบในช่อง brand ของ JSON เดิม ขั้นที่ 2 เทียบกับ maker ที่เว็บระบุโดยตรง จึงพบ 207 แถว รวมยี่ห้อที่ parser เดิมไม่เคยอ่านลงช่อง brand
 
-<a id="ennxo-เปิดไฟล์ไหน"></a>
+<a id="ennxo-ไฟล์ผลการตรวจสอบ"></a>
 
-#### เปิดไฟล์ไหน
+#### ไฟล์ผลการตรวจสอบ
 
 | ไฟล์ | หน้าที่ |
 |---|---|
@@ -374,16 +353,9 @@ Raw ที่ใช้เริ่มใหม่อยู่ใน `data/raw/en
 
 ตัวอย่างอ้าง HTML ที่เก็บเมื่อ 2026-10-05; หน้าเว็บสดอาจเปลี่ยนแล้ว
 
-<a id="ennxo-รันซ้ำและไฟล์ผลลัพธ์"></a>
+<a id="ennxo-หลักฐานและไฟล์ผลลัพธ์"></a>
 
-#### รันซ้ำและไฟล์ผลลัพธ์
-
-จากรากโปรเจค:
-
-```bash
-.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
-.venv/bin/python -B -m unittest discover -s script/tests -t .
-```
+#### หลักฐานและไฟล์ผลลัพธ์
 
 Input: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/extraction/`
 
@@ -401,7 +373,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 | `model_catalog.json` | ชื่อรุ่นจากช่องเลือกและแหล่งผู้ผลิต พร้อม key ที่ใช้เทียบ; URL ผู้ผลิตอยู่ใน rules และหลักฐานรายแถว |
 | `metadata.json` | validation: ผลตรวจจำนวน URL ค่าเดิม และความคงเดิมของ raw; provenance: Python เวลา และ hash ของ input/config/โค้ด |
 
-ผลควรเหมือนกันทุก byte เมื่อ input/config/โค้ดเดียวกัน ยกเว้นเวลาใน `metadata.json#provenance` รองรับ `--input`, `--raw`, `--output`, `--rules`, `--corrections` และรันตรงจากโฟลเดอร์อื่นได้ด้วย path สคริปต์เต็ม
+ผลควรเหมือนกันทุก byte เมื่อ input/config/โค้ดเดียวกัน ยกเว้นเวลาใน `metadata.json#provenance`
 
 <a id="ennxo-บันทึกคำตอบและแก้ข้อมูล"></a>
 
@@ -429,7 +401,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 ใช้ `additional_hold_reasons` เพื่อบันทึกปัญหาที่พบใหม่ เช่น `reviewed_storage_unconfirmed`, `reviewed_identity_conflict`, `reviewed_price_unconfirmed`, `reported_damage_or_lock` หรือ `possible_bundle` ต้องมีหลักฐานและไม่ใช้เพื่อเติมค่าที่ไม่ทราบ
 
-การแก้ฟิลด์เคลียร์เฉพาะเหตุผลของฟิลด์นั้น อาการเสีย ราคา หรือข้อขัดแย้งอื่นยังค้างได้ การเปลี่ยน brand ต้องตรวจ model ด้วย ประวัติคำแก้เก็บใน JSONL และสำเนา ledger ของผลแต่ละรอบ หากต้องการเก็บหลายรอบ ให้เลือก `--output` คนละโฟลเดอร์
+การแก้ฟิลด์เคลียร์เฉพาะเหตุผลของฟิลด์นั้น อาการเสีย ราคา หรือข้อขัดแย้งอื่นยังค้างได้ การเปลี่ยน brand ต้องตรวจ model ด้วย ประวัติคำแก้เก็บใน JSONL และสำเนา ledger ของผลแต่ละรอบ หลักฐานแต่ละรอบแยกเก็บคนละโฟลเดอร์
 
 <a id="ennxo-การตรวจและงานถัดไป"></a>
 
@@ -476,9 +448,9 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 ยังตัดสินไม่ได้ เช่น `1165091` รายละเอียดระบุทั้ง256และ512GB, `1174732` ระบุราคาขายทั้ง25,900และ25,000, `1205745` ไม่ระบุรุ่น Honor ส่วน `1187218` ระบุห้ามรี/ห้ามอัพเดทชัดเจน จึงเก็บกลุ่มล็อก
 
-<a id="ennxo-อ่านผลจากไหน"></a>
+<a id="ennxo-ไฟล์ผลการตรวจคิว"></a>
 
-#### อ่านผลจากไหน
+#### ไฟล์ผลการตรวจคิว
 
 รอบข้อมูลคือ `ennxo_20261005T231833_239519_Asia-Bangkok`:
 
@@ -500,14 +472,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 <a id="ennxo-รันซ้ำ"></a>
 
-#### รันซ้ำ
-
-```bash
-.venv/bin/python -B script/preparation/ennxo/clean_ennxo.py
-.venv/bin/python -B script/preparation/ennxo/review_ennxo_queue.py
-.venv/bin/python -B script/preparation/ennxo/finalize_ennxo_manual_review.py
-.venv/bin/python -B -m unittest discover -s script/tests -t .
-```
+#### หลักฐานการทำซ้ำ
 
 Cleaner อ่าน extraction + กฎ + คำแก้ → ผล clean; ตัวทำบัญชีคิวเทียบ v4 → ผลปัจจุบัน; ตัว finalize อ่านผลปัจจุบัน + บันทึกการตรวจ + baseline v5 → รายงานรอบ126 ตรวจ coverage ซ้ำ/ขาด, hash, ข้อความอ้างอิงและเลขบรรทัด ก่อนเขียนผล ไม่มีสคริปต์ใดตัดสิน manual review แทนผู้ตรวจโดยอัตโนมัติ
 
@@ -556,19 +521,11 @@ Cleaner อ่าน extraction + กฎ + คำแก้ → ผล clean; ต
 
 #### รันต่อและ monitor
 
-รันจากรากโปรเจคหลังติดตั้ง dependencies ตาม [README](../README.md) ใช้ตัวเก็บหนึ่งงานต่อรอบ:
-
-```bash
-.venv/bin/python -u -B script/scraper/mac2hand/run_mac2hand_collection.py
-```
+การเก็บข้อมูลใช้ตัวเก็บหนึ่งงานต่อรอบ เพื่อไม่ให้ checkpoint ขัดกัน
 
 ตรวจความคืบหน้าในอีก Terminal:
 
-```bash
-.venv/bin/python script/scraper/mac2hand/monitor_mac2hand.py
-```
-
-Monitor อัปเดตหน้าจอทุก 5 วินาที กด Ctrl+C ปิดหน้าดูได้โดยตัวเก็บยังทำงานต่อ ใช้ `--once` เพื่อดูครั้งเดียว ตัวเลขประมวลผลรอบนี้รวมการอ่าน cache เดิม จึงอาจต่างจากจำนวนหน้าที่มีผลเก็บแล้ว
+Monitor อ่าน checkpoint เพื่อแสดงความคืบหน้าโดยไม่ส่ง request ไปเว็บ ตัวเลขประมวลผลรวมการอ่าน cache เดิม จึงอาจต่างจากจำนวนหน้าที่มีผลเก็บแล้ว
 
 <a id="mac2hand-หลักฐานที่เก็บ"></a>
 
@@ -605,14 +562,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 
 #### ขั้นตอนและตำแหน่ง
 
-รันจากรากโปรเจคด้วย environment เดิม:
-
-```bash
-.venv/bin/python -u -B script/preparation/mac2hand/prepare_mac2hand.py
-.venv/bin/python -B script/preparation/mac2hand/clean_mac2hand.py
-```
-
-ทั้งสองสคริปต์ใช้กับ Mac2Hand เท่านั้น ค่าเริ่มต้นอิงตำแหน่งสคริปต์ จึงรันผ่าน absolute path จากไดเรกทอรีอื่นได้ รองรับ `python -m script.preparation.mac2hand.<ชื่อสคริปต์>` ด้วย
+ทั้งสองสคริปต์ใช้กับ Mac2Hand เท่านั้น อ่านข้อมูลที่เก็บไว้และไม่แก้ข้อมูลดิบ
 
 | สคริปต์ | อ่าน | หน้าที่ | เขียน |
 |---|---|---|---|
@@ -691,15 +641,11 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 2. อ่านชื่อ ช่องเลือก และรายละเอียดหลักรายประกาศ บันทึกคำตัดสินพร้อมข้อความที่ใช้และเหตุผล หากไม่ชัดให้ค้างไว้
 3. ใช้สคริปต์ตรวจ hash ของ baseline และแถว ตรวจว่าข้อความหลักฐานมีจริง แล้วนำคำแก้ไปสร้างผลใหม่ ไม่แก้ raw หรือ clean baseline
 
-```bash
-.venv/bin/python -B script/preparation/mac2hand/review_mac2hand_queue.py
-```
-
-ใช้กับ Mac2Hand เท่านั้น รองรับการรันไฟล์ผ่าน absolute path จากไดเรกทอรีอื่น และ `python -m script.preparation.mac2hand.review_mac2hand_queue` ไม่ส่ง request เพิ่ม ไม่ทำ EDA ไม่แก้ ENNXO
+ใช้กับ Mac2Hand เท่านั้น ไม่ส่ง request เพิ่ม ไม่ทำ EDA และไม่แก้ ENNXO
 
 <a id="mac2hand-อ่านอะไร-เขียนอะไร"></a>
 
-#### อ่านอะไร เขียนอะไร
+#### ข้อมูลเข้าและผลลัพธ์
 
 อ่าน `data/intermediate/mac2hand/<รอบ>/clean/mac2hand_cleaned.jsonl` และ `config/mac2hand/manual_reviews.json` ผลอยู่ใน `data/intermediate/mac2hand/<รอบ>/manual_review/`
 
@@ -785,15 +731,11 @@ Ledger มี `baseline_sha256` ผูกกับไฟล์ clean และ `
 
 ตรวจชื่อ iPhone กับ [รายการรุ่นของ Apple](https://support.apple.com/en-us/108044) เก็บสำเนาชื่อและที่มาใน config ใช้ยืนยันชื่อเท่านั้น ไม่เติมสเปก ความจุ หรือปีประกาศจาก catalogue
 
-<a id="mac2hand-สคริปต์ที่รันและข้อมูลเข้า"></a>
+<a id="mac2hand-เครื่องมือที่ใช้และข้อมูลเข้า"></a>
 
-#### สคริปต์ที่รันและข้อมูลเข้า
+#### เครื่องมือที่ใช้และข้อมูลเข้า
 
-```bash
-.venv/bin/python -u -B script/preparation/mac2hand/finalize_mac2hand.py
-```
-
-ใช้กับ **Mac2Hand เท่านั้น** ค่าเริ่มต้นอิงตำแหน่งไฟล์สคริปต์ รองรับรันจาก directory อื่นด้วย absolute path หรือ `python -m script.preparation.mac2hand.finalize_mac2hand` จากรากโปรเจค
+ใช้กับ **Mac2Hand เท่านั้น** ค่าเริ่มต้นอิงตำแหน่งไฟล์สคริปต์
 
 | ไฟล์ | หน้าที่ |
 |---|---|
@@ -806,11 +748,11 @@ Ledger มี `baseline_sha256` ผูกกับไฟล์ clean และ `
 
 ขั้น `clean/` และ `manual_review/` เป็นประวัติก่อนส่งมอบ คงไว้เพื่อเทียบผล อย่าใช้ CSV เก่าแทน `accepted/dataset.csv`
 
-<a id="mac2hand-ไฟล์ผลลัพธ์เก็บอะไร"></a>
+<a id="mac2hand-รายละเอียดไฟล์ผลลัพธ์"></a>
 
-#### ไฟล์ผลลัพธ์เก็บอะไร
+#### รายละเอียดไฟล์ผลลัพธ์
 
-`dataset.csv`, metadata.json (summary/report_text/validation/provenance) และสำเนากฎอยู่ใน `data/intermediate/mac2hand/<รอบ>/` ไฟล์ข้อมูลทุกแถว คิว กลุ่มปัญหา และ candidate อยู่ใน `data/intermediate/mac2hand/<รอบ>/finalization/` ของรอบเดียวกัน ใช้ `--output` และ `--review-output` เมื่อต้องการรันทดลองแยกปลายทาง
+`dataset.csv`, metadata.json (summary/report_text/validation/provenance) และสำเนากฎอยู่ใน `data/intermediate/mac2hand/<รอบ>/accepted/` ไฟล์ข้อมูลทุกแถว คิว กลุ่มปัญหา และ candidate อยู่ใน `data/intermediate/mac2hand/<รอบ>/finalization/` ของรอบเดียวกัน
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
@@ -890,17 +832,13 @@ CSV ต้องกำหนด dtype เมื่อโหลด โดยเ�
 
 ยังไม่ตรวจประกาศซ้ำข้ามเว็บ ไม่ลบ candidate ที่ดูเหมือนกัน ไม่ทำ EDA ร่วมเต็มรูปแบบ ไม่แบ่ง train/test และไม่ฝึกโมเดล กลุ่มเครื่องเสีย/ล็อก/รอหลักฐานไม่ได้รวมมา
 
-### สคริปต์ที่รัน
+### เครื่องมือที่ใช้
 
-```bash
-.venv/bin/python -u -B script/preparation/shared/prepare_combined_dataset.py
-```
+อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/intermediate/<เว็บ>/<รอบ>/accepted/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
 
-อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/intermediate/<เว็บ>/<รอบ>/accepted/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม รองรับรันจาก directory อื่นผ่าน absolute path และ `python -m script.preparation.shared.prepare_combined_dataset` จากรากโปรเจค ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
+### รายละเอียดไฟล์ผลลัพธ์
 
-### ไฟล์ผลเก็บอะไร
-
-dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provenance) อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/` ส่วน lineage, audit รายเว็บ, normalization_changes และ price_review อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/` ใช้ `--output` และ `--audit-output` เพื่อเลือกปลายทางสองขั้น
+dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provenance) อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/` ส่วน lineage, audit รายเว็บ, normalization_changes และ price_review อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/`
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
@@ -920,13 +858,9 @@ dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provena
 
 ผู้ใช้เลือกตัดคิว EDA ทั้งหมดและหยุดตรวจต่อ เมื่อ 2026-10-11 สร้างชุด 9,210 แถวจากชุดรวม 10,032 แถว ไม่เปลี่ยน source dataset หรือผล EDA เดิม ราคาคือราคาตั้งขาย สภาพคือช่องที่ผู้ขายระบุ
 
-### วิธีทำซ้ำ
+### หลักฐานและผลลัพธ์
 
-```bash
-.venv/bin/python -B script/preparation/shared/select_model_input.py
-```
-
-ใช้กับทั้ง ENNXO และ Mac2Hand ค่าเริ่มต้นอิงตำแหน่งไฟล์ รันจาก directory อื่นด้วย absolute path หรือ `python -m script.preparation.shared.select_model_input` จากรากโปรเจคได้ ทดลองโดยระบุ `--output` และ `--audit-output` ไปปลายทางใหม่ ใช้ `--policy` เลือกกฎที่ version และ hash ตรงข้อมูลนั้น
+ใช้กับทั้ง ENNXO และ Mac2Hand โดยตรวจ version และ hash ของนโยบายให้ตรงกับข้อมูล
 
 | ข้อมูลเข้า | หน้าที่ |
 |---|---|
@@ -1037,7 +971,7 @@ CSV แยกสามสถานะเพื่ออ่านคิวแล�
 
 ## คู่มือไฟล์และผลลัพธ์
 
-ภาพรวมชุดปัจจุบันอยู่ที่ [ต้นเอกสารนี้](#current-dataset); โครงสร้างและ GitHub อ่าน [คู่มือพัฒนา](development.md) Path และจำนวนชุดปัจจุบันอยู่ใน [datasets.json](../data/datasets.json) ตารางนี้อธิบายไฟล์ตามขั้น ไม่ใช้ผล baseline แทนชุดล่าสุด
+ภาพรวมชุดปัจจุบันอยู่ที่ [ต้นเอกสารนี้](#current-dataset); โครงสร้างและ GitHub อ่าน [ภาพรวมโครงการ](project.md) Path และจำนวนชุดปัจจุบันอยู่ใน [datasets.json](../data/datasets.json) ตารางนี้อธิบายไฟล์ตามขั้น ไม่ใช้ผล baseline แทนชุดล่าสุด
 
 ### Raw: ต้นฉบับ
 

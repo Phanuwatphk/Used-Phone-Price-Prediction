@@ -1,8 +1,8 @@
 # รายงานโมเดลราคาตั้งขายมือถือ — V2
 
-รายงานหลักเรื่องโมเดล: อ่านวิธีเลือกข้อมูล วิธีเทรน กราฟ ตัววัด ผลแยกกลุ่ม และคำสั่งทำซ้ำได้ในไฟล์นี้ เอกสาร HTML เป็นเนื้อหาเดียวกันสำหรับเปิดใน browser; JSON/CSV เป็นหลักฐานตัวเลข ไม่ใช่คู่มืออีกชุด
+รายงานหลักเรื่องโมเดล: อ่านวิธีเลือกข้อมูล วิธีเทรน กราฟ ตัววัด ผลแยกกลุ่ม และหลักฐานประกอบได้ในไฟล์นี้ เอกสาร HTML เป็นเนื้อหาเดียวกันสำหรับเปิดใน browser; JSON/CSV เป็นหลักฐานตัวเลข ไม่ใช่คู่มืออีกชุด
 
-## สรุปผลก่อนอ่านรายละเอียด
+## สรุปผลการประเมิน
 
 เลือก **HGB / CatBoost weighted ensemble + price (THB)** (`blend_cat_share_0.5`) จาก 9 ตัวเลือกด้วย validation ตามเวลา 2 ช่วง MAE validation **4,277.71 บาท**
 
@@ -19,7 +19,9 @@
 
 **ผลนี้เป็นการประเมินย้อนหลังบนชุดเดิมที่เคยเปิดดูระหว่างพัฒนา ไม่ใช่ holdout ใหม่** โมเดลสำหรับใช้งานฝึกครบ 9,210 แถวและยังไม่มีคะแนนทดสอบอิสระของตัวที่ฝึกครบ
 
-## 1. เลือกข้อมูลอะไรและตัดอะไรออก
+อ่าน [ผลประเมินแยก Android และ iOS](#7-ผลการประเมินแยก-android-และ-ios) จาก **test เดิม 693 ประกาศ** ในหัวข้อ 7
+
+## 1. ข้อมูลที่เลือกใช้และข้อมูลที่ตัดออก
 
 หนึ่งแถวคือหนึ่งประกาศ ราคาเป้าหมายคือ **ราคาตั้งขาย หน่วยบาท** ไม่ใช่ราคาปิดการขาย ใช้ทุกวันที่ใน snapshot ไม่มีการจำกัด 12 เดือน
 
@@ -35,7 +37,7 @@ EDA ระบุคิวจาก IQR, ข้อความ candidate ซ้�
 
 `data/final/dataset.csv` มี 13 คอลัมน์ / 9,210 แถว ข้อมูลส่วนใหญ่เป็น Apple และ Mac2Hand; กลุ่มย่อยไม่สมดุล การคัดใช้ EDA ทั้ง snapshot ก่อน split จึงมี selection bias คะแนนอธิบายชุดหลังคัดนี้ ไม่ใช่ประกาศทุกประเภทบนเว็บ
 
-## 2. ใช้ features และจัดการ missing อย่างไร
+## 2. ตัวแปรที่ใช้และการจัดการค่าขาดหาย
 
 ใช้ **22 features**:
 
@@ -48,7 +50,7 @@ Battery health %, ประกันวันและกล่องถอด�
 
 ฝั่ง HGB ใช้ one-hot encoding ที่รับ unknown category ได้ ตัวเลขเติม median และ scale จาก train ของ fold เท่านั้น ส่วน CatBoost ใช้ categorical features และ numeric missing ตาม native behavior ไม่ใช้ target encoding จาก validation ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
 
-## 3. แบ่ง train / validation / evaluation ตามเวลา
+## 3. การแบ่งข้อมูลตามเวลา
 
 เรียงตามวันประกาศและรหัส ไม่สุ่มประกาศเก่ากับใหม่ปนกัน วันเดียวกันอยู่ฝั่งเดียว ป้องกันเรียนรู้ข้อมูลอนาคตใน preprocessing และน้ำหนักข้อมูล
 
@@ -64,7 +66,7 @@ Validation สองช่วงรวม **1,054 แถว** จำนวน tr
 
 สุดท้ายฝึก operational artifact แยกด้วย **9,210 แถว** เพื่อเรียนรู้ 300 รุ่นจนถึง 2026-10-06 การฝึกครบทำให้คะแนนย้อนหลังของ evaluation artifact ไม่ใช่คะแนนอิสระของ operational artifact
 
-## 4. เทรนอย่างไร และเลือกตัวไหน
+## 4. กระบวนการฝึกและการเลือกโมเดล
 
 ทดลอง 9 ตัวเลือกตาม frozen config มี reference V1 และโมเดลที่ใช้ก่อนปรับ รวมถึงการปรับ loss, ความซับซ้อน และแนวโน้มราคา ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์ ทุกตัวใช้ folds และแถวเดียวกัน
 
@@ -123,7 +125,7 @@ Ensemble ฝึกสมาชิกแยกกันบน log ราคา �
 
 **อ่านกราฟ:** แท่งสั้นคือ MAE ต่ำกว่า ใช้กราฟนี้และตัวเลข validation เลือกวิธี ไม่เลือกด้วยคะแนนชุดย้อนหลัง ตาราง [fold_metrics.csv](assets/modeling/tables/fold_metrics.csv) เก็บผลแต่ละ fold เพื่อดูความเปลี่ยนแปลงตามเวลา
 
-## 5. ใช้ตัววัดสถิติอะไร ได้ค่าเท่าไร
+## 5. ตัวชี้วัดและผลการประเมิน
 
 กำหนด y = ราคาประกาศจริง, ŷ = ราคาที่ทำนาย ตัววัดทั้งหมดคำนวณหลังแปลงกลับเป็นบาท บน 693 แถวเดียวกันสำหรับ V1/V2
 
@@ -142,7 +144,7 @@ MAE คือจำนวนบาทที่คลาดเคลื่อน�
 
 **มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความเปอร์เซ็นต์การปรับปรุงว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
 
-## 6. ผลแยกเว็บและยี่ห้อ
+## 6. ผลการประเมินแยกเว็บไซต์และยี่ห้อ
 
 | เว็บ | n | MAE (บาท) | RMSE (บาท) | R² | ภายใน ±20% |
 |---|---|---|---|---|---|
@@ -164,7 +166,31 @@ Apple ในชุดฝึก 93.80% เทียบกับ 63.78% ในช�
 
 **อ่านกราฟ:** แสดงเฉพาะยี่ห้อที่มีอย่างน้อย 10 แถว พร้อม n; แท่งสั้นคือ error น้อย ดู [retrospective_by_group.csv](assets/modeling/tables/retrospective_by_group.csv) สำหรับทุกยี่ห้อ ปี สภาพ และรุ่นเคยเห็น/ไม่เคยเห็น กลุ่มน้อยกว่า 10 ยังคงอยู่ในตาราง ไม่ถูกลบจากผลประเมิน
 
-## 7. กราฟวิเคราะห์ error
+
+## 7. ผลการประเมินแยก Android และ iOS
+
+| ตัววัด | iOS (iPhone) | Android (อนุมาน) | ยังไม่ยืนยัน OS |
+|---|---|---|---|
+| จำนวนประกาศ | 442 | 240 | 11 |
+| MAE (บาท) | 4,583.66 | 5,361.96 | 1,930.68 |
+| RMSE (บาท) | 6,492.90 | 8,547.14 | 2,995.64 |
+| Median absolute error (บาท) | 2,750.02 | 2,515.53 | 587.28 |
+| R² | 0.7145 | 0.2664 | 0.3542 |
+| MAPE | 20.99% | 50.21% | 26.23% |
+| ทำนายใน ±20% | 56.11% | 20.83% | 45.45% |
+| Bias (บาท) | -3,475.22 | -2,904.42 | -1,823.90 |
+
+ใช้ราคาจริงและผลทำนายของ evaluation artifact บน 693 ประกาศย้อนหลังชุดเดิม ไม่ฝึกโมเดลแยกหรือเปลี่ยนพารามิเตอร์เพื่อคำนวณตารางนี้ Dataset ไม่มีฟิลด์ OS จริง จึงจัด Apple ที่ระบุรุ่น iPhone เป็น iOS และยี่ห้อ Android ตาม allowlist ที่บันทึกไว้ กลุ่มที่ยืนยันไม่ได้แยกไว้ครบ
+
+กลุ่มยังไม่ยืนยัน OS มี 11 แถว ได้แก่ Huawei จึงไม่รวมเป็น Android อัตโนมัติ ตารางนี้ไม่ยืนยัน OS ที่ติดตั้งจริงหรือการดัดแปลงเครื่อง
+
+**อ่านผล:** iOS มี MAE 4,583.66 บาท และ R² 0.7145 ส่วน Android มี MAE 5,361.96 บาท และ R² 0.2664; ทำนายใน ±20% ได้ 56.11% และ 20.83% ตามลำดับ ดูทั้งความคลาดเคลื่อนเป็นบาทและสัดส่วนราคา Bias ติดลบหมายถึงแนวโน้มทำนายต่ำ
+
+**ข้อมูลฝึก:** evaluation artifact มี Apple 7,989 จาก 8,517 แถว (93.80%) ส่วน catalog อายุรุ่นมีเฉพาะ iPhone จึงมีทั้งความไม่สมดุลของข้อมูลและความต่างของข้อมูลประกอบ
+
+**ข้อจำกัด:** รุ่น ช่วงราคา และช่วงเวลาของแต่ละกลุ่มต่างกัน R² เทียบกับค่าเฉลี่ยภายในกลุ่ม และไม่ใช่เปอร์เซ็นต์ accuracy ผลนี้ไม่พิสูจน์ว่า OS เป็นสาเหตุของความแม่นยำ ไม่ได้ทดสอบนัยสำคัญทางสถิติ และยังไม่ใช่คะแนน holdout ใหม่ ควรเพิ่มข้อมูล Android และประเมินช่วงเวลาใหม่ก่อนรับรองผลแยกแพลตฟอร์ม
+
+## 8. กราฟวิเคราะห์ความคลาดเคลื่อน
 
 ![ราคาจริงและราคาทำนาย](assets/modeling/figures/retrospective_actual_vs_predicted.png)
 
@@ -178,7 +204,7 @@ Apple ในชุดฝึก 93.80% เทียบกับ 63.78% ในช�
 
 **อ่านกราฟ:** แกนนอนคือ error เป็นบาท แกนตั้งคือจำนวนประกาศ หางด้านขวาคือกลุ่มที่คลาดเคลื่อนสูง ไม่ใช่ confidence interval ของราคาทำนาย
 
-## 8. ข้อจำกัดและข้อสรุปที่ใช้ได้
+## 9. ข้อจำกัดและขอบเขตการสรุปผล
 
 V2 ให้ MAE ต่ำกว่า V1 ในการเปรียบเทียบย้อนหลังเดียวกัน แต่มีอคติจากการคัดข้อมูลก่อน split ข้อมูลเว็บ/รุ่น/สภาพไม่สมดุล รุ่นใหม่/Android มีข้อจำกัดและสภาพจากผู้ขายอาจไม่ครบ ไม่มีการยืนยันว่าเป็นเครื่องคนละเครื่องทางกายภาพ
 
@@ -186,17 +212,17 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 
 โมเดลพร้อมทดลองประเมิน **ราคาตั้งขายของเครื่องปกติ** ก่อนรับรองประสิทธิภาพจริงควรประเมินชุดใหม่หลัง 2026-10-06 ที่ไม่เคยใช้พัฒนา ไม่อ้างราคาปิดขายหรือความแม่นยำ 100%
 
-## 9. รันอะไร อ่านอะไร และผลเก็บที่ไหน
+## 10. เครื่องมือ ข้อมูลเข้า และผลลัพธ์
 
 | สคริปต์ใน script/modeling/ | หน้าที่ / input | output |
 |---|---|---|
-| `prepare_features_v2.py` | อ่าน core/lineage/full-text และตรวจหลักฐาน ถอด optional claims | enrichment dataset/audit ใน intermediate (ต้องมีหลักฐาน private) |
-| `rebuild_features_v2.py` | core + public condition sidecar ตรวจ hashes | enriched CSV byte ตรงรอบจริง ไม่ต้องใช้ raw |
-| `features_v2.py` | สร้าง 22 features จากข้อมูลและ frozen catalog | โมดูลประกอบ ไม่รันแยก |
+| `model_v2/prepare_features_v2.py` | อ่าน core/lineage/full-text และตรวจหลักฐาน ถอด optional claims | enrichment dataset/audit ใน intermediate (ต้องมีหลักฐาน private) |
+| `model_v2/rebuild_features_v2.py` | core + public condition sidecar ตรวจ hashes | enriched CSV byte ตรงรอบจริง ไม่ต้องใช้ raw |
+| `model_v2/features_v2.py` | สร้าง 22 features จากข้อมูลและ frozen catalog | โมดูลประกอบ ไม่รันแยก |
 | `trend.py` | Ridge/residual, age normalization และ fixed-weight ensemble | โมดูล estimator สำหรับทดลอง ไม่รันแยก |
-| `train_improved.py` | 2 temporal folds เลือก → evaluation → fit ครบ | artifacts, reports และ predictions รายแถว |
-| `report_improved.py` | อ่านผลจริง/ตัวเลขสร้างรายงานนี้และกราฟ | docs/modeling.md, HTML และ figures |
-| `predict.py` | ตรวจ checksum โหลด artifact และทำนาย | JSON หน้าจอ หรือ --output |
+| `model_v2/train_improved.py` | 2 temporal folds เลือก → evaluation → fit ครบ | artifacts, reports และ predictions รายแถว |
+| `model_v2/report_improved.py` | อ่านผลจริง/ตัวเลขสร้างรายงานนี้และกราฟ | docs/modeling.md, HTML และ figures |
+| `predict.py` | ตรวจ checksum โหลด artifact และทำนาย | ราคาทำนายที่ส่งให้หน้าเว็บ |
 
 | ไฟล์/โฟลเดอร์ | เก็บอะไร |
 |---|---|
@@ -208,22 +234,13 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 | `docs/modeling.md` | รายงานโมเดลหลักไฟล์เดียว |
 | `docs/assets/modeling/` | metadata.json รวม summary/config/folds/selection/provenance/validation/hashes; figures, tables, HTML; history.zip เก็บผลทดลองเดิม |
 
-```bash
-# หลัง clone: rebuild จาก public core + sidecar แล้วเทรน
-.venv/bin/python -B script/modeling/rebuild_features_v2.py
-.venv/bin/python -u -B script/modeling/train_improved.py
-# ใช้ผลตัวเลือกที่ทำครบต่อเมื่อหยุด และ config/hash เดิม
-.venv/bin/python -u -B script/modeling/train_improved.py --resume
-# ทำนายด้วย operational artifact
-.venv/bin/python -B script/modeling/predict.py --source mac2hand --brand Apple --model 'iPhone 16 Pro' --storage-gb 256 --condition used --published-at 2026-10-06 --battery-health-pct 90
-```
 
-Batch ใช้ --input-csv และ --output; รองรับ absolute path จาก directory อื่น V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; evaluation/V1 binary, raw, ข้อความต้นทาง และ predictions รายแถวเก็บในเครื่อง; code/config/core/sidecar/รายงานผลรวมขึ้น Git ได้ เวลา pipeline ที่บันทึกล่าสุด 109.0 วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม 425.4 วินาที ไม่รวมเขียนโค้ด/เตรียม feature
+เวลา pipeline ที่บันทึกล่าสุด 109.0 วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม 425.4 วินาที ไม่รวมเขียนโค้ด/เตรียม feature
 
 แหล่งนิยาม: [scikit-learn regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics), [HGB](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html), [Apple iPhone release years](https://support.apple.com/en-us/108044)
 
 
-## 10. รอบปรับปรุง 2026-10-12
+## 11. รอบปรับปรุง 2026-10-12
 
 ทดลอง **33 ตัวเลือกไม่ซ้ำ** โดยคงข้อมูล 9,210 แถวและ folds/cutoff เดิม ไม่ตัดประกาศเพิ่มเพื่อให้คะแนนดีขึ้น ค่า MAE/R² ทุกตัววัดบนแถวเดิม
 
@@ -251,8 +268,10 @@ Batch ใช้ --input-csv และ --output; รองรับ absolute path
 
 ตรวจความจุกับสเปก Apple เพิ่ม พบ 15 แถวที่ความจุประกาศไม่อยู่ในรายการของรุ่นที่ normalize ไว้ ยังไม่เดาว่ารุ่นหรือความจุผิด และไม่แก้ชุดฝึกในการเปรียบเทียบนี้ ต้องตรวจรายละเอียดต้นทางก่อน หน้าเว็บใช้ตัวเลือกจากสเปกผู้ผลิตสำหรับ iPhone เพื่อกันค่าที่ไม่รองรับ ดู [ผลตรวจความจุ](assets/modeling/tables/storage_reference_audit.csv) และ [Apple Support](https://support.apple.com/en-us/108044)
 
-ใช้ MAE validation เลือกพารามิเตอร์ แล้วตรวจผลย้อนหลังเพื่อรับหรือปฏิเสธการเปลี่ยนโมเดลใช้งาน ผลย้อนหลังจึงมีส่วนใน deployment decision และยังเป็นข้อมูลที่เคยเห็น ห้ามตีความเป็นการทดสอบอิสระหรือรับประกันผลในอนาคต
+ใช้ MAE validation เลือกพารามิเตอร์ แล้วตรวจผลย้อนหลังเพื่อรับหรือปฏิเสธการเปลี่ยนโมเดลใช้งาน ผลย้อนหลังจึงมีส่วนใน การเลือกโมเดลใช้งาน และยังเป็นข้อมูลที่เคยเห็น ห้ามตีความเป็นการทดสอบอิสระหรือรับประกันผลในอนาคต
 
 อ่าน [ตัวเลข validation ทุกตัวเลือก](assets/modeling/tables/tuning_validation.csv) และ [บัญชีการทดลอง/ที่มาผล](assets/modeling/metadata.json#tuning_review) สำหรับ config, hashes, สถานะและค่าก่อนปรับ ข้อมูลรายแถวและ binary ของโมเดลทดลองอยู่ในเครื่อง
 
-ทำซ้ำกลุ่มทดลองด้วย `train_improved.py --experiment revision`, `--experiment age_transfer` และ `--experiment ensemble` แต่ละกลุ่มเขียนผลคนละ run folder; config หลัก `current.json` ใช้สร้างโมเดลใช้งานปัจจุบัน
+กลุ่มทดลองเก็บแผนใน `experiments.json` และผลย้อนหลังใน `history.zip`; แผนหลัก `current.json` ใช้สร้างโมเดลใช้งานปัจจุบัน
+
+หน้าที่ไฟล์ทั้งหมดดู [ตารางไฟล์ในโครงการ](project.md)

@@ -25,6 +25,10 @@ def apply_layout():
     <style>
     div.stMainBlockContainer { max-width: 1160px; padding-top: 2.8rem; padding-bottom: 3rem; }
     [data-testid="stSidebar"] { background: #eef2f6; border-right: 1px solid #cbd5e1; }
+    [data-testid="stSidebarContent"] {
+        height: 100%; overflow: clip; overscroll-behavior: none;
+    }
+    [data-testid="stSidebarUserContent"] { padding-bottom: 1rem; }
     [data-testid="stSidebar"] h1 { font-size: 1.35rem; text-align: center; }
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { text-align: center; }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] {
@@ -85,6 +89,13 @@ def apply_layout():
     [data-testid="stNumberInputField"]::-webkit-outer-spin-button { -webkit-appearance: none; }
     .stButton button, .stFormSubmitButton button, .stDownloadButton button {
         min-height: 2.8rem; border-radius: 8px; font-weight: 500;
+    }
+    @media (max-height: 600px) {
+        [data-testid="stSidebarHeader"] { height: 2.5rem; min-height: 2.5rem; }
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: .5rem; }
+        [data-testid="stSidebar"] hr { margin: .6rem 0; }
+        [data-testid="stSidebar"] [data-testid="stRadioOption"] { padding: .4rem .8rem; }
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { line-height: 1.5; }
     }
     @media (max-width: 640px) {
         div.stMainBlockContainer { padding: 1.5rem 1rem 2rem; }

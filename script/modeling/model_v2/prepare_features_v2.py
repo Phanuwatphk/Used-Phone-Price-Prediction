@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import re
 import sys
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 if not __package__:
     sys.path.insert(0, str(ROOT))
 from bs4 import BeautifulSoup
