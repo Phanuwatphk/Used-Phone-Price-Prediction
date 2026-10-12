@@ -1,9 +1,0 @@
-{
-  "inputs_unchanged": true,
-  "all_rows_accounted_for": true,
-  "no_queue_members_retained": true,
-  "retained_values_unchanged": true,
-  "output_csv_jsonl_consistent": true,
-  "schema_unchanged": true,
-  "lineage_for_every_retained_row": true
-}

@@ -1,5 +1,5 @@
 # CSV writers use CRLF record separators; retain the stored dataset hashes.
-*.csv whitespace=cr-at-eol
+*.csv -text whitespace=cr-at-eol
 
 # Matplotlib SVG path data contains generated trailing spaces.
 docs/assets/eda/*/figures/*.svg -whitespace

@@ -1,0 +1,188 @@
+{
+  "summary": {
+    "input": 10032,
+    "excluded": 822,
+    "retained": 9210,
+    "source_counts": {
+      "ennxo": 1202,
+      "mac2hand": 8008
+    },
+    "excluded_source_counts": {
+      "ennxo": 77,
+      "mac2hand": 745
+    },
+    "queue_counts": {
+      "outliers": 205,
+      "price_extremes": 10,
+      "text_candidates": 617
+    },
+    "overlapping_queue_memberships": 10,
+    "brand_counts": {
+      "Apple": 8431,
+      "Samsung": 354,
+      "Oppo": 168,
+      "Realme": 18,
+      "Huawei": 31,
+      "Infinix": 4,
+      "OnePlus": 9,
+      "Redmi": 28,
+      "Vivo": 84,
+      "Honor": 1,
+      "Xiaomi": 47,
+      "Nokia": 21,
+      "Google": 4,
+      "Sony": 5,
+      "Motorola": 1,
+      "Lenovo": 1,
+      "Asus": 3
+    },
+    "publication_year_counts": {
+      "2010": 31,
+      "2011": 22,
+      "2012": 44,
+      "2013": 27,
+      "2014": 36,
+      "2015": 169,
+      "2016": 940,
+      "2017": 1458,
+      "2018": 1396,
+      "2019": 957,
+      "2020": 594,
+      "2021": 641,
+      "2022": 592,
+      "2023": 556,
+      "2024": 1001,
+      "2025": 316,
+      "2026": 430
+    },
+    "price_thb": {
+      "min": 299.0,
+      "median": 18990.0,
+      "max": 65900.0
+    },
+    "date_min": "2010-04-02",
+    "date_max": "2026-10-06",
+    "stage": "model_input_selection_before_split",
+    "queue_review_closed": true,
+    "physical_duplicates_confirmed": false,
+    "train_test_split": false,
+    "model_trained": false,
+    "selection_bias_note": "User opted to exclude all flagged rows; results apply to this retained subset."
+  },
+  "report_text": "# ชุดข้อมูลก่อนแบ่ง train/validation/test\n\nเก็บ 9,210 แถว จาก 10,032 แถว ตัดคิว EDA รวม 822 แถวตามผู้ใช้ โดยนับ listing_id ซ้ำข้ามคิวครั้งเดียว ไม่แก้ค่าของแถวที่เก็บ\n\ndataset.csv/JSONL เก็บชุดใช้งาน schema.json เก็บคอลัมน์ policy.json เก็บกฎและ hash summary.json เก็บจำนวน validation.json เก็บผลตรวจ run_metadata.json เก็บที่มา เหตุผลรายแถวและ lineage อยู่ในปลายทาง audit\n\nยังไม่แบ่งข้อมูลหรือฝึกโมเดล การตัด flags เป็นนโยบายเลือกข้อมูล ไม่ยืนยันว่าแถวที่ตัดผิดจริงทั้งหมด\n",
+  "policy": {
+    "version": 1,
+    "decided_on": "2026-10-11",
+    "decided_by": "user",
+    "action": "exclude_all_queue_members",
+    "queue_rules": [
+      "Exclude every IQR flagged row",
+      "Exclude all members of text candidate components; retain no representative",
+      "Exclude every price_extremes row"
+    ],
+    "inputs": {
+      "dataset_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
+      "dataset_jsonl": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl",
+      "schema": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/schema.json",
+      "lineage": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/lineage.jsonl",
+      "outliers": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv",
+      "price_extremes": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv",
+      "text_components": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/text_candidate_components.json"
+    },
+    "input_sha256": {
+      "dataset_csv": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922",
+      "dataset_jsonl": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61",
+      "schema": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07",
+      "lineage": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50",
+      "outliers": "44305404d8fac94ae4d65eab115ecbcf31f15a20d8839e7fb4f4bfd10e55a359",
+      "price_extremes": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff",
+      "text_components": "d8dd4eebe91e61affe20bb4fa05475bc485587ecce06e2a81a0ddb2da4fc8c56"
+    },
+    "expected_counts": {
+      "input": 10032,
+      "excluded": 822,
+      "retained": 9210
+    },
+    "source_quarantine": "Exclude nonaccepted source rows and do not collect more evidence",
+    "eda_queue_review": "closed_without_further_review",
+    "date_cutoff": null,
+    "retained_values": "unchanged",
+    "split_performed": false,
+    "exclusion_meaning": "User selection policy, not a finding that every excluded listing is wrong or a confirmed duplicate"
+  },
+  "provenance": {
+    "generated_at": "2026-10-11T15:41:33.371902+07:00",
+    "input_hashes": {
+      "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv": "ef4848309dd287c8e6ae46a733aaaac0257eb2be4e471ad5df0a99ac71cad922",
+      "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl": "13c018e4457881d1b79d59844e8d146283701e048fd2ff9974a6577d0e4dab61",
+      "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/schema.json": "1305e80194b3b8e1e8c6e5b8ddfb99612d4a650afc19c50bcc6b2eee5c353e07",
+      "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/lineage.jsonl": "505334a1b4a9344efc1cbd2c59cdbd324f6f480117ca8c2ea9293a4f4eaaee50",
+      "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv": "44305404d8fac94ae4d65eab115ecbcf31f15a20d8839e7fb4f4bfd10e55a359",
+      "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv": "863adaad820846bf900ca7d48677ea41dd18d6952e9e05866565ddafd04ffbff",
+      "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/text_candidate_components.json": "d8dd4eebe91e61affe20bb4fa05475bc485587ecce06e2a81a0ddb2da4fc8c56"
+    },
+    "policy_sha256": "067de367006ca0c5fd6b2fe1ef6fc382bd515a192485998baa27c6ad03ece854",
+    "script_sha256": "0963dbdb1ec552e8cee6f0b5179bef92b044d43c4ab7feb052701ae94dd3332d",
+    "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "output_directories": {
+      "final": "data/final",
+      "audit": "data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1"
+    }
+  },
+  "validation": {
+    "inputs_unchanged": true,
+    "all_rows_accounted_for": true,
+    "no_queue_members_retained": true,
+    "retained_values_unchanged": true,
+    "output_csv_jsonl_consistent": true,
+    "schema_unchanged": true,
+    "lineage_for_every_retained_row": true
+  },
+  "schema": {
+    "version": 1,
+    "sources": [
+      "ennxo",
+      "mac2hand"
+    ],
+    "publication_timezone": "Asia/Bangkok",
+    "fields": {
+      "listing_id": "string: source:product_id",
+      "source": "string: ennxo or mac2hand",
+      "source_snapshot": "string",
+      "product_id": "string",
+      "url": "string: original product URL",
+      "brand": "string",
+      "model": "string",
+      "storage_gb": "integer: GB, 1 TB = 1024 GB in source cleaners",
+      "condition": "string: used or new, seller selected condition",
+      "price_thb": "number: full asking price in Thai baht",
+      "published_at": "string: YYYY-MM-DD in Asia/Bangkok",
+      "published_at_raw": "string: original source date or timestamp",
+      "published_at_precision": "string: day or timestamp"
+    },
+    "model_aliases": {
+      "Apple": {
+        "iPhone SE 2020": "iPhone SE 2",
+        "iPhone SE 2022": "iPhone SE 3",
+        "iPhone 17 Air": "iPhone Air"
+      },
+      "Huawei": {
+        "p50 Pocket": "P50 Pocket",
+        "p9": "P9"
+      },
+      "Vivo": {
+        "x fold5": "X Fold 5",
+        "X Fold5": "X Fold 5"
+      }
+    },
+    "samsung_fold_flip_spacing": true,
+    "remove_redundant_brand_prefix": [
+      "Xiaomi"
+    ],
+    "conditions": [
+      "used",
+      "new"
+    ],
+    "merge_policy": "Accepted source rows only; no imputation, date cutoff, outlier removal, or deduplication"
+  }
+}

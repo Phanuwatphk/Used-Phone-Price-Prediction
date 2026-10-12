@@ -1,0 +1,838 @@
+{
+  "report_refresh": {
+    "refreshed_at": "2026-10-12T11:13:32.408489+00:00",
+    "training_repeated": false,
+    "renderer_sha256": "9d7abfd269cc57f5f88d4227b1fe8cbd192b6aaee2c990d96d58b442d66188b9",
+    "predictions_sha256": "b1a61ef3b4e0d68ec9d3e59b14cca4ff1e1fd5af3ddcee44ff32364144d97ab8",
+    "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
+  },
+  "summary": {
+    "run": "asking_price_v2",
+    "selected_model": "blend_cat_share_0.5",
+    "validation": {
+      "name": "blend_cat_share_0.5",
+      "rows": 1054.0,
+      "mae_thb": 4277.710514141315,
+      "rmse_thb": 6586.750574640452,
+      "median_absolute_error_thb": 2444.074375407654,
+      "r2": 0.7719069351430222,
+      "mape_pct": 109.09890877241544,
+      "within_20pct": 0.4648956356736243,
+      "bias_thb": 981.2522115707249,
+      "fit_seconds": 43.73
+    },
+    "retrospective": {
+      "rows": 693,
+      "mae_thb": 4811.0896886835,
+      "rmse_thb": 7234.012680880774,
+      "median_absolute_error_thb": 2676.362752799263,
+      "r2": 0.6780092074804435,
+      "mape_pct": 31.195620041328443,
+      "within_20pct": 0.43722943722943725,
+      "bias_thb": -3251.327293120769
+    },
+    "v1_same_cutoff": {
+      "rows": 693,
+      "mae_thb": 8107.824675736678,
+      "rmse_thb": 11774.106186904371,
+      "median_absolute_error_thb": 4732.275347382005,
+      "r2": 0.1470161312110173,
+      "mape_pct": 44.024542218681255,
+      "within_20pct": 0.2698412698412698,
+      "bias_thb": -6177.610645959517
+    },
+    "retrospective_mae_improvement_pct": 40.66115288505097,
+    "evaluation_fit_rows": 8517,
+    "retrospective_rows": 693,
+    "deployment_fit_rows": 9210,
+    "deployment_models": 300,
+    "deployment_date_max": "2026-10-06",
+    "fresh_independent_holdout": false,
+    "deployment_independent_test_metrics": null,
+    "groups": [
+      {
+        "group": "brand",
+        "value": "Apple",
+        "rows": 442,
+        "mae_thb": 4583.658474305491,
+        "rmse_thb": 6492.90351939385,
+        "median_absolute_error_thb": 2750.0171112730177,
+        "r2": 0.714481028053036,
+        "mape_pct": 20.99242836910352,
+        "within_20pct": 0.5610859728506787,
+        "bias_thb": -3475.217691988524
+      },
+      {
+        "group": "brand",
+        "value": "Honor",
+        "rows": 1,
+        "mae_thb": 3448.1260844129074,
+        "rmse_thb": 3448.1260844129074,
+        "median_absolute_error_thb": 3448.1260844129074,
+        "r2": null,
+        "mape_pct": 137.9250433765163,
+        "within_20pct": 0.0,
+        "bias_thb": 3448.1260844129074
+      },
+      {
+        "group": "brand",
+        "value": "Huawei",
+        "rows": 11,
+        "mae_thb": 1930.6773503557272,
+        "rmse_thb": 2995.642882504682,
+        "median_absolute_error_thb": 587.2762535580487,
+        "r2": 0.35415309018155505,
+        "mape_pct": 26.234716641303983,
+        "within_20pct": 0.45454545454545453,
+        "bias_thb": -1823.8998497088096
+      },
+      {
+        "group": "brand",
+        "value": "Infinix",
+        "rows": 4,
+        "mae_thb": 1983.4857140726745,
+        "rmse_thb": 2122.873248262071,
+        "median_absolute_error_thb": 1982.135345920134,
+        "r2": -6.542030381831974,
+        "mape_pct": 116.11650252301106,
+        "within_20pct": 0.0,
+        "bias_thb": 1983.4857140726745
+      },
+      {
+        "group": "brand",
+        "value": "OnePlus",
+        "rows": 1,
+        "mae_thb": 412.9936958305716,
+        "rmse_thb": 412.9936958305716,
+        "median_absolute_error_thb": 412.9936958305716,
+        "r2": null,
+        "mape_pct": 14.802641427619054,
+        "within_20pct": 1.0,
+        "bias_thb": 412.9936958305716
+      },
+      {
+        "group": "brand",
+        "value": "Oppo",
+        "rows": 33,
+        "mae_thb": 2371.0884886227004,
+        "rmse_thb": 3576.0702698782093,
+        "median_absolute_error_thb": 1505.9388712145594,
+        "r2": 0.16522790667731535,
+        "mape_pct": 46.59683168136053,
+        "within_20pct": 0.12121212121212122,
+        "bias_thb": -2150.744110689753
+      },
+      {
+        "group": "brand",
+        "value": "Realme",
+        "rows": 5,
+        "mae_thb": 346.7666571969159,
+        "rmse_thb": 361.16644072183135,
+        "median_absolute_error_thb": 368.87934945362167,
+        "r2": -0.05194514438448472,
+        "mape_pct": 20.753575360605396,
+        "within_20pct": 0.6,
+        "bias_thb": 256.11817095135774
+      },
+      {
+        "group": "brand",
+        "value": "Redmi",
+        "rows": 7,
+        "mae_thb": 1312.395969275249,
+        "rmse_thb": 1501.2182185225226,
+        "median_absolute_error_thb": 1416.269395608353,
+        "r2": -0.6675951417168211,
+        "mape_pct": 87.1210193349485,
+        "within_20pct": 0.14285714285714285,
+        "bias_thb": 616.2528704223915
+      },
+      {
+        "group": "brand",
+        "value": "Samsung",
+        "rows": 163,
+        "mae_thb": 6873.849043117079,
+        "rmse_thb": 10070.683898131378,
+        "median_absolute_error_thb": 4265.102615995571,
+        "r2": 0.05766033462454334,
+        "mape_pct": 48.86871756618992,
+        "within_20pct": 0.20245398773006135,
+        "bias_thb": -3683.6950072509035
+      },
+      {
+        "group": "brand",
+        "value": "Vivo",
+        "rows": 17,
+        "mae_thb": 3233.2987775468164,
+        "rmse_thb": 5508.793342312315,
+        "median_absolute_error_thb": 1931.9498199194231,
+        "r2": 0.35218226109033735,
+        "mape_pct": 60.86435425105638,
+        "within_20pct": 0.23529411764705882,
+        "bias_thb": -2692.67042570032
+      },
+      {
+        "group": "brand",
+        "value": "Xiaomi",
+        "rows": 9,
+        "mae_thb": 1167.288520261159,
+        "rmse_thb": 1383.051269843856,
+        "median_absolute_error_thb": 1067.92291509282,
+        "r2": 0.8694368450186627,
+        "mape_pct": 20.281147595205766,
+        "within_20pct": 0.4444444444444444,
+        "bias_thb": 304.6799511498538
+      },
+      {
+        "group": "condition",
+        "value": "new",
+        "rows": 11,
+        "mae_thb": 16578.02033006896,
+        "rmse_thb": 16986.932526758952,
+        "median_absolute_error_thb": 15369.57154931699,
+        "r2": -4.907676652746776,
+        "mape_pct": 51.970527112513864,
+        "within_20pct": 0.0,
+        "bias_thb": -16578.02033006896
+      },
+      {
+        "group": "condition",
+        "value": "used",
+        "rows": 682,
+        "mae_thb": 4621.300484790186,
+        "rmse_thb": 6965.691626454712,
+        "median_absolute_error_thb": 2568.2425105598086,
+        "r2": 0.6990661343348084,
+        "mape_pct": 30.860540895019,
+        "within_20pct": 0.4442815249266862,
+        "bias_thb": -3036.3806312345077
+      },
+      {
+        "group": "model_coverage",
+        "value": "seen",
+        "rows": 455,
+        "mae_thb": 3246.8986359018495,
+        "rmse_thb": 4835.486882883374,
+        "median_absolute_error_thb": 2024.922714694554,
+        "r2": 0.7741800701249102,
+        "mape_pct": 25.045967482663343,
+        "within_20pct": 0.5428571428571428,
+        "bias_thb": -1121.2066800163923
+      },
+      {
+        "group": "model_coverage",
+        "value": "unseen",
+        "rows": 238,
+        "mae_thb": 7801.454936648416,
+        "rmse_thb": 10376.638547580193,
+        "median_absolute_error_thb": 6969.4443476151155,
+        "r2": 0.5741208394468108,
+        "mape_pct": 42.95230875642349,
+        "within_20pct": 0.23529411764705882,
+        "bias_thb": -7323.616700526193
+      },
+      {
+        "group": "source",
+        "value": "ennxo",
+        "rows": 479,
+        "mae_thb": 5623.052877390555,
+        "rmse_thb": 8195.311227615177,
+        "median_absolute_error_thb": 3383.0655410379077,
+        "r2": 0.49988057554371534,
+        "mape_pct": 39.73620747508911,
+        "within_20pct": 0.27139874739039666,
+        "bias_thb": -3896.4767153272205
+      },
+      {
+        "group": "source",
+        "value": "mac2hand",
+        "rows": 214,
+        "mae_thb": 2993.6580653625642,
+        "rmse_thb": 4373.990479234004,
+        "median_absolute_error_thb": 1818.4814795838188,
+        "r2": 0.884052804275991,
+        "mape_pct": 12.079071533051069,
+        "within_20pct": 0.8084112149532711,
+        "bias_thb": -1807.2778854717476
+      },
+      {
+        "group": "year",
+        "value": "2025",
+        "rows": 263,
+        "mae_thb": 4828.351292230072,
+        "rmse_thb": 7479.478677275947,
+        "median_absolute_error_thb": 2022.7264891478026,
+        "r2": 0.6945008734149944,
+        "mape_pct": 23.893565962625534,
+        "within_20pct": 0.5399239543726235,
+        "bias_thb": -4131.016967643889
+      },
+      {
+        "group": "year",
+        "value": "2026",
+        "rows": 430,
+        "mae_thb": 4800.532010235246,
+        "rmse_thb": 7079.685466848013,
+        "median_absolute_error_thb": 2965.832490372295,
+        "r2": 0.6461886563580672,
+        "mape_pct": 35.661760094116495,
+        "within_20pct": 0.3744186046511628,
+        "bias_thb": -2713.2845387031393
+      }
+    ],
+    "duration_seconds": 108.97,
+    "policy": "Keep all 9,210 rows. Recency weights do not remove old data. No tuning from old test in this run; it was examined in v1 and informed general diagnosis.",
+    "data_drift": {
+      "training_brands": {
+        "Apple": 7989,
+        "Samsung": 191,
+        "Huawei": 20,
+        "Asus": 3,
+        "Oppo": 135,
+        "Vivo": 67,
+        "Lenovo": 1,
+        "Motorola": 1,
+        "Realme": 13,
+        "Xiaomi": 38,
+        "Nokia": 21,
+        "OnePlus": 8,
+        "Redmi": 21,
+        "Google": 4,
+        "Sony": 5
+      },
+      "evaluation_brands": {
+        "Huawei": 11,
+        "Apple": 442,
+        "Redmi": 7,
+        "Samsung": 163,
+        "Oppo": 33,
+        "Vivo": 17,
+        "Xiaomi": 9,
+        "Realme": 5,
+        "Honor": 1,
+        "Infinix": 4,
+        "OnePlus": 1
+      },
+      "unseen_model_rows": 238
+    },
+    "previous_round": {
+      "selected_model": "age_hist_log_half_2",
+      "validation": {
+        "name": "age_hist_log_half_2",
+        "rows": 1054.0,
+        "mae_thb": 4339.414781578945,
+        "rmse_thb": 6518.779959170459,
+        "median_absolute_error_thb": 2633.0734901523283,
+        "r2": 0.7765901647843589,
+        "mape_pct": 99.71512943752239,
+        "within_20pct": 0.45351043643263755,
+        "bias_thb": 522.3862377620286,
+        "fit_seconds": 18.11
+      },
+      "retrospective": {
+        "rows": 693,
+        "mae_thb": 5339.299044795779,
+        "rmse_thb": 7867.293415345483,
+        "median_absolute_error_thb": 2909.0125118707238,
+        "r2": 0.6191660852587184,
+        "mape_pct": 33.42156621353688,
+        "within_20pct": 0.4054834054834055,
+        "bias_thb": -3830.005181217784
+      }
+    }
+  },
+  "selection": {
+    "candidate": {
+      "name": "blend_cat_share_0.5",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "age_hist_log_half_2",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2
+        },
+        {
+          "name": "age_catboost_log_depth_6",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2
+        }
+      ],
+      "blend_weights": [
+        0.5,
+        0.5
+      ],
+      "half_life": 2
+    },
+    "validation_metrics": {
+      "name": "blend_cat_share_0.5",
+      "rows": 1054.0,
+      "mae_thb": 4277.710514141315,
+      "rmse_thb": 6586.750574640452,
+      "median_absolute_error_thb": 2444.074375407654,
+      "r2": 0.7719069351430222,
+      "mape_pct": 109.09890877241544,
+      "within_20pct": 0.4648956356736243,
+      "bias_thb": 981.2522115707249,
+      "fit_seconds": 43.73
+    },
+    "old_test_used_for_selection": false,
+    "evaluation_status": "retrospective reuse of previously inspected v1 test; not a fresh independent holdout"
+  },
+  "workflow_validation": {
+    "date": "2026-10-12",
+    "tests_passed": 162,
+    "public_export_tests_passed": 162,
+    "public_only_training_input_rebuild_exact": true,
+    "inference_from_tmp": true,
+    "three_streamlit_pages_with_actual_model": true,
+    "canonical_rows": 9210,
+    "evaluation_fit_rows": 8517,
+    "retrospective_rows": 693,
+    "deployment_fit_rows": 9210,
+    "selected_model": "blend_cat_share_0.5",
+    "fresh_independent_holdout": false,
+    "deployment_independent_test_score": null,
+    "training_code_hashes_current_except_presentation_renderer": true,
+    "renderer_provenance": "Training metadata frozen; presentation-only update recorded in report_refresh.json.",
+    "logs": [
+      "/tmp/phone_project_audit_all_tests.log",
+      "/tmp/phone_project_audit_public_tests.log",
+      "/tmp/phone_project_cli_audit.json"
+    ],
+    "storage_dropdown_verified": true,
+    "storage_reference_models": 54,
+    "public_registry_and_document_links_verified": true,
+    "all_public_report_hashes_verified": true,
+    "cli_help_from_other_directory": 24,
+    "csv_git_normalization_disabled": true
+  },
+  "provenance": {
+    "run": "asking_price_v2",
+    "generated_at_utc": "2026-10-12T08:46:22.012109+00:00",
+    "config_sha256": "663e6803528813688aaa2c615c9f1cc62d10ce25b2e900410f0c788d1b3115f5",
+    "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "enriched_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "model_hashes": {
+      "evaluation.joblib": "b2959843863ec4c96f3f10f28eff95c4ea4e2dad7d6b5817723a93133c6cfc5a",
+      "model.joblib": "1615100241bbe12f0edb45a26eb47cbe88b92e5bd14bc26a8de1c46062553734"
+    },
+    "code_sha256": {
+      "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
+      "script/modeling/features.py": "dece45bfcc28f2d8997cacd95707fb627d9bd3ccf70a8a6dd4dcdc6f99c73d38",
+      "script/modeling/features_v2.py": "6bde67941edf905a636f2f0431cff14608f44c5a8b1c414a23388f0f59ef50d1",
+      "script/modeling/predict.py": "9422164bead69f61172ff4254b40d6c51657919063176587b781fc097daf51fa",
+      "script/modeling/prepare_features_v2.py": "4425e3a78ea905a43ccd1409e5b0346866e4a53649ef8b99847416ae4178594d",
+      "script/modeling/rebuild_features_v2.py": "ceb28759df357cbfcf596b523e03d8f9abf0b6b12195846725f922e33920576c",
+      "script/modeling/report.py": "3f0acf88b156eb62c312a35a4f71f7284886c6eb55279e7ae91f09d57da6741a",
+      "script/modeling/report_improved.py": "e54e39ba31d214e71585d51f0534c65cc5b0e0efc71051a3ce70e23785fab6dd",
+      "script/modeling/split_dataset.py": "9f891b7f6a8f5018afc7e13d100a0fd5e15ba49ad5ed98f31f6b20133c0ad352",
+      "script/modeling/train_improved.py": "1afa22049a9e76cf6b898ce9854e54fe916657a39e118ae9bc404325e6f2c066",
+      "script/modeling/train_models.py": "8454be08f19dc59b3ebc77ba9e038fd9c821c33a732f3b486e43a60321ff47ed",
+      "script/modeling/trend.py": "444c2964017ccaefb84e876968d4c224d492a0f4249d5d1fca50ebed85ef606b"
+    },
+    "versions": {
+      "scikit-learn": "1.9.1",
+      "catboost": "1.2.10",
+      "pandas": "3.0.6",
+      "numpy": "2.5.4",
+      "joblib": "1.6.0"
+    },
+    "fit_roles": {
+      "evaluation.joblib": {
+        "rows": 8517,
+        "test_excluded": true
+      },
+      "model.joblib": {
+        "rows": 9210,
+        "includes_old_test": true,
+        "independent_test_score": null
+      }
+    },
+    "selected_model": "blend_cat_share_0.5",
+    "feature_contract": [
+      "source",
+      "brand",
+      "model",
+      "brand_model",
+      "model_family",
+      "condition",
+      "device_tier",
+      "storage_gb",
+      "log_storage",
+      "model_number",
+      "publication_days",
+      "publication_year",
+      "publication_month",
+      "release_year",
+      "model_age_years",
+      "release_known",
+      "battery_health_pct",
+      "battery_missing",
+      "warranty_days",
+      "warranty_missing",
+      "box_mentioned",
+      "box_missing"
+    ]
+  },
+  "hashes": {
+    "figures/retrospective_actual_vs_predicted.png": "7748e9bd0bfc7164e32175acc622e0e9aaca06687832c4dc34ad80f7b44b2883",
+    "figures/retrospective_actual_vs_predicted.svg": "0787325b065001083796a6ac9664641db217e60e2ceff5c5a35e243963abc4cc",
+    "figures/retrospective_brand_mae.png": "f9515ec769744d2e5fb64a218e39136b1ba3b5ba4d6487a200de88eb75b9c465",
+    "figures/retrospective_brand_mae.svg": "c6eb4f510a71024399f7a6ab9f52cae4f01974bafdeea23429bc91f8667b1510",
+    "figures/retrospective_error_distribution.png": "01f117a0dc94c386c55bae3050d2f7db3083a9d6286679e586086be3ec83623a",
+    "figures/retrospective_error_distribution.svg": "c1b057c42d25f7ef335a280f2d494b0028faf7d78f5382e2a6a587812edca320",
+    "figures/retrospective_residuals.png": "bee3f718bd80a4d2627ad476039d212b80de24ade1acd439313c669ad33b5229",
+    "figures/retrospective_residuals.svg": "b8ebd587eeb6c0140a9eb61bcc4bf7b8b67d602ee2378bb4d1afa1a1710e2092",
+    "figures/validation_comparison.png": "45b4a71ad112203d28423e8eca688b995f7c87e467f1b3e52d5e334cc82bd219",
+    "figures/validation_comparison.svg": "0cd337da61de57073256a272a536309fead7505257631229e8bbae84f0398774",
+    "history.zip": "7ac10e2d7efab7494e08791a35c178bd0e0eb8fbb47a48d7ff62c9f4c7ee49a5",
+    "report.html": "e610e6e5530ff171281875790deb0d1eaa100936e48e8ec24311552ad0c1d10e",
+    "tables/fold_metrics.csv": "b2ba0ddc25dfb3816c0c8d150c314f052639f202c55d1702da0f1a9865e9dd40",
+    "tables/retrospective_by_group.csv": "f7d3b882d90f785f9250d20f8d72e29d9b3eeead52268928e8c9f19ec6dec836",
+    "tables/retrospective_metrics.csv": "372c6a8c41f208fe4f2243437eb352da1b355f89af9bb16b74759b95b2b6461d",
+    "tables/storage_reference_audit.csv": "53f3d3fe16186d006eb1851cf7541c5bc1e0a86c476572a403ec54a02e21cce9",
+    "tables/tuning_group_comparison.csv": "eed3ef20c73839c9b99473cfc9d07d4b6f1d8ec77aac7343723cb781849bfeac",
+    "tables/tuning_validation.csv": "31f0928da8fe74f95b23e840fd8b12bf3cb8fab106c72eacb573cf74137e67e4",
+    "tables/validation_comparison.csv": "def397a71cad881e3a730473c4090a19c5a75c86727444f55b4273b333d6a101",
+    "metadata.json#report_refresh": "c921f117540cecffc6695cfe9d4aaad99e93c1900545b7f2c804db58c8c82f4f",
+    "metadata.json#summary": "1a2a1144689d9d39ec6b51e49525f453e3ad1a0de75279ad7ece1863c3d75e98",
+    "metadata.json#selection": "183ac68c2f35bd43c0d118fe4611348baf6f6d5ed2904fedbfd502db4b5cc45b",
+    "metadata.json#workflow_validation": "57058807d561959d452f4016e11524c1e2cc15e8579de952e11afada9c75ad0b",
+    "metadata.json#provenance": "b3365dee900bf28a659a8f93eac05e062fe27c19b721e82208ebe5f8693ddbc4",
+    "metadata.json#tuning_review": "2bfbdbb6bcba4a7db498606aa61a2dffe3b0e8c6b42b2f4ac97c21c9d4671625",
+    "metadata.json#config": "663e6803528813688aaa2c615c9f1cc62d10ce25b2e900410f0c788d1b3115f5",
+    "metadata.json#folds": "66c6bc8d3c88d1a9ef44d2381642686770fe39157b452a2a6e67e15a68c03801",
+    "metadata.json#validation": "0783e5ba12f6c00bbead1260de5d152efa629a819abf43708ee1dda924435979",
+    "../../modeling.md": "cfb249bd3e17bfcbdcfe14deaf04f2ecef5a7a63145143eeec8319596172d638"
+  },
+  "tuning_review": {
+    "date": "2026-10-12",
+    "unique_candidates": 33,
+    "experiments": [
+      {
+        "run": "asking_price_revision",
+        "label": "loss / complexity / linear trend",
+        "config": "config/modeling/experiments.json#revision",
+        "config_sha256": "96005966c18759838ef95e9e267482bbdb8aa1aa6b14d19d65b9ae4efe7b21c0",
+        "selected": "hist_log_leaves_63",
+        "validation_mae_thb": 4297.2188948798275,
+        "status": "ไม่เปลี่ยนโมเดลด้วยผลกลุ่มนี้",
+        "validation_scores_sha256": "f1994fef6ab5096623aa04c9a081472c3ca503b40d55e5ad4678a7c6f8f72aef",
+        "report_archive": "docs/assets/modeling/history.zip#asking_price_revision"
+      },
+      {
+        "run": "asking_price_age_transfer",
+        "label": "age normalization",
+        "config": "config/modeling/experiments.json#age_transfer",
+        "config_sha256": "aaa3d824f45d30493e7e6dacbbecddc2ff93561ef9ec19988be9cb70033429a3",
+        "selected": "age_hist_log_half_2",
+        "validation_mae_thb": 4339.414781578945,
+        "status": "ไม่เปลี่ยนโมเดลด้วยผลกลุ่มนี้",
+        "validation_scores_sha256": "94c739b890b56c4e3d23abca20991baf20e137838eac83bf34aa2c7694bac805",
+        "report_archive": "docs/assets/modeling/history.zip#asking_price_age_transfer"
+      },
+      {
+        "run": "asking_price_ensemble",
+        "label": "CatBoost log / ensemble",
+        "config": "config/modeling/experiments.json#ensemble",
+        "config_sha256": "1827cfd6ab5b350cef7ae1a9ad8b8746eca8e27aeaadecf05e390ec2180ffd74",
+        "selected": "blend_cat_share_0.5",
+        "validation_mae_thb": 4277.710514141315,
+        "status": "ใช้ ensemble",
+        "validation_scores_sha256": "def397a71cad881e3a730473c4090a19c5a75c86727444f55b4273b333d6a101",
+        "report_archive": "docs/assets/modeling/history.zip#asking_price_ensemble"
+      }
+    ],
+    "selected_model": "blend_cat_share_0.5",
+    "previous_round": {
+      "selected_model": "age_hist_log_half_2",
+      "validation": {
+        "name": "age_hist_log_half_2",
+        "rows": 1054.0,
+        "mae_thb": 4339.414781578945,
+        "rmse_thb": 6518.779959170459,
+        "median_absolute_error_thb": 2633.0734901523283,
+        "r2": 0.7765901647843589,
+        "mape_pct": 99.71512943752239,
+        "within_20pct": 0.45351043643263755,
+        "bias_thb": 522.3862377620286,
+        "fit_seconds": 18.11
+      },
+      "retrospective": {
+        "rows": 693,
+        "mae_thb": 5339.299044795779,
+        "rmse_thb": 7867.293415345483,
+        "median_absolute_error_thb": 2909.0125118707238,
+        "r2": 0.6191660852587184,
+        "mape_pct": 33.42156621353688,
+        "within_20pct": 0.4054834054834055,
+        "bias_thb": -3830.005181217784
+      }
+    },
+    "decision": "เลือก ensemble HGB + CatBoost 50/50 เพราะมี MAE validation ต่ำสุดในทุกตัวเลือก และผ่านการตรวจย้อนหลัง: MAE ลดประมาณ 9.89%, RMSE ลด และ R² เพิ่ม ส่วน HGB 63 leaves แม้ validation ดีขึ้นเล็กน้อยแต่ผลย้อนหลังแย่ลง จึงไม่ใช้แทนตัวเดิม",
+    "evaluation_status": "Retrospective data previously inspected; deployment gate uses retrospective results. No fresh independent holdout.",
+    "group_tradeoffs": [
+      {
+        "group": "brand",
+        "value": "Apple",
+        "rows": 442,
+        "previous_mae_thb": 5624.147459264424,
+        "current_mae_thb": 4583.658474305491,
+        "mae_change_pct": -18.500385925069917
+      },
+      {
+        "group": "brand",
+        "value": "Huawei",
+        "rows": 11,
+        "previous_mae_thb": 1831.9824555774542,
+        "current_mae_thb": 1930.6773503557272,
+        "mae_change_pct": 5.3873275083938355
+      },
+      {
+        "group": "brand",
+        "value": "Oppo",
+        "rows": 33,
+        "previous_mae_thb": 2254.9333082412304,
+        "current_mae_thb": 2371.0884886227004,
+        "mae_change_pct": 5.1511581276905805
+      },
+      {
+        "group": "brand",
+        "value": "Samsung",
+        "rows": 163,
+        "previous_mae_thb": 6290.161321503198,
+        "current_mae_thb": 6873.849043117079,
+        "mae_change_pct": 9.279376025198571
+      },
+      {
+        "group": "brand",
+        "value": "Vivo",
+        "rows": 17,
+        "previous_mae_thb": 3339.6733077785675,
+        "current_mae_thb": 3233.2987775468164,
+        "mae_change_pct": -3.185177723341681
+      }
+    ],
+    "storage_reference_audit": {
+      "flagged_rows": 15,
+      "model_capacity_combinations": 11,
+      "reference": "config/app/storage_options.json",
+      "reference_sha256": "c35ed43875a9f51bda813dc32f1eeea61063830f2a45ef35872df3a4371d7117",
+      "action": "UI excludes unsupported Apple capacities. Training dataset is unchanged; resolve source evidence before correcting flagged rows."
+    }
+  },
+  "config": {
+    "run": "asking_price_v2",
+    "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+    "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "expected_rows": 9210,
+    "catalog": "config/modeling/iphone_release_years.json",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "seed": 42,
+    "threads": 4,
+    "folds": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-21"
+      },
+      {
+        "start": "2024-05-22",
+        "end": "2025-01-07"
+      }
+    ],
+    "retrospective_test_start": "2025-01-09",
+    "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+    "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+    "candidates": [
+      {
+        "name": "v1_reference",
+        "kind": "v1",
+        "half_life": 0
+      },
+      {
+        "name": "age_hist_log_half_2",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2
+      },
+      {
+        "name": "cat_log_depth_4_half_1",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 4,
+        "half_life": 1,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_4_half_2",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 4,
+        "half_life": 2,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_6_half_1",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 6,
+        "half_life": 1,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_6_half_2",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 6,
+        "half_life": 2,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "blend_cat_share_0.25",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.75,
+          0.25
+        ],
+        "half_life": 2
+      },
+      {
+        "name": "blend_cat_share_0.5",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.5,
+          0.5
+        ],
+        "half_life": 2
+      },
+      {
+        "name": "blend_cat_share_0.75",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.25,
+          0.75
+        ],
+        "half_life": 2
+      }
+    ],
+    "condition_features": "data/final/condition_features.csv",
+    "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66",
+    "previous_round": {
+      "selected_model": "age_hist_log_half_2",
+      "validation": {
+        "name": "age_hist_log_half_2",
+        "rows": 1054.0,
+        "mae_thb": 4339.414781578945,
+        "rmse_thb": 6518.779959170459,
+        "median_absolute_error_thb": 2633.0734901523283,
+        "r2": 0.7765901647843589,
+        "mape_pct": 99.71512943752239,
+        "within_20pct": 0.45351043643263755,
+        "bias_thb": 522.3862377620286,
+        "fit_seconds": 18.11
+      },
+      "retrospective": {
+        "rows": 693,
+        "mae_thb": 5339.299044795779,
+        "rmse_thb": 7867.293415345483,
+        "median_absolute_error_thb": 2909.0125118707238,
+        "r2": 0.6191660852587184,
+        "mape_pct": 33.42156621353688,
+        "within_20pct": 0.4054834054834055,
+        "bias_thb": -3830.005181217784
+      }
+    }
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "train_rows": 7463,
+      "validation_rows": 364,
+      "train_max": "2023-12-30",
+      "validation_min": "2024-01-02",
+      "validation_max": "2024-05-21"
+    },
+    {
+      "fold": 2,
+      "train_rows": 7827,
+      "validation_rows": 690,
+      "train_max": "2024-05-21",
+      "validation_min": "2024-05-22",
+      "validation_max": "2025-01-07"
+    }
+  ],
+  "validation": {
+    "core_unchanged": true,
+    "strict_temporal_folds": true,
+    "encoder_fit_on_fold_training_only": true,
+    "unknown_optional_values_not_imputed_in_dataset": true,
+    "winner_chosen_before_retrospective_scoring": true,
+    "model_roundtrip": true,
+    "fresh_independent_holdout": false,
+    "deployment_has_independent_test_score": false
+  },
+  "progress": {
+    "phase": "completed",
+    "selected_model": "blend_cat_share_0.5",
+    "retrospective_mae": 4811.0896886835,
+    "deployment_rows": 9210
+  }
+}

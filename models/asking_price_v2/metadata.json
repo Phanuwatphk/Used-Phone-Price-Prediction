@@ -1,13 +1,13 @@
 {
   "run": "asking_price_v2",
-  "generated_at_utc": "2026-10-11T09:35:21.543142+00:00",
-  "config_sha256": "b657a135168a89452db47ffefda2744ba5d3858b57a1300c25dc68ecda26567c",
+  "generated_at_utc": "2026-10-12T08:46:22.012109+00:00",
+  "config_sha256": "663e6803528813688aaa2c615c9f1cc62d10ce25b2e900410f0c788d1b3115f5",
   "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
   "enriched_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
   "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
   "model_hashes": {
-    "evaluation.joblib": "a8a04950734db8cf18f12d8bb0800566c0b404822d9aed784d390a883cf90377",
-    "model.joblib": "a5fd469e239dce5dfa353d8402ed0163277628113a3f5fd192497457f3029544"
+    "evaluation.joblib": "b2959843863ec4c96f3f10f28eff95c4ea4e2dad7d6b5817723a93133c6cfc5a",
+    "model.joblib": "1615100241bbe12f0edb45a26eb47cbe88b92e5bd14bc26a8de1c46062553734"
   },
   "code_sha256": {
     "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
@@ -16,11 +16,12 @@
     "script/modeling/predict.py": "9422164bead69f61172ff4254b40d6c51657919063176587b781fc097daf51fa",
     "script/modeling/prepare_features_v2.py": "4425e3a78ea905a43ccd1409e5b0346866e4a53649ef8b99847416ae4178594d",
     "script/modeling/rebuild_features_v2.py": "ceb28759df357cbfcf596b523e03d8f9abf0b6b12195846725f922e33920576c",
-    "script/modeling/report.py": "cb7c9d3e688a8f2beaf00efead22dc92ee03e5ab0b4ea8457243b6f33a5577af",
-    "script/modeling/report_improved.py": "44f8abf2f750dd3c9f039366d3da096da160712421242342f86567181aaec996",
+    "script/modeling/report.py": "3f0acf88b156eb62c312a35a4f71f7284886c6eb55279e7ae91f09d57da6741a",
+    "script/modeling/report_improved.py": "e54e39ba31d214e71585d51f0534c65cc5b0e0efc71051a3ce70e23785fab6dd",
     "script/modeling/split_dataset.py": "9f891b7f6a8f5018afc7e13d100a0fd5e15ba49ad5ed98f31f6b20133c0ad352",
-    "script/modeling/train_improved.py": "fd869911dbfee325de587f68553ecd6552362a1caa20bd495e5cf56f7b44a99c",
-    "script/modeling/train_models.py": "abaeb7b393de770f7079e1e680b697687e7690605d6c3353d79eb68fbf7b967f"
+    "script/modeling/train_improved.py": "1afa22049a9e76cf6b898ce9854e54fe916657a39e118ae9bc404325e6f2c066",
+    "script/modeling/train_models.py": "8454be08f19dc59b3ebc77ba9e038fd9c821c33a732f3b486e43a60321ff47ed",
+    "script/modeling/trend.py": "444c2964017ccaefb84e876968d4c224d492a0f4249d5d1fca50ebed85ef606b"
   },
   "versions": {
     "scikit-learn": "1.9.1",
@@ -40,7 +41,7 @@
       "independent_test_score": null
     }
   },
-  "selected_model": "age_hist_log_half_2",
+  "selected_model": "blend_cat_share_0.5",
   "feature_contract": [
     "source",
     "brand",

@@ -16,8 +16,15 @@ DEFAULT_OUTPUT = ROOT / 'data/final'
 DEFAULT_AUDIT = ROOT / 'data/intermediate/model_input' / SNAPSHOT
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import reference_bytes, reference_json, reference_sha, write_metadata, write_metadata_bytes
+
 def sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return reference_sha(path)
 
 
 def dump(path, value):
@@ -59,7 +66,7 @@ def select(policy_path=DEFAULT_POLICY, output=DEFAULT_OUTPUT, audit=DEFAULT_AUDI
         raise ValueError('Final and audit outputs overlap')
     fields, csv_rows = read_csv(files['dataset_csv'])
     rows = [json.loads(line) for line in files['dataset_jsonl'].read_text().splitlines()]
-    schema = json.loads(files['schema'].read_text())
+    schema = reference_json(files['schema'])
     ids = [r['listing_id'] for r in rows]
     if (not rows or len(ids) != len(set(ids)) or fields != list(schema['fields']) or
             any(set(row) != set(fields) for row in rows) or
@@ -89,7 +96,7 @@ def select(policy_path=DEFAULT_POLICY, output=DEFAULT_OUTPUT, audit=DEFAULT_AUDI
         raise ValueError('Inputs changed during selection')
     output.mkdir(parents=True, exist_ok=True); audit.mkdir(parents=True, exist_ok=True)
     write_csv(output / 'dataset.csv', fields, [r for r in csv_rows if r['listing_id'] not in excluded_ids])
-    with (output / 'dataset.jsonl').open('w', encoding='utf-8') as file:
+    with (audit / 'dataset.jsonl').open('w', encoding='utf-8') as file:
         for row in retained: file.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + '\n')
     with (audit / 'lineage.jsonl').open('w', encoding='utf-8') as file:
         for row in lineage:
@@ -109,7 +116,7 @@ def select(policy_path=DEFAULT_POLICY, output=DEFAULT_OUTPUT, audit=DEFAULT_AUDI
                'physical_duplicates_confirmed': False, 'train_test_split': False, 'model_trained': False,
                'selection_bias_note': 'User opted to exclude all flagged rows; results apply to this retained subset.'}
     _, written_csv = read_csv(output / 'dataset.csv')
-    written_rows = [json.loads(line) for line in (output / 'dataset.jsonl').read_text().splitlines()]
+    written_rows = [json.loads(line) for line in (audit / 'dataset.jsonl').read_text().splitlines()]
     written_lineage = [json.loads(line) for line in (audit / 'lineage.jsonl').read_text().splitlines()]
     validation = {'inputs_unchanged': before == {key: sha(path) for key, path in files.items()} and sha(policy_path) == policy_hash,
                   'all_rows_accounted_for': len(retained) + len(excluded_csv) == len(rows),
@@ -121,21 +128,21 @@ def select(policy_path=DEFAULT_POLICY, output=DEFAULT_OUTPUT, audit=DEFAULT_AUDI
                   'lineage_for_every_retained_row': len(written_lineage) == len(retained) and
                       {row['listing_id'] for row in written_lineage} == {row['listing_id'] for row in retained}}
     if not all(validation.values()): raise ValueError('Selection validation failed')
-    (output / 'schema.json').write_bytes(files['schema'].read_bytes())
-    (output / 'policy.json').write_bytes(policy_bytes)
-    dump(output / 'summary.json', summary); dump(output / 'validation.json', validation)
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata_bytes(output, 'schema', reference_bytes(files['schema']))
+    write_metadata_bytes(output, 'policy', policy_bytes)
+    write_metadata(output, 'summary', summary); write_metadata(output, 'validation', validation)
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
           'input_hashes': {path_display(files[key]): value for key, value in before.items()},
           'policy_sha256': policy_hash, 'script_sha256': sha(Path(__file__)),
           'dataset_sha256': sha(output / 'dataset.csv'),
           'output_directories': {'final': path_display(output), 'audit': path_display(audit)}})
-    (output / 'report.md').write_text(f'# ชุดข้อมูลก่อนแบ่ง train/validation/test\n\n'
+    write_metadata(output, 'report_text', f'# ชุดข้อมูลก่อนแบ่ง train/validation/test\n\n'
         f'เก็บ {len(retained):,} แถว จาก {len(rows):,} แถว ตัดคิว EDA รวม {len(excluded_ids):,} แถวตามผู้ใช้ '
         'โดยนับ listing_id ซ้ำข้ามคิวครั้งเดียว ไม่แก้ค่าของแถวที่เก็บ\n\n'
-        'dataset.csv/JSONL เก็บชุดใช้งาน schema.json เก็บคอลัมน์ policy.json เก็บกฎและ hash '
-        'summary.json เก็บจำนวน validation.json เก็บผลตรวจ run_metadata.json เก็บที่มา '
+        'dataset.csv/JSONL เก็บชุดใช้งาน metadata.json#schema เก็บคอลัมน์ metadata.json#policy เก็บกฎและ hash '
+        'metadata.json#summary เก็บจำนวน metadata.json#validation เก็บผลตรวจ metadata.json#provenance เก็บที่มา '
         'เหตุผลรายแถวและ lineage อยู่ในปลายทาง audit\n\n'
-        'ยังไม่แบ่งข้อมูลหรือฝึกโมเดล การตัด flags เป็นนโยบายเลือกข้อมูล ไม่ยืนยันว่าแถวที่ตัดผิดจริงทั้งหมด\n', encoding='utf-8')
+        'ยังไม่แบ่งข้อมูลหรือฝึกโมเดล การตัด flags เป็นนโยบายเลือกข้อมูล ไม่ยืนยันว่าแถวที่ตัดผิดจริงทั้งหมด\n')
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

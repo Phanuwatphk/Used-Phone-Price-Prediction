@@ -19,6 +19,13 @@ DEFAULT_OUTPUT = ROOT / 'data/intermediate/combined/ennxo_20261005_mac2hand_2026
 CORE = ('product_id', 'url', 'brand', 'model', 'storage_gb', 'condition', 'price_thb', 'published_at')
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import write_metadata
+
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -190,12 +197,12 @@ def prepare(registry_path, schema_path, output, audit_output=None):
         'all_dates_retained': True, 'deduplicated': False, 'outliers_removed': False,
         'missing_values_imputed': False, 'train_test_split': False,
         'stage': 'source_audit_schema_alignment_merge'}
-    dump(output / 'summary.json', summary); dump(output / 'schema.json', schema)
-    dump(output / 'validation.json', {'records_match_sum_of_inputs': len(results) == sum(a['records'] for a in audits.values()),
+    write_metadata(output, 'summary', summary); write_metadata(output, 'schema', schema)
+    write_metadata(output, 'validation', {'records_match_sum_of_inputs': len(results) == sum(a['records'] for a in audits.values()),
         'sources_present_and_verified': all(r['source'] in schema['sources'] for r in results),
         'listing_ids_unique': True, 'required_fields_present': all(all(r.get(k) is not None and r.get(k) != '' for k in schema['fields']) for r in results),
         'inputs_unchanged': True, 'lineage_for_every_record': len(lineage) == len(results)})
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo(schema['publication_timezone'])).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo(schema['publication_timezone'])).isoformat(),
         'script_sha256': sha(Path(__file__)), 'schema_sha256': initial[str(schema_path)],
         'registry_at_run': registry, 'input_hashes': {display(p): initial[str(p)] for p in inputs.values()},
         'output_directories': {'final': display(output), 'audit': display(audit_output)},
@@ -212,9 +219,9 @@ def prepare(registry_path, schema_path, output, audit_output=None):
         '`dataset.csv` และ `dataset.jsonl` คือชุดรวม `lineage.jsonl` เก็บค่าก่อนแปลงทุกแถวและฟิลด์เฉพาะเว็บ',
         '`ennxo_audit.json`, `mac2hand_audit.json` เก็บค่าขาด รุ่น ราคา วันที่และสัดส่วนแยกเว็บ',
         '`price_review.csv` เก็บ 5 ราคาสูงสุดต่อเว็บสำหรับตรวจตามบริบท ไม่ใช่รายการที่ยืนยันว่าผิด',
-        '`normalization_changes.json` เก็บค่าก่อน/หลังที่เปลี่ยน `schema.json` ระบุคอลัมน์และชนิดข้อมูล',
-        '`summary.json`, `validation.json`, `run_metadata.json` เก็บจำนวน ผลตรวจ และ hash สำหรับทำซ้ำ']
-    (output / 'report.md').write_text('\n'.join(report) + '\n', encoding='utf-8')
+        '`normalization_changes.json` เก็บค่าก่อน/หลังที่เปลี่ยน `metadata.json#schema` ระบุคอลัมน์และชนิดข้อมูล',
+        '`metadata.json#summary`, `metadata.json#validation`, `metadata.json#provenance` เก็บจำนวน ผลตรวจ และ hash สำหรับทำซ้ำ']
+    write_metadata(output, 'report_text', '\n'.join(report) + '\n')
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

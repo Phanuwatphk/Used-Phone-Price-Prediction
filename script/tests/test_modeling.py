@@ -13,6 +13,9 @@ from script.modeling.split_dataset import read_dataset, sha, split_rows, protect
 from script.modeling.train_models import build_model, metrics, train
 
 
+
+from script.artifacts import read_metadata
+
 def listing(i, day=None):
     source = 'ennxo' if i % 2 else 'mac2hand'
     return {'listing_id': f'{source}:{i}', 'product_id': str(i), 'url': f'https://example.org/{source}/{i}',
@@ -93,7 +96,7 @@ class ModelingTests(unittest.TestCase):
             self.assertEqual(result['predicted_price_thb'], target)
             self.assertEqual(summary['test']['rows'], len(fit['test']))
             self.assertEqual(dataset.read_bytes(), before)
-            validation = json.loads((root/'report/validation.json').read_text())
+            validation = read_metadata(root/'report', 'validation')
             self.assertFalse(validation['test_used_for_fit'])
             self.assertIn('date_outside_training_range', result['coverage_flags'])
             (root/'model/model.joblib').write_bytes(b'corrupt')

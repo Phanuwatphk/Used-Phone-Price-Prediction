@@ -21,6 +21,13 @@ FIELDS = ('name', 'storage', 'model', 'brand', 'location', 'price', 'url', 'imag
           'source', 'currency', 'scraped_at', 'listing_page_url', 'page', 'timezone')
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import write_metadata
+
 def dump(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + '\n', encoding='utf-8')
 
@@ -158,7 +165,7 @@ def audit(raw, output):
         for item in profile['issues']:
             writer.writerow({**item, 'issues': json.dumps(item['issues'])})
     script = Path(__file__).resolve()
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
          'python': platform.python_version(), 'beautifulsoup4': version('beautifulsoup4'), 'soupsieve': version('soupsieve'),
          'script_sha256': hashlib.sha256(script.read_bytes()).hexdigest(), 'raw_fingerprint': fingerprint,
          'command': f'python -B script/preparation/ennxo/audit_ennxo_raw.py --raw data/raw/{raw.name} --output <output-directory>'})
@@ -181,9 +188,9 @@ def audit(raw, output):
              '- `issues.csv`: แถวที่มีข้อสังเกต ไม่ใช่รายการตัดออก',
              '- `page_accounting.json`: เปรียบเทียบ HTML กับ JSON ทีละหน้า',
              '- `raw_checksums.json`: SHA-256 ของไฟล์ต้นทางทุกไฟล์',
-             '- `run_metadata.json`: เวลา สภาพแวดล้อม และเวอร์ชันโค้ดที่ใช้', '',
+             '- `metadata.json#provenance`: เวลา สภาพแวดล้อม และเวอร์ชันโค้ดที่ใช้', '',
              'ขั้นต่อไป: ถอดข้อความและช่องสินค้าใหม่จาก HTML พร้อมที่มาของค่า ก่อนกำหนดกฎ clean และตรวจความขัดแย้ง', '']
-    (output / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
+    write_metadata(output, 'report_text', '\n'.join(lines))
     print(json.dumps({'records': len(rows), 'accounting': profile['accounting'],
                       'issue_counts': profile['issue_counts'], 'output': str(output)}, ensure_ascii=False, indent=2))
     if failures:

@@ -1,0 +1,12 @@
+brand,model,reported_storage_gb,rows,official_storage_gb
+Apple,iPhone 11 Pro,128,2,64 / 256 / 512
+Apple,iPhone 13,64,2,128 / 256 / 512
+Apple,iPhone 15 Plus,64,1,128 / 256 / 512
+Apple,iPhone 16 Pro Max,128,1,256 / 512 / 1024
+Apple,iPhone 17,1024,1,256 / 512
+Apple,iPhone 6 Plus,32,2,16 / 64 / 128
+Apple,iPhone 7,64,1,32 / 128 / 256
+Apple,iPhone 7 Plus,64,1,32 / 128 / 256
+Apple,iPhone X,128,1,64 / 256
+Apple,iPhone XS,128,2,64 / 256 / 512
+Apple,iPhone XS Max,128,1,64 / 256 / 512

@@ -16,6 +16,13 @@ DEFAULT_LEDGER = ROOT / 'config/ennxo/manual_review.json'
 DEFAULT_OUTPUT = ROOT / 'data/intermediate/ennxo' / DEFAULT_RAW.name / 'manual_review'
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import write_metadata
+
 def finalize(current, ledger_path, output):
     current, ledger_path, output = current.resolve(), ledger_path.resolve(), output.resolve()
     ledger = json.loads(ledger_path.read_text())
@@ -77,10 +84,10 @@ def finalize(current, ledger_path, output):
                'model_scope_decision': ledger.get('model_scope_decision'),
                'scope': 'Individual source evidence reviews assisted by Codex; no independent human or physical verification. Reviewed does not mean every record is usable for training.'}
     output.mkdir(parents=True, exist_ok=True)
-    dump(output / 'summary.json', summary)
+    write_metadata(output, 'summary', summary)
     dump(output / 'review_evidence.json', records)
     dump(output / 'manual_reviews.json', ledger)
-    dump(output / 'run_metadata.json', {'input_sha256': dict(zip(('baseline', 'current', 'manual_ledger'), hashes)),
+    write_metadata(output, 'provenance', {'input_sha256': dict(zip(('baseline', 'current', 'manual_ledger'), hashes)),
                                       'code_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()})
     fields = ['product_id', 'url', 'disposition', 'current_status', 'reason', 'remaining_reasons',
               'reviewer', 'reviewed_on', 'input_sha256']
@@ -106,7 +113,7 @@ def finalize(current, ledger_path, output):
     lines += [f'| [{r["product_id"]}]({r["url"]}) | {r["reason"].replace(chr(10), " ").replace("|", "/")} |'
               for r in records if r['disposition'] == 'awaiting_evidence']
     lines += ['', 'ไม่เติมรุ่น ความจุ หรือราคาที่ต้นทางไม่ยืนยัน และเก็บ raw ทุกแถว', '']
-    (output / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
+    write_metadata(output, 'report_text', '\n'.join(lines))
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

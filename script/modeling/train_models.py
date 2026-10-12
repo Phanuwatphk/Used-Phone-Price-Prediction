@@ -28,6 +28,9 @@ from script.modeling.features import CATEGORICAL, NUMERIC, FEATURES, features, p
 from script.modeling.split_dataset import DEFAULT_CONFIG, ROOT, create_split, dump, protected_output, sha, write_csv
 
 
+
+from script.artifacts import collect_output_hashes, reference_json, write_metadata
+
 def metrics(actual, predicted):
     actual, predicted = np.asarray(actual, dtype=float), np.asarray(predicted, dtype=float)
     error = np.abs(actual - predicted)
@@ -83,8 +86,8 @@ def group_metrics(rows, actual, predicted, fitted_models):
 
 def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, private_output=None):
     config_path = Path(config_path).resolve()
-    config = json.loads(config_path.read_text())
-    report = Path(report_output or ROOT / 'docs/assets/modeling' / config['run']).resolve()
+    config = reference_json(config_path)
+    report = Path(report_output or ROOT / 'data/intermediate/modeling' / config['run'] / 'report').resolve()
     model_dir = Path(model_output or ROOT / 'models' / config['run']).resolve()
     private = Path(private_output or ROOT / 'data/intermediate/modeling' / config['run']).resolve()
     dataset = ROOT / config['dataset']
@@ -122,7 +125,7 @@ def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, pri
                   'iterations': model.tree_count_ if spec['kind'] == 'catboost' else None}
         comparisons.append(result)
         write_csv(report / 'tables/validation_comparison.csv', comparisons)
-        dump(report / 'progress.json', {'phase': 'validation_comparison', 'completed': i, 'total': len(config['candidates']), 'last': result})
+        write_metadata(report, 'progress', {'phase': 'validation_comparison', 'completed': i, 'total': len(config['candidates']), 'last': result})
         print(f'VALIDATION MAE={result["mae_thb"]:.2f} THB ({result["fit_seconds"]:.1f}s)', flush=True)
         if winner_result is None or (result['mae_thb'], spec['name']) < (winner_result['mae_thb'], winner_spec['name']):
             winner_spec, winner_result = spec, result
@@ -130,7 +133,7 @@ def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, pri
     # Persist selection before accessing test targets. No candidate test scores are used.
     selection = {'criterion': config['selection_metric'], 'candidate': winner_spec, 'validation_metrics': winner_result,
                  'refit_rows': len(splits['train']) + len(splits['validation']), 'test_used_for_selection': False}
-    dump(report / 'selection.json', selection)
+    write_metadata(report, 'selection', selection)
     print('SELECTED', winner_spec['name'], 'refit train + validation; test remains held out', flush=True)
     fit_rows = splits['train'] + splits['validation']
     x_fit = features(fit_rows)
@@ -184,13 +187,13 @@ def train(config_path=DEFAULT_CONFIG, report_output=None, model_output=None, pri
                'baseline_test': baseline_metrics, 'mae_improvement_pct': (1 - evaluation['mae_thb'] / baseline_metrics['mae_thb']) * 100,
                'split': split_summary, 'test_groups': [g for g in groups if g['group'] != 'brand_model'],
                'selection_bias': config['selection_bias'], 'model_file': str(model_path.relative_to(ROOT)) if model_path.is_relative_to(ROOT) else str(model_path)}
-    for name, content in [('summary.json', summary), ('run_metadata.json', metadata), ('validation.json', validation), ('config.json', config), ('split_summary.json', split_summary)]:
-        dump(report / name, content)
+    for section, content in [('summary', summary), ('provenance', metadata), ('validation', validation), ('config', config), ('split', split_summary)]:
+        write_metadata(report, section, content)
     dump(model_dir / 'metadata.json', {**metadata, 'selected_model': winner_spec['name'], 'test_metrics': evaluation})
     from script.modeling.report import render_report
     render_report(report, summary, metadata, comparisons, y_test, prediction)
-    dump(report / 'output_hashes.json', {str(p.relative_to(report)): sha(p) for p in sorted(report.rglob('*')) if p.is_file() and p.name not in ('output_hashes.json', 'progress.json')})
-    dump(report / 'progress.json', {'phase': 'completed', 'selected_model': winner_spec['name'], 'test_mae_thb': evaluation['mae_thb'], 'duration_seconds': metadata['duration_seconds']})
+    write_metadata(report, 'hashes', collect_output_hashes(report))
+    write_metadata(report, 'progress', {'phase': 'completed', 'selected_model': winner_spec['name'], 'test_mae_thb': evaluation['mae_thb'], 'duration_seconds': metadata['duration_seconds']})
     print('COMPLETE', json.dumps({'model': winner_spec['name'], 'test': evaluation, 'report': str(report), 'artifact': str(model_path)}, ensure_ascii=False), flush=True)
     return summary
 

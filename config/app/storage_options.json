@@ -1,0 +1,288 @@
+{
+  "source_url": "https://support.apple.com/en-us/108044",
+  "checked_on": "2026-10-12",
+  "html_sha256": "c3d76cca59c8c6f5b4dc58a2db32ebd6e0ab8dc599ec6bcdfc1cef0eef9f88bc",
+  "policy": "Apple: official capacities; other models: observed clean dataset capacities. UI reference only; does not alter training data.",
+  "capacities": {
+    "Apple:iPhone 18 Pro Max": [
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "Apple:iPhone 18 Pro": [
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "Apple:iPhone 17e": [
+      256,
+      512
+    ],
+    "Apple:iPhone 17 Pro Max": [
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "Apple:iPhone 17 Pro": [
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 17": [
+      256,
+      512
+    ],
+    "Apple:iPhone Air": [
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 16e": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 16 Pro Max": [
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 16 Pro": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 16 Plus": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 16": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 15 Pro Max": [
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 15 Pro": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 15 Plus": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 15": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 14 Pro Max": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 14 Pro": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 14 Plus": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 14": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 13 Pro Max": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 13 Pro": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "Apple:iPhone 13": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 13 mini": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 12 Pro Max": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 12 Pro": [
+      128,
+      256,
+      512
+    ],
+    "Apple:iPhone 12": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone 12 mini": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone 11 Pro": [
+      64,
+      256,
+      512
+    ],
+    "Apple:iPhone 11 Pro Max": [
+      64,
+      256,
+      512
+    ],
+    "Apple:iPhone 11": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone XS": [
+      64,
+      256,
+      512
+    ],
+    "Apple:iPhone XS Max": [
+      64,
+      256,
+      512
+    ],
+    "Apple:iPhone XR": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone X": [
+      64,
+      256
+    ],
+    "Apple:iPhone 8": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone 8 Plus": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone 7": [
+      32,
+      128,
+      256
+    ],
+    "Apple:iPhone 7 Plus": [
+      32,
+      128,
+      256
+    ],
+    "Apple:iPhone 6s": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "Apple:iPhone 6s Plus": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "Apple:iPhone 6": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "Apple:iPhone 6 Plus": [
+      16,
+      64,
+      128
+    ],
+    "Apple:iPhone 5s": [
+      16,
+      32,
+      64
+    ],
+    "Apple:iPhone 5c": [
+      8,
+      16,
+      32
+    ],
+    "Apple:iPhone 5": [
+      16,
+      32,
+      64
+    ],
+    "Apple:iPhone 4s": [
+      8,
+      16,
+      32,
+      64
+    ],
+    "Apple:iPhone 4": [
+      8,
+      16,
+      32
+    ],
+    "Apple:iPhone 3GS": [
+      8,
+      16,
+      32
+    ],
+    "Apple:iPhone 3G": [
+      8,
+      16
+    ],
+    "Apple:iPhone": [
+      4,
+      8,
+      16
+    ],
+    "Apple:iPhone SE 1": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "Apple:iPhone SE 2": [
+      64,
+      128,
+      256
+    ],
+    "Apple:iPhone SE 3": [
+      64,
+      128,
+      256
+    ]
+  }
+}

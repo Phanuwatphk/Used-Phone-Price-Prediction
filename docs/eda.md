@@ -1,5 +1,7 @@
 # รายงาน EDA ชุดรวม
 
+รายงานนี้สำรวจ 10,032 แถวก่อนคัด ชุดใช้งานปัจจุบันมี 9,210 แถว อ่าน [ขั้นตอนคัดข้อมูล](data.md#stage-model_input) และ [ผลโมเดล](modeling.md) คิว EDA เดิมปิดแล้ว ข้อเสนอในรายงานเป็นบันทึก ณ รอบสำรวจ ไม่ใช่คิวที่ต้องทำต่อ
+
 สำรวจหลัง clean และรวม schema ก่อนแบ่ง train/test ใช้ทุกแถวใน snapshot ไม่เปลี่ยนข้อมูลต้นทาง
 
 ## ข้อมูลและคุณภาพ
@@ -71,45 +73,45 @@ candidate จากข้อความมี 280 components รวม 617 แ�
 
 ## กราฟ
 
-![01_source_and_brand](assets/eda/ennxo_20261005_mac2hand_20261006/figures/01_source_and_brand.png)
+![01_source_and_brand](assets/eda/figures/01_source_and_brand.png)
 
 สัดส่วนเว็บและยี่ห้อ: จำนวนใน snapshot ไม่ใช่ส่วนแบ่งตลาด
 
-![02_price_distribution](assets/eda/ennxo_20261005_mac2hand_20261006/figures/02_price_distribution.png)
+![02_price_distribution](assets/eda/figures/02_price_distribution.png)
 
 ราคาทุกแถว แกน log เพื่อเห็นทั้งราคาต่ำและสูง จุดนอกกล่องเป็น IQR ภาพรวมต่อเว็บ ต่างจากคิวตรวจที่คุมรุ่น/ปี และยังคงอยู่ใน dataset
 
-![03_publication_year](assets/eda/ennxo_20261005_mac2hand_20261006/figures/03_publication_year.png)
+![03_publication_year](assets/eda/figures/03_publication_year.png)
 
 ช่วงปีต่างกันมาก เส้น median เปลี่ยนตามรุ่นที่ปะปน ไม่ใช่ราคาของเครื่องรุ่นเดิมลดลงตามเวลา
 
-![04_price_over_time](assets/eda/ennxo_20261005_mac2hand_20261006/figures/04_price_over_time.png)
+![04_price_over_time](assets/eda/figures/04_price_over_time.png)
 
 แสดงทุกประกาศตามวันที่ ไม่มีการจำกัด 12 เดือน และยังไม่ปรับเงินเฟ้อหรือเลือกช่วงฝึก
 
-![05_top_models](assets/eda/ennxo_20261005_mac2hand_20261006/figures/05_top_models.png)
+![05_top_models](assets/eda/figures/05_top_models.png)
 
 รุ่นที่พบมากที่สุด; ตารางแนบท้ายเก็บจำนวนทุกรุ่น รวมรุ่นที่มีตัวอย่างน้อย
 
-![06_storage_and_price](assets/eda/ennxo_20261005_mac2hand_20261006/figures/06_storage_and_price.png)
+![06_storage_and_price](assets/eda/figures/06_storage_and_price.png)
 
 ความจุปะปนกับรุ่นและปี กลุ่มที่มีตัวอย่างน้อยตีความอย่างระมัดระวัง ไม่ใช่ผลของความจุต่อราคาโดยตรง
 
-![07_condition_and_associations](assets/eda/ennxo_20261005_mac2hand_20261006/figures/07_condition_and_associations.png)
+![07_condition_and_associations](assets/eda/figures/07_condition_and_associations.png)
 
 new/used เป็นช่องผู้ขาย; correlation รวมไม่ควบคุมรุ่น/สภาพ/อายุ ไม่ใช่เหตุและผล
 
-![08_matched_source_comparison](assets/eda/ennxo_20261005_mac2hand_20261006/figures/08_matched_source_comparison.png)
+![08_matched_source_comparison](assets/eda/figures/08_matched_source_comparison.png)
 
 เทียบรุ่น/ความจุ/สภาพ/ปีเดียวกัน ขั้นต่ำ 3 แถวต่อเว็บ ตัวเลขวงเล็บคือ n ของ ENNXO, Mac2Hand; ยังไม่ควบคุมเดือนหรือสภาพเครื่องจริง
 
 ## ไฟล์และวิธีทำซ้ำ
 
-รัน `.venv/bin/python -u -B analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น
+รัน `.venv/bin/python -u -B script/analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น
 
-`summary.json` เก็บสถิติหลัก `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ `rules.json` เป็นสำเนากฎ `run_metadata.json` เก็บเวอร์ชันโค้ด dependencies และ input hashes
+`metadata.json` รวม summary (สถิติ), rules (กฎ), provenance (เวอร์ชันโค้ด dependencies/input hashes) และ validation; `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ
 
-รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `validation.json` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ
+รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `metadata.json#validation` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ
 
 <a id="stage-eda"></a>
 
@@ -123,7 +125,7 @@ new/used เป็นช่องผู้ขาย; correlation รวมไม
 .venv/bin/python -u -B script/analysis/eda/run_eda.py
 ```
 
-ใช้ทั้ง ENNXO และ Mac2Hand อ่าน `dataset.csv`, `dataset.jsonl`, `lineage.jsonl`, `schema.json`, `summary.json`, `run_metadata.json` ของชุดรวม และอ่าน `mac2hand_final.jsonl` เพิ่มสำหรับข้อความที่ไม่มีใน CSV dataset/schema/summary/metadata อยู่ใน `data/intermediate/combined/<รอบ>/before_selection/`; lineage/audit อยู่ใน `data/intermediate/combined/<รอบ>/audit/` และ JSONL ทุกแถว Mac2Hand อยู่ `data/intermediate/mac2hand/<รอบ>/finalization/` ใช้ `--evidence` เลือก lineage directory ตรวจ hash, ชนิดข้อมูล, จำนวน, key และความตรงกันก่อนวิเคราะห์ ตรวจ hash ซ้ำหลังทำงาน
+ใช้ทั้ง ENNXO และ Mac2Hand อ่าน `dataset.csv`, `dataset.jsonl`, `lineage.jsonl` และ `metadata.json` (schema/summary/provenance) ของชุดรวม และอ่าน `mac2hand_final.jsonl` เพิ่มสำหรับข้อความที่ไม่มีใน CSV dataset/schema/summary/metadata อยู่ใน `data/intermediate/combined/<รอบ>/before_selection/`; lineage/audit อยู่ใน `data/intermediate/combined/<รอบ>/audit/` และ JSONL ทุกแถว Mac2Hand อยู่ `data/intermediate/mac2hand/<รอบ>/finalization/` ใช้ `--evidence` เลือก lineage directory ตรวจ hash, ชนิดข้อมูล, จำนวน, key และความตรงกันก่อนวิเคราะห์ ตรวจ hash ซ้ำหลังทำงาน
 
 `script/analysis/eda/run_eda.py` เรียก `eda_statistics.py` คำนวณสถิติ และ `eda_plots.py` สร้างกราฟ ค่าเริ่มต้นอิงตำแหน่งไฟล์ รันจาก `/tmp` ด้วย absolute path หรือรันโมดูลจากรากโปรเจคได้
 
@@ -144,23 +146,18 @@ new/used เป็นช่องผู้ขาย; correlation รวมไม
 
 IQR ประเมินได้ 7,543 แถว ระบุ 205 แถวสำหรับตรวจต่อ ข้ามกลุ่มเล็ก 2,467 และ IQR=0 อีก 22 แถว รวมครบ 10,032 กลุ่มข้อความ candidate หลังรวมการซ้อนกัน 280 components / 617 แถว ยังไม่ยืนยันว่าเครื่องเดียวกัน พบข้อความตรงข้ามเว็บ 0 กลุ่มจากวิธีนี้ ไม่ได้ยืนยันว่าไม่มีประกาศซ้ำข้ามเว็บจริง
 
-ตรวจข้อความครบ 10,032 แถว 9,504 แถวยาวถึง threshold มี 27 กลุ่ม / 403 แถวที่เทียบเว็บตามเกณฑ์ได้ รายละเอียดทุกรุ่น/ปีและผลสมมติฐานอยู่ใน CSV แนบท้ายรายงาน
+ตรวจข้อความครบ 10,032 แถว 9,504 แถวยาวถึง threshold มี 27 กลุ่ม / 403 แถวที่เทียบเว็บตามเกณฑ์ได้ รายละเอียดทุกรุ่น/ปีและผล sensitivity อยู่ใน CSV แนบท้ายรายงาน
 
 ### โครงสร้างผลและแต่ละไฟล์
 
-รายงานที่เก็บใน Git อยู่ใน `docs/assets/eda/ennxo_20261005_mac2hand_20261006/`
+รายงานที่เก็บใน Git อยู่ใน `docs/assets/eda/`
 
 | ไฟล์/โฟลเดอร์ | เก็บอะไร |
 |---|---|
-| `summary.md` | สรุปสั้น ภาพรวมและประเด็นหลัก |
-| `report.md` | รายงานละเอียดพร้อมกราฟและข้อจำกัด |
+| `docs/eda.md` (นอกรายงาน assets) | รายงาน EDA หลัก รวมสรุป วิธีทำ รายละเอียด กราฟและข้อจำกัด |
 | `report.html` | รายงานเปิดใน browser กราฟฝังในไฟล์เดียว |
 | `figures/*.png`, `*.svg` | กราฟ 8 ชุด export สำหรับอ่าน/นำเสนอ |
-| `summary.json` | สถิติหลัก จำนวน candidate และ sensitivity สำหรับใช้งานต่อ |
-| `rules.json` | สำเนากฎและ thresholds ที่ใช้ |
-| `run_metadata.json` | เวลา dependencies โค้ดและ hash ข้อมูลเข้า |
-| `validation.json` | ผลตรวจ input/lineage/จำนวนและการไม่เปลี่ยนข้อมูล |
-| `output_hashes.json` | hash ของไฟล์รายงาน กราฟ และตาราง เพื่อเทียบผล/สำรอง |
+| `metadata.json` | summary: สถิติหลัก จำนวน candidate และ sensitivity สำหรับใช้งานต่อ; rules: สำเนากฎและ thresholds ที่ใช้; provenance: เวลา dependencies โค้ดและ hash ข้อมูลเข้า; validation: ผลตรวจ input/lineage/จำนวนและการไม่เปลี่ยนข้อมูล; hashes: hash ของไฟล์รายงาน กราฟ และตาราง เพื่อเทียบผล/สำรอง |
 
 ตารางใน `tables/` เป็นข้อมูลรวม ไม่มีข้อความติดต่อหรือ URL รายประกาศ
 
@@ -186,7 +183,7 @@ IQR ประเมินได้ 7,543 แถว ระบุ 205 แถวส
 | `duplicate_groups.json` | ทุกกลุ่ม candidate พร้อมวิธีและ listing_id ที่เกี่ยวข้อง กลุ่มซ้อนกันได้ |
 | `duplicate_memberships.csv` | mapping แต่ละแถวเข้ากลุ่ม candidate; listing_id อาจซ้ำเมื่ออยู่หลายกลุ่ม |
 | `text_candidate_components.json` | กลุ่มข้อความหลังรวมการซ้อนกัน 280 กลุ่ม / 617 แถว |
-| `validation.json` | สำเนาผลตรวจความครบและไม่เปลี่ยน input |
+| `metadata.json` | validation: สำเนาผลตรวจความครบและไม่เปลี่ยน input |
 
 ### การตรวจงาน
 
@@ -195,3 +192,5 @@ IQR ประเมินได้ 7,543 แถว ระบุ 205 แถวส
 ขั้นต่อไปคือตรวจ candidate/outlier ตามหลักฐาน แล้วกำหนด split และนโยบายข้อมูลฝึก การทำ EDA รอบนี้ไม่ได้รับรองสภาพเครื่องจริงหรือสร้างโมเดล
 
 นโยบายล่าสุด2026-10-11: ผู้ใช้เลือกตัดสมาชิกคิวEDAทั้งหมด822แถวและหยุดreview ชุดโมเดล9,210แถวอยู่ขั้น [คัดชุดก่อนเทรน](data.md#stage-model_input) รายงานEDAนี้เป็นผลก่อนคัด10,032แถว
+
+รูปแบบผลปัจจุบัน: แต่ละโฟลเดอร์ใช้ `metadata.json` รวมข้อมูลกำกับ ส่วน `metadata.json#summary` หมายถึง key summary ใน JSON ไม่ใช่ไฟล์อีกไฟล์ ชื่อไฟล์กำกับเดิมในประวัติ/raw คงเดิมเพื่อรักษาหลักฐาน; registry `data/datasets.json` ระบุตำแหน่งปัจจุบัน รายงาน EDA อยู่ `docs/eda.md` และโมเดลอยู่ `docs/modeling.md` ผลประกอบใน `docs/assets/eda/` และ `docs/assets/modeling/` ไม่มีชั้นชื่อรอบปัจจุบันซ้ำ รายงานโมเดลเดิม 4 รอบอยู่ history.zip สำรองก่อนลดไฟล์ทั้งโครงการอยู่ `archive/structure_before_simplification_20261012.zip` (เฉพาะในเครื่อง)

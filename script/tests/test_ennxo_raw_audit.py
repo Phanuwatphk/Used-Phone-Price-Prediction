@@ -35,7 +35,10 @@ class RawAuditTests(unittest.TestCase):
             self.assertEqual(first['prices']['min'], 1)
             self.assertEqual(first['issue_counts']['missing_brand'], 2)
             for path in (root / 'first').iterdir():
-                if path.name != 'run_metadata.json':
+                if path.name == 'metadata.json':
+                    a=json.loads(path.read_text());b=json.loads((root/'second'/path.name).read_text())
+                    a.pop('provenance');b.pop('provenance');self.assertEqual(a,b)
+                else:
                     self.assertEqual(path.read_bytes(), (root / 'second' / path.name).read_bytes())
 
     def test_html_mismatch_fails_with_report_instead_of_declaring_complete(self):

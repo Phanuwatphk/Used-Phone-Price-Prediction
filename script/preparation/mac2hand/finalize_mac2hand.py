@@ -28,6 +28,10 @@ FIELDS = ['source', 'product_id', 'url', 'brand', 'model', 'storage_gb', 'condit
           'published_at', 'seller_key', 'candidate_duplicate_group', 'disposition', 'hold_reasons', 'exclusion_reasons', 'notes', 'next_action']
 
 
+
+
+from script.artifacts import write_metadata, write_metadata_bytes
+
 def next_action(row):
     disposition = row['disposition']
     if disposition == 'accepted':
@@ -129,17 +133,17 @@ def finalize(raw, input_file, output, rules_path=DEFAULT_RULES, catalog_path=DEF
         'quarantine_reasons':dict(Counter(reason for r in results if r['disposition'] not in ('accepted','excluded') for reason in r['hold_reasons'])),
         'candidate_duplicate_groups':len(groups),'candidate_duplicate_rows':sum(len(g['product_ids']) for g in groups),
         'all_dates_retained':True,'eda_performed':False,'normal_devices_first':True}
-    dump(output/'summary.json',summary);dump(review_output/'candidate_duplicate_groups.json',groups)
-    dump(output/'validation.json',{'raw_unchanged':True,'input_files_unchanged':True,'originals_unchanged':True,
+    write_metadata(output, 'summary', summary);dump(review_output/'candidate_duplicate_groups.json',groups)
+    write_metadata(output, 'validation', {'raw_unchanged':True,'input_files_unchanged':True,'originals_unchanged':True,
         'all_records_accounted_for':len(results)==len(raw_rows),'every_original_queue_row_has_disposition':len(queue_results)==len(queue_ids),
         'accepted_required_fields_present':True,'accepted_no_unresolved_reasons':True})
-    dump(output/'run_metadata.json',{'generated_at':datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at':datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
         'input_hashes':before,'script_sha256':sha(Path(__file__)),
         'rules_module_sha256':sha(Path(__file__).with_name('resolution_rules.py')),
         'cleaning_helper_sha256':sha(Path(__file__).with_name('clean_mac2hand.py')),'raw':str(raw),
         'output_directories':{'final':str(output),'review':str(review_output)},
         'dataset_sha256':sha(output/'dataset.csv')})
-    (output/'rules.json').write_bytes(rules_path.read_bytes());(output/'iphone_model_names.json').write_bytes(catalog_path.read_bytes())
+    write_metadata_bytes(output, 'rules', rules_path.read_bytes());write_metadata_bytes(output, 'model_catalog', catalog_path.read_bytes())
     report=['# ชุดข้อมูล Mac2Hand ล่าสุด','','เริ่มใช้ `dataset.csv` สำหรับ EDA ของกลุ่มปกติ ทุกวันที่ที่เก็บมา ไม่ได้แบ่ง train/test หรือฝึกโมเดล','',
             '| กลุ่ม | จำนวน |','|---|---:|']
     report += [f'| {group} | {count:,} |' for group,count in summary['dispositions'].items()]
@@ -150,7 +154,7 @@ def finalize(raw, input_file, output, rules_path=DEFAULT_RULES, catalog_path=DEF
         'ข้อมูลไม่ถูกเดา SE จากวันที่/สี/ความจุ ไม่เลือกหนึ่งค่าให้ประกาศหลายเครื่อง ราคาที่ใช้เป็นราคาผู้ขาย ไม่ใช่ราคาปิดการขาย',
         'ประกาศซ้ำเป็น candidate ที่คำนวณใหม่ในชุดผ่าน เก็บ group ID เพื่อใช้ตรวจและแบ่งข้อมูลภายหลัง ยังไม่ลบเพียงเพราะข้อความคล้ายกัน',
         'สภาพ new/used เป็นช่องผู้ขาย หมายถึงผ่านเกณฑ์ข้อความที่มี ไม่ใช่การตรวจสภาพเครื่องจริง']
-    (output/'report.md').write_text('\n'.join(report)+'\n',encoding='utf-8')
+    write_metadata(output, 'report_text', '\n'.join(report)+'\n')
     print(json.dumps(summary,ensure_ascii=False,indent=2));return summary
 
 
@@ -158,12 +162,12 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--raw',type=Path,default=DEFAULT_RAW)
     parser.add_argument('--input',type=Path,default=BASE/'manual_review/mac2hand_reviewed.jsonl')
-    parser.add_argument('--output',type=Path,default=ROOT/'data/final/mac2hand'/DEFAULT_RAW.name)
+    parser.add_argument('--output',type=Path,default=ROOT/'data/intermediate/mac2hand'/DEFAULT_RAW.name/'accepted')
     parser.add_argument('--review-output',type=Path,help='Review evidence directory; default separates current snapshot, custom --output retains legacy bundle')
     parser.add_argument('--rules',type=Path,default=DEFAULT_RULES)
     parser.add_argument('--catalog',type=Path,default=DEFAULT_CATALOG)
     args=parser.parse_args()
     review_output=args.review_output
-    if review_output is None and args.output.resolve()==(ROOT/'data/final/mac2hand'/DEFAULT_RAW.name).resolve():
+    if review_output is None and args.output.resolve()==(ROOT/'data/intermediate/mac2hand'/DEFAULT_RAW.name/'accepted').resolve():
         review_output=BASE/'finalization'
     finalize(args.raw,args.input,args.output,args.rules,args.catalog,review_output)

@@ -51,7 +51,7 @@ def catalog_from_html(path):
 
 
 def prepare(output=None, lineage=DEFAULT_LINEAGE, mac_details=DEFAULT_MAC_DETAILS):
-    config = json.loads((ROOT/'config/modeling/training.json').read_text())
+    config = json.loads((ROOT/'config/modeling/experiments.json#baseline').read_text())
     dataset = ROOT/config['dataset']
     output = Path(output or ROOT/'data/intermediate/modeling/asking_price_v2/enrichment')
     protected_output(output,[dataset,lineage,mac_details,DEFAULT_CATALOG])

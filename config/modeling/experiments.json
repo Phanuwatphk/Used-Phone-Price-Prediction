@@ -1,0 +1,589 @@
+{
+  "baseline": {
+    "run": "asking_price_v1",
+    "dataset": "data/final/dataset.csv",
+    "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "expected_rows": 9210,
+    "random_seed": 42,
+    "threads": 4,
+    "required_training_sources": [
+      "ennxo",
+      "mac2hand"
+    ],
+    "split": {
+      "train_fraction": 0.85,
+      "validation_fraction": 0.075
+    },
+    "selection_metric": "validation_mae_thb",
+    "test_policy": "Evaluate the selected model once after refitting on train + validation; never select using test scores. Fixed median baseline also evaluated.",
+    "selection_bias": "The 822-row EDA exclusion was decided on the full pre-split dataset; scores describe the retained subset, not an unbiased estimate for all listings.",
+    "candidates": [
+      {
+        "name": "median_baseline",
+        "kind": "median",
+        "parameters": {}
+      },
+      {
+        "name": "ridge_log_alpha_10",
+        "kind": "ridge",
+        "log_target": true,
+        "parameters": {
+          "alpha": 10.0
+        }
+      },
+      {
+        "name": "ridge_log_alpha_100",
+        "kind": "ridge",
+        "log_target": true,
+        "parameters": {
+          "alpha": 100.0
+        }
+      },
+      {
+        "name": "extra_trees_leaf_2",
+        "kind": "extra_trees",
+        "parameters": {
+          "n_estimators": 300,
+          "min_samples_leaf": 2,
+          "max_features": 0.8
+        }
+      },
+      {
+        "name": "extra_trees_leaf_8",
+        "kind": "extra_trees",
+        "parameters": {
+          "n_estimators": 300,
+          "min_samples_leaf": 8,
+          "max_features": 0.8
+        }
+      },
+      {
+        "name": "hist_boost_15_raw",
+        "kind": "hist_boost",
+        "log_target": false,
+        "parameters": {
+          "max_iter": 350,
+          "max_leaf_nodes": 15,
+          "learning_rate": 0.06,
+          "l2_regularization": 10.0,
+          "early_stopping": false
+        }
+      },
+      {
+        "name": "hist_boost_15_log",
+        "kind": "hist_boost",
+        "log_target": true,
+        "parameters": {
+          "max_iter": 350,
+          "max_leaf_nodes": 15,
+          "learning_rate": 0.06,
+          "l2_regularization": 10.0,
+          "early_stopping": false
+        }
+      },
+      {
+        "name": "hist_boost_31_raw",
+        "kind": "hist_boost",
+        "log_target": false,
+        "parameters": {
+          "max_iter": 350,
+          "max_leaf_nodes": 31,
+          "learning_rate": 0.06,
+          "l2_regularization": 10.0,
+          "early_stopping": false
+        }
+      },
+      {
+        "name": "hist_boost_31_log",
+        "kind": "hist_boost",
+        "log_target": true,
+        "parameters": {
+          "max_iter": 350,
+          "max_leaf_nodes": 31,
+          "learning_rate": 0.06,
+          "l2_regularization": 10.0,
+          "early_stopping": false
+        }
+      },
+      {
+        "name": "catboost_depth_6_mae",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 6,
+          "learning_rate": 0.04,
+          "loss_function": "MAE",
+          "l2_leaf_reg": 5.0
+        }
+      },
+      {
+        "name": "catboost_depth_6_rmse",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 6,
+          "learning_rate": 0.04,
+          "loss_function": "RMSE",
+          "l2_leaf_reg": 5.0
+        }
+      },
+      {
+        "name": "catboost_depth_8_mae",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 8,
+          "learning_rate": 0.04,
+          "loss_function": "MAE",
+          "l2_leaf_reg": 5.0
+        }
+      },
+      {
+        "name": "catboost_depth_8_rmse",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 8,
+          "learning_rate": 0.04,
+          "loss_function": "RMSE",
+          "l2_leaf_reg": 5.0
+        }
+      },
+      {
+        "name": "catboost_depth_10_mae",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 10,
+          "learning_rate": 0.04,
+          "loss_function": "MAE",
+          "l2_leaf_reg": 5.0
+        }
+      },
+      {
+        "name": "catboost_depth_10_rmse",
+        "kind": "catboost",
+        "parameters": {
+          "iterations": 1200,
+          "depth": 10,
+          "learning_rate": 0.04,
+          "loss_function": "RMSE",
+          "l2_leaf_reg": 5.0
+        }
+      }
+    ]
+  },
+  "revision": {
+    "run": "asking_price_revision",
+    "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+    "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "expected_rows": 9210,
+    "catalog": "config/modeling/iphone_release_years.json",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "seed": 42,
+    "threads": 4,
+    "folds": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-21"
+      },
+      {
+        "start": "2024-05-22",
+        "end": "2025-01-07"
+      }
+    ],
+    "retrospective_test_start": "2025-01-09",
+    "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+    "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+    "candidates": [
+      {
+        "name": "v1_reference",
+        "kind": "v1",
+        "half_life": 0
+      },
+      {
+        "name": "age_hist_log_half_2",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_1_residual_0",
+        "kind": "trend",
+        "alpha": 1.0,
+        "residual_strength": 0.0,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_1_residual_0.5",
+        "kind": "trend",
+        "alpha": 1.0,
+        "residual_strength": 0.5,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_1_residual_1",
+        "kind": "trend",
+        "alpha": 1.0,
+        "residual_strength": 1.0,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_10_residual_0",
+        "kind": "trend",
+        "alpha": 10.0,
+        "residual_strength": 0.0,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_10_residual_0.5",
+        "kind": "trend",
+        "alpha": 10.0,
+        "residual_strength": 0.5,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_10_residual_1",
+        "kind": "trend",
+        "alpha": 10.0,
+        "residual_strength": 1.0,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_100_residual_0",
+        "kind": "trend",
+        "alpha": 100.0,
+        "residual_strength": 0.0,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_100_residual_0.5",
+        "kind": "trend",
+        "alpha": 100.0,
+        "residual_strength": 0.5,
+        "half_life": 2
+      },
+      {
+        "name": "trend_alpha_100_residual_1",
+        "kind": "trend",
+        "alpha": 100.0,
+        "residual_strength": 1.0,
+        "half_life": 2
+      },
+      {
+        "name": "cat_price_RMSE_half_0",
+        "kind": "catboost",
+        "loss": "RMSE",
+        "log_target": false,
+        "depth": 6,
+        "half_life": 0,
+        "iterations": 1000
+      },
+      {
+        "name": "cat_price_RMSE_half_2",
+        "kind": "catboost",
+        "loss": "RMSE",
+        "log_target": false,
+        "depth": 6,
+        "half_life": 2,
+        "iterations": 1000
+      },
+      {
+        "name": "cat_price_MAE_half_0",
+        "kind": "catboost",
+        "loss": "MAE",
+        "log_target": false,
+        "depth": 6,
+        "half_life": 0,
+        "iterations": 1000
+      },
+      {
+        "name": "cat_price_MAE_half_2",
+        "kind": "catboost",
+        "loss": "MAE",
+        "log_target": false,
+        "depth": 6,
+        "half_life": 2,
+        "iterations": 1000
+      },
+      {
+        "name": "hist_log_leaves_7",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2,
+        "max_leaf_nodes": 7,
+        "l2_regularization": 15.0
+      },
+      {
+        "name": "hist_log_leaves_15",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2,
+        "max_leaf_nodes": 15,
+        "l2_regularization": 15.0
+      },
+      {
+        "name": "hist_log_leaves_63",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2,
+        "max_leaf_nodes": 63,
+        "l2_regularization": 15.0
+      }
+    ],
+    "condition_features": "data/final/condition_features.csv",
+    "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
+  },
+  "age_transfer": {
+    "run": "asking_price_age_transfer",
+    "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+    "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "expected_rows": 9210,
+    "catalog": "config/modeling/iphone_release_years.json",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "seed": 42,
+    "threads": 4,
+    "folds": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-21"
+      },
+      {
+        "start": "2024-05-22",
+        "end": "2025-01-07"
+      }
+    ],
+    "retrospective_test_start": "2025-01-09",
+    "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+    "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+    "candidates": [
+      {
+        "name": "v1_reference",
+        "kind": "v1",
+        "half_life": 0
+      },
+      {
+        "name": "age_hist_log_half_2",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0_leaves_7",
+        "kind": "depreciation",
+        "rate": 0.0,
+        "max_leaf_nodes": 7,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0_leaves_15",
+        "kind": "depreciation",
+        "rate": 0.0,
+        "max_leaf_nodes": 15,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.15_leaves_7",
+        "kind": "depreciation",
+        "rate": 0.15,
+        "max_leaf_nodes": 7,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.15_leaves_15",
+        "kind": "depreciation",
+        "rate": 0.15,
+        "max_leaf_nodes": 15,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.3_leaves_7",
+        "kind": "depreciation",
+        "rate": 0.3,
+        "max_leaf_nodes": 7,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.3_leaves_15",
+        "kind": "depreciation",
+        "rate": 0.3,
+        "max_leaf_nodes": 15,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.45_leaves_7",
+        "kind": "depreciation",
+        "rate": 0.45,
+        "max_leaf_nodes": 7,
+        "half_life": 2
+      },
+      {
+        "name": "age_normalized_0.45_leaves_15",
+        "kind": "depreciation",
+        "rate": 0.45,
+        "max_leaf_nodes": 15,
+        "half_life": 2
+      }
+    ],
+    "condition_features": "data/final/condition_features.csv",
+    "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
+  },
+  "ensemble": {
+    "run": "asking_price_ensemble",
+    "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+    "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "expected_rows": 9210,
+    "catalog": "config/modeling/iphone_release_years.json",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "seed": 42,
+    "threads": 4,
+    "folds": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-21"
+      },
+      {
+        "start": "2024-05-22",
+        "end": "2025-01-07"
+      }
+    ],
+    "retrospective_test_start": "2025-01-09",
+    "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+    "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+    "candidates": [
+      {
+        "name": "v1_reference",
+        "kind": "v1",
+        "half_life": 0
+      },
+      {
+        "name": "age_hist_log_half_2",
+        "kind": "hist",
+        "log_target": true,
+        "loss": "squared_error",
+        "half_life": 2
+      },
+      {
+        "name": "cat_log_depth_4_half_1",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 4,
+        "half_life": 1,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_4_half_2",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 4,
+        "half_life": 2,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_6_half_1",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 6,
+        "half_life": 1,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "cat_log_depth_6_half_2",
+        "kind": "catboost",
+        "log_target": true,
+        "depth": 6,
+        "half_life": 2,
+        "iterations": 1400,
+        "learning_rate": 0.03
+      },
+      {
+        "name": "blend_cat_share_0.25",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.75,
+          0.25
+        ],
+        "half_life": 2
+      },
+      {
+        "name": "blend_cat_share_0.5",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.5,
+          0.5
+        ],
+        "half_life": 2
+      },
+      {
+        "name": "blend_cat_share_0.75",
+        "kind": "blend",
+        "components": [
+          {
+            "name": "age_hist_log_half_2",
+            "kind": "hist",
+            "log_target": true,
+            "loss": "squared_error",
+            "half_life": 2
+          },
+          {
+            "name": "age_catboost_log_depth_6",
+            "kind": "catboost",
+            "depth": 6,
+            "log_target": true,
+            "half_life": 2
+          }
+        ],
+        "blend_weights": [
+          0.25,
+          0.75
+        ],
+        "half_life": 2
+      }
+    ],
+    "condition_features": "data/final/condition_features.csv",
+    "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
+  }
+}

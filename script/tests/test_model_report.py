@@ -7,6 +7,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 
 
+
+
+from script.artifacts import has_metadata, read_metadata
+
 class ReportParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -25,14 +29,14 @@ class ReportParser(HTMLParser):
 
 class ModelReportTests(unittest.TestCase):
     def test_canonical_report_has_metrics_and_portable_graphs(self):
-        report = ROOT / 'docs/assets/modeling/asking_price_v2'
-        summary = json.loads((report / 'summary.json').read_text())
+        report = ROOT / 'docs/assets/modeling'
+        summary = read_metadata(report, 'summary')
         content = (ROOT / 'docs/modeling.md').read_text()
         for key in ['mae_thb', 'rmse_thb', 'median_absolute_error_thb', 'mape_pct', 'bias_thb']:
             self.assertIn(f"{summary['retrospective'][key]:,.2f}", content)
         self.assertIn('ไม่มี test statistic/p-value', content)
         self.assertIn('ไม่ใช่ holdout ใหม่', content)
-        self.assertFalse((report / 'summary.md').exists())
+        self.assertFalse(has_metadata(report, 'summary_text'))
         parser = ReportParser()
         parser.feed((report / 'report.html').read_text())
         self.assertEqual(len(parser.images), 5)

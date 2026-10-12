@@ -14,6 +14,13 @@ DEFAULT_INPUT = ROOT / 'data/intermediate/ennxo' / DEFAULT_RAW.name / 'clean'
 DEFAULT_BASELINE = ROOT / 'data/intermediate/ennxo' / DEFAULT_RAW.name / 'history' / 'rules_v4'
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import write_metadata
+
 def next_actions(reasons):
     actions = []
     if 'reported_damage_or_lock' in reasons:
@@ -76,8 +83,8 @@ def review(baseline, current, output):
                'current_evidence_corrections': sum(bool(r.get('review_correction')) for r in after),
                'inputs_unchanged': True,
                'review_scope': 'All baseline queue rows and newly held rows are accounted for; versioned rule checks are distinct from individual evidence corrections. No claim of independent human or physical-device verification.'}
-    dump(output / 'summary.json', summary)
-    dump(output / 'run_metadata.json', {'input_sha256': dict(zip(('baseline', 'current'), hashes)),
+    write_metadata(output, 'summary', summary)
+    write_metadata(output, 'provenance', {'input_sha256': dict(zip(('baseline', 'current'), hashes)),
           'code_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()})
     lines = ['# ENNXO — บัญชีคิวตรวจ', '',
              f'คิวเดิม {summary["baseline_queue"]} รายการ → คิวปัจจุบัน {summary["current_queue"]} รายการ', '',
@@ -85,7 +92,7 @@ def review(baseline, current, output):
     lines += [f'| {transition} | {n} |' for transition, n in summary['transitions'].items()]
     lines += ['', 'อ่าน `review_rows.csv` สำหรับบัญชีรายแถว และ `review_evidence.json` สำหรับหลักฐาน/คำแก้/เหตุผลเต็ม', '',
               f'คำตรวจรายแถวใน ledger ปัจจุบันมี {summary["current_evidence_corrections"]} รายการ เป็นการตรวจหลักฐานโดย Codex ช่วยงาน ส่วนแถวอื่นตรวจด้วยกฎเวอร์ชัน ไม่อ้างว่ามนุษย์ตรวจทุกแถวหรือยืนยันสเปคจริงแล้ว', '']
-    (output / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
+    write_metadata(output, 'report_text', '\n'.join(lines))
     print(summary)
     return summary
 

@@ -22,11 +22,17 @@ else:
 ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT = 'ennxo_20261005_mac2hand_20261006'
 DEFAULT_INPUT = ROOT / 'data/intermediate/combined' / SNAPSHOT / 'before_selection'
-DEFAULT_REPORT = ROOT / 'docs/assets/eda' / SNAPSHOT
+DEFAULT_REPORT = ROOT / 'docs/assets/eda'
 DEFAULT_PRIVATE = ROOT / 'data/intermediate/eda' / SNAPSHOT
 DEFAULT_DETAILS = ROOT / 'data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization/mac2hand_final.jsonl'
 DEFAULT_RULES = ROOT / 'config/shared/eda_rules.json'
 
+
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from script.artifacts import collect_output_hashes, read_metadata, write_metadata
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -151,7 +157,7 @@ def make_reports(summary, figures, report):
         'กำหนดเป้าหมายราคาตามวันประกาศหรือราคาปัจจุบันให้ชัด เลือกแผนประเมินตามเวลา และรายงานผลแยกเว็บ/รุ่นที่มีตัวอย่างพอ',
         'หลังแบ่งข้อมูล ให้เรียนรู้กฎ preprocessing/threshold ที่ใช้ฝึกจาก train เท่านั้น ไม่ใช้ fence จาก EDA ทั้งชุดตัดข้อมูล test']
     brief = ['# สรุป EDA ชุดรวม', '', source_table, '', *['- ' + point for point in findings[:6]], '',
-             'อ่าน [รายงานรายละเอียด](report.md) หรือเปิด `report.html` ใน browser กราฟอยู่ใน `figures/` ตารางสรุปอยู่ใน `tables/`', '',
+             'อ่าน [รายงานรายละเอียด](metadata.json#report_text) หรือเปิด `report.html` ใน browser กราฟอยู่ใน `figures/` ตารางสรุปอยู่ใน `tables/`', '',
              'dataset ไม่เปลี่ยน ยังไม่ลบ candidate/outlier ไม่แบ่งข้อมูลหรือฝึกโมเดล']
     sensitivity_labels = {'all_rows': 'ทุกแถว', 'without_iqr_flags_diagnostic_only': 'สมมติพักแถวที่ IQR flag',
                           'one_per_text_candidate_component_assumption_only': 'สมมติเก็บ 1 แถวต่อกลุ่มข้อความ'}
@@ -181,15 +187,31 @@ def make_reports(summary, figures, report):
         details += [f"![{item['name']}](figures/{item['name']}.png)", '', item['caption'], '']
     details += ['## ไฟล์และวิธีทำซ้ำ', '',
         'รัน `.venv/bin/python -u -B script/analysis/eda/run_eda.py` จากรากโปรเจค หรือใช้ absolute path จาก directory อื่น', '',
-        '`summary.json` เก็บสถิติหลัก `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ `rules.json` เป็นสำเนากฎ `run_metadata.json` เก็บเวอร์ชันโค้ด dependencies และ input hashes', '',
-        'รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `validation.json` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ']
+        '`metadata.json` รวม summary (สถิติ), rules (กฎ), provenance (เวอร์ชันโค้ด dependencies/input hashes) และ validation; `tables/*.csv` เก็บทุกรุ่น/ปี/ความจุและวิธีเทียบเว็บ', '',
+        'รายการรายแถวอยู่ใน `data/intermediate/eda/ennxo_20261005_mac2hand_20261006/` ได้แก่ `outlier_candidates.csv`, `duplicate_groups.json`, `duplicate_memberships.csv` และ `metadata.json#validation` เก็บเฉพาะเครื่อง; รายงานนี้ไม่เผยแพร่ข้อความ/ข้อมูลติดต่อจากประกาศ']
     markdown = '\n'.join(details) + '\n'
     if report.resolve() == DEFAULT_REPORT.resolve():
         document_path = ROOT / 'docs/eda.md'
-        markdown = markdown.replace('](figures/', '](assets/eda/' + SNAPSHOT + '/figures/')
+        markdown = markdown.replace('](figures/', '](assets/eda/figures/')
+        registry_path = ROOT / 'data/datasets.json'
+        if registry_path.exists():
+            registry = json.loads(registry_path.read_text(encoding='utf-8'))
+            current = registry.get('model_input_dataset')
+            if current:
+                status = (f"รายงานนี้สำรวจ {total:,} แถวก่อนคัด ชุดใช้งานปัจจุบันมี {current['records']:,} แถว "
+                          "อ่าน [ขั้นตอนคัดข้อมูล](data.md#stage-model_input) และ [ผลโมเดล](modeling.md) "
+                          "คิว EDA เดิมปิดแล้ว ข้อเสนอในรายงานเป็นบันทึก ณ รอบสำรวจ ไม่ใช่คิวที่ต้องทำต่อ")
+                title, body = markdown.split('\n', 1)
+                markdown = title + '\n\n' + status + '\n' + body
+        # Preserve the authored methodology when refreshing the numerical report.
+        marker = '<a id="stage-eda"></a>'
+        if document_path.exists():
+            existing = document_path.read_text(encoding='utf-8')
+            if marker in existing:
+                markdown = markdown.rstrip() + '\n\n' + marker + existing.split(marker, 1)[1]
+        document_path.write_text(markdown, encoding='utf-8')
     else:
-        document_path = report / 'report.md'
-    document_path.write_text(markdown, encoding='utf-8')
+        write_metadata(report, 'report_text', markdown)
     document = ['<!doctype html><html lang="th"><meta charset="utf-8">', '<meta name="viewport" content="width=device-width,initial-scale=1">',
         '<title>EDA ชุดรวมมือถือ</title><style>body{font:16px/1.65 system-ui,sans-serif;max-width:1080px;margin:auto;padding:32px;color:#223}h1,h2{line-height:1.3}img{max-width:100%;height:auto}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}th{background:#f5f7fa}figure{margin:28px 0}figcaption{color:#456}@media print{body{padding:0}figure{break-inside:avoid}}</style>',
         '<h1>รายงาน EDA ชุดรวม</h1><p>อ่านประกอบรายงาน Markdown และตาราง CSV; ทุกกราฟสร้างจาก snapshot เดียวกัน ไม่มีการลบแถว</p>']
@@ -217,10 +239,10 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
             if output == protected or protected in output.parents or output in protected.parents:
                 raise ValueError('Output overlaps a protected input')
     before = {str(p): sha(p) for p in input_files}
-    schema = json.loads((input_dir / 'schema.json').read_text()); rules = json.loads(rules_path.read_text())
+    schema = read_metadata(input_dir, 'schema'); rules = json.loads(rules_path.read_text())
     if rules['version'] != 1 or rules['outlier_min_group_size'] < 4 or rules['outlier_iqr_multiplier'] <= 0:
         raise ValueError('Unsupported EDA rules')
-    if sha(input_dir / 'dataset.csv') != json.loads((input_dir / 'run_metadata.json').read_text())['dataset_sha256']:
+    if sha(input_dir / 'dataset.csv') != read_metadata(input_dir, 'provenance')['dataset_sha256']:
         raise ValueError('Merged CSV differs from recorded hash')
     rows = read_jsonl(input_dir / 'dataset.jsonl'); original_lineage = read_jsonl(evidence_dir / 'lineage.jsonl')
     validate_inputs(rows, original_lineage, schema)
@@ -228,7 +250,7 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
         csv_rows = list(csv.DictReader(file))
     if len(csv_rows) != len(rows) or any(any(str(r[k]) != c[k] for k in schema['fields']) for r, c in zip(rows, csv_rows)):
         raise ValueError('Typed JSONL differs from merged CSV')
-    if len(rows) != json.loads((input_dir / 'summary.json').read_text())['records']:
+    if len(rows) != read_metadata(input_dir, 'summary')['records']:
         raise ValueError('Merged count differs from summary')
     lineage = {r['listing_id']: r for r in original_lineage}
     descriptions = attach_descriptions(rows, lineage, details)
@@ -251,7 +273,7 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
     if (evidence_dir / 'price_review.csv').exists():
         (private / 'price_extremes.csv').write_bytes((evidence_dir / 'price_review.csv').read_bytes())
     figures = render(enriched, tables, report / 'figures', rules)
-    dump(report / 'summary.json', summary); dump(report / 'rules.json', rules)
+    write_metadata(report, 'summary', summary); write_metadata(report, 'rules', rules)
     make_reports(summary, figures, report)
     after = {str(p): sha(p) for p in input_files}
     if after != before:
@@ -264,19 +286,18 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
         'row_data_not_in_public_tables': all(not any(key in row for key in ('listing_id', 'url', 'description', 'title')) for table in tables.values() for row in table)}
     if not validation['outlier_rows_accounted_for'] or not validation['row_data_not_in_public_tables']:
         raise ValueError('EDA output accounting failed')
-    dump(private / 'validation.json', validation)
-    dump(report / 'validation.json', validation)
-    dump(report / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(private, 'validation', validation)
+    write_metadata(report, 'validation', validation)
+    write_metadata(report, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
         'input_hashes': {str(Path(p).relative_to(ROOT)) if Path(p).is_relative_to(ROOT) else p: h for p, h in before.items()},
         'code_hashes': {p.name: sha(p) for p in (Path(__file__), Path(__file__).with_name('eda_statistics.py'), Path(__file__).with_name('eda_plots.py'))},
         'dependencies': {name: importlib.metadata.version(name) for name in ('matplotlib', 'numpy')},
         'rows': len(rows), 'figures': figures, 'input_files_unchanged': True})
-    dump(report / 'output_hashes.json', {str(p.relative_to(report)): sha(p)
-         for p in sorted(report.rglob('*')) if p.is_file() and p.name != 'output_hashes.json'})
+    write_metadata(report, 'hashes', collect_output_hashes(report))
     if report == DEFAULT_REPORT.resolve():
-        hashes = json.loads((report / 'output_hashes.json').read_text())
-        hashes['../../../eda.md'] = sha(ROOT / 'docs/eda.md')
-        dump(report / 'output_hashes.json', hashes)
+        hashes = read_metadata(report, 'hashes')
+        hashes['../../eda.md'] = sha(ROOT / 'docs/eda.md')
+        write_metadata(report, 'hashes', hashes)
     print(json.dumps({'records': len(rows), 'outlier_screening': summary['outlier_screening'],
         'duplicate_screening': summary['duplicate_screening'], 'matched_source_comparison_groups': len(tables['source_comparisons']),
         'report': str(report), 'private_review': str(private)}, ensure_ascii=False, indent=2))

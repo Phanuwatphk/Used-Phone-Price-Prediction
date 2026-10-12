@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from script.artifacts import write_metadata
+
 def table(headers, rows):
     return '| ' + ' | '.join(headers) + ' |\n|' + '|'.join(['---'] * len(headers)) + '|\n' + '\n'.join('| ' + ' | '.join(str(v) for v in row) + ' |' for row in rows) + '\n'
 
@@ -64,7 +70,7 @@ def render_report(report, summary, metadata, comparisons, actual, predicted):
     detailed = short + f'''
 ## วิธีทดลองและป้องกันข้อมูลรั่ว
 
-1. ตรึง CSV ด้วย SHA-256 `{metadata['dataset_sha256']}` และประกาศรายการโมเดล/พารามิเตอร์ใน `config/modeling/training.json` ก่อนวัด test
+1. ตรึง CSV ด้วย SHA-256 `{metadata['dataset_sha256']}` และประกาศรายการโมเดล/พารามิเตอร์ใน `config/modeling/experiments.json#baseline` ก่อนวัด test
 2. เรียงตามวันที่และรหัสประกาศ แบ่งประมาณ 85%/7.5%/7.5%; วันที่เดียวกันอยู่ชุดเดียว เหตุผลที่เลือกสัดส่วนนี้คือ train ต้องมีทั้งสองเว็บ ช่วง 70–80% แรกมีเพียง Mac2Hand
 3. ฟิต encoding/scaling เฉพาะ train ไม่ส่งราคา รหัสสินค้า URL หรือ snapshot เข้าเป็น feature สร้างความจุ รุ่น/ตระกูลรุ่น และเวลาประกาศด้วยกฎที่ไม่ใช้ target
 4. เปรียบเทียบ median, Ridge, Extra Trees, HistGradientBoosting และ CatBoost; Ridge/boosting บางตัวทดลอง log(price) โดยแปลงกลับเป็นบาทก่อนวัด MAE CatBoost ใช้ categorical features โดยตรง และ `has_time=True`; early stopping ใช้ validation MAE เท่านั้น จำกัดสูงสุด 1,200 iterations
@@ -121,8 +127,8 @@ MAE คือค่าเฉลี่ยความผิดพลาดเป�
 [scikit-learn: data leakage และ pipeline](https://scikit-learn.org/stable/common_pitfalls.html), [การแบ่งข้อมูลตามเวลา](https://scikit-learn.org/stable/modules/cross_validation.html#time-series-split), [CatBoost: tuning/early stopping/has_time](https://catboost.ai/docs/en/concepts/parameter-tuning), [CatBoost: regression objectives](https://catboost.ai/docs/en/concepts/loss-functions-regression)
 '''
     detailed = detailed.replace('保存โมเดล', 'บันทึกโมเดล')
-    (report / 'summary.md').write_text(short, encoding='utf-8')
-    (report / 'report.md').write_text(detailed, encoding='utf-8')
+    write_metadata(report, 'summary_text', short)
+    write_metadata(report, 'report_text', detailed)
     # A self-contained HTML report: escaped full text and embedded figures.
     import base64
     images = ''.join('<figure><img style="max-width:100%" alt="' + p.stem + '" src="data:image/png;base64,' + base64.b64encode(p.read_bytes()).decode() + '"></figure>' for p in sorted(figures.glob('*.png')))

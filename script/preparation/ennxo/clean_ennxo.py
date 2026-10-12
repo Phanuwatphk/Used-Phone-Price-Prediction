@@ -39,6 +39,13 @@ REVIEW_AREAS = [
 ]
 
 
+if not __package__:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from script.artifacts import read_metadata, write_metadata, write_metadata_bytes
+
 def clean(extraction, raw, output, rules_path=DEFAULT_RULES, corrections_path=DEFAULT_CORRECTIONS):
     extraction, raw, output = extraction.resolve(), raw.resolve(), output.resolve()
     for protected in (raw, extraction, rules_path.resolve().parent):
@@ -56,7 +63,7 @@ def clean(extraction, raw, output, rules_path=DEFAULT_RULES, corrections_path=DE
     raw_by_url = {r['url']: r for r in raw_rows}
     if any(r['raw_listing'] != raw_by_url[r['url']] for r in rows):
         raise ValueError('Original values differ from raw')
-    extraction_summary = json.loads((extraction / 'summary.json').read_text())
+    extraction_summary = read_metadata(extraction, 'summary')
     if not extraction_summary.get('accounting_passed') or extraction_summary.get('records') != len(rows):
         raise ValueError('Extraction accounting not passed')
     rules_bytes, corrections_bytes = rules_path.read_bytes(), corrections_path.read_bytes()
@@ -140,21 +147,21 @@ def clean(extraction, raw, output, rules_path=DEFAULT_RULES, corrections_path=DE
                                  'description': original['embedded_product'].get('detail'),
                                  'page_file': original['provenance']['page_file'],
                                  **{k: '|'.join(row[k]) for k in ('hold_reasons', 'exclusion_reasons', 'notes')}})
-    dump(output / 'summary.json', summary)
+    write_metadata(output, 'summary', summary)
     tasks = [{'area': area, 'records': sum(r['status'] == 'needs_review' and bool(set(r['hold_reasons']) & reasons) for r in results),
               'reason_codes': sorted(reasons), 'next_action': action} for area, reasons, action in REVIEW_AREAS]
     dump(output / 'review_plan.json', {'areas': tasks, 'note': 'Counts overlap: a listing can require more than one type of review'})
-    dump(output / 'validation.json', {'raw_input_urls_match': True, 'original_values_match_raw': True,
+    write_metadata(output, 'validation', {'raw_input_urls_match': True, 'original_values_match_raw': True,
          'output_urls_match_input': Counter(r['url'] for r in results) == Counter(r['url'] for r in rows),
          'status_accounting_passed': sum(status.values()) == len(rows),
          'accepted_has_required_values_and_no_unresolved_reasons': True, 'raw_unchanged': True})
     dump(output / 'model_catalog.json', [{'brand': brand, 'normalized_key': key, 'selected_label': label}
                                         for (brand, key), label in sorted(catalog.items())])
     dump(output / 'raw_checksums.json', before)
-    (output / 'rules.json').write_bytes(rules_bytes)
+    write_metadata_bytes(output, 'rules', rules_bytes)
     (output / 'corrections.json').write_bytes(corrections_bytes)
     scripts = [Path(__file__).resolve(), Path(__file__).with_name('cleaning_rules.py'), Path(__file__).with_name('description_sections.py'), Path(__file__).with_name('audit_ennxo_raw.py')]
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
          'python': platform.python_version(), 'input_sha256': input_hash,
          'rules_sha256': hashlib.sha256(rules_bytes).hexdigest(), 'corrections_sha256': hashlib.sha256(corrections_bytes).hexdigest(),
          'code_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in scripts}})
@@ -169,8 +176,8 @@ def clean(extraction, raw, output, rules_path=DEFAULT_RULES, corrections_path=DE
     lines += ['', '## วิธีตรวจคิวต่อ', '', '| กลุ่ม | ประกาศที่พัก | วิธีตรวจ |', '|---|---:|---|']
     lines += [f'| {task["area"]} | {task["records"]} | {task["next_action"]} |' for task in tasks if task['records']]
     lines += ['', 'หนึ่งประกาศมีหลายเหตุผลได้ ดู `needs_review.csv` สำหรับคิวตรวจ และ `ennxo_cleaned.jsonl` สำหรับค่าต้นฉบับ หลักฐาน และเหตุผลครบทุกแถว', '',
-              'กฎและคำตอบที่ใช้รอบนี้อยู่ใน `rules.json` และ `corrections.json`; hash ของ input/โค้ดอยู่ใน `run_metadata.json`', '']
-    (output / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
+              'กฎและคำตอบที่ใช้รอบนี้อยู่ใน `metadata.json#rules` และ `corrections.json`; hash ของ input/โค้ดอยู่ใน `metadata.json#provenance`', '']
+    write_metadata(output, 'report_text', '\n'.join(lines))
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

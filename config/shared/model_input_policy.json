@@ -11,7 +11,7 @@
   "inputs": {
     "dataset_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
     "dataset_jsonl": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.jsonl",
-    "schema": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/schema.json",
+    "schema": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/metadata.json#schema",
     "lineage": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/lineage.jsonl",
     "outliers": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/outlier_candidates.csv",
     "price_extremes": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006/price_extremes.csv",

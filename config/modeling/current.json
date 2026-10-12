@@ -1,0 +1,176 @@
+{
+  "run": "asking_price_v2",
+  "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
+  "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+  "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "expected_rows": 9210,
+  "catalog": "config/modeling/iphone_release_years.json",
+  "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+  "seed": 42,
+  "threads": 4,
+  "folds": [
+    {
+      "start": "2024-01-01",
+      "end": "2024-05-21"
+    },
+    {
+      "start": "2024-05-22",
+      "end": "2025-01-07"
+    }
+  ],
+  "retrospective_test_start": "2025-01-09",
+  "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+  "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
+  "candidates": [
+    {
+      "name": "v1_reference",
+      "kind": "v1",
+      "half_life": 0
+    },
+    {
+      "name": "age_hist_log_half_2",
+      "kind": "hist",
+      "log_target": true,
+      "loss": "squared_error",
+      "half_life": 2
+    },
+    {
+      "name": "cat_log_depth_4_half_1",
+      "kind": "catboost",
+      "log_target": true,
+      "depth": 4,
+      "half_life": 1,
+      "iterations": 1400,
+      "learning_rate": 0.03
+    },
+    {
+      "name": "cat_log_depth_4_half_2",
+      "kind": "catboost",
+      "log_target": true,
+      "depth": 4,
+      "half_life": 2,
+      "iterations": 1400,
+      "learning_rate": 0.03
+    },
+    {
+      "name": "cat_log_depth_6_half_1",
+      "kind": "catboost",
+      "log_target": true,
+      "depth": 6,
+      "half_life": 1,
+      "iterations": 1400,
+      "learning_rate": 0.03
+    },
+    {
+      "name": "cat_log_depth_6_half_2",
+      "kind": "catboost",
+      "log_target": true,
+      "depth": 6,
+      "half_life": 2,
+      "iterations": 1400,
+      "learning_rate": 0.03
+    },
+    {
+      "name": "blend_cat_share_0.25",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "age_hist_log_half_2",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2
+        },
+        {
+          "name": "age_catboost_log_depth_6",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2
+        }
+      ],
+      "blend_weights": [
+        0.75,
+        0.25
+      ],
+      "half_life": 2
+    },
+    {
+      "name": "blend_cat_share_0.5",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "age_hist_log_half_2",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2
+        },
+        {
+          "name": "age_catboost_log_depth_6",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2
+        }
+      ],
+      "blend_weights": [
+        0.5,
+        0.5
+      ],
+      "half_life": 2
+    },
+    {
+      "name": "blend_cat_share_0.75",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "age_hist_log_half_2",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2
+        },
+        {
+          "name": "age_catboost_log_depth_6",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2
+        }
+      ],
+      "blend_weights": [
+        0.25,
+        0.75
+      ],
+      "half_life": 2
+    }
+  ],
+  "condition_features": "data/final/condition_features.csv",
+  "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66",
+  "previous_round": {
+    "selected_model": "age_hist_log_half_2",
+    "validation": {
+      "name": "age_hist_log_half_2",
+      "rows": 1054.0,
+      "mae_thb": 4339.414781578945,
+      "rmse_thb": 6518.779959170459,
+      "median_absolute_error_thb": 2633.0734901523283,
+      "r2": 0.7765901647843589,
+      "mape_pct": 99.71512943752239,
+      "within_20pct": 0.45351043643263755,
+      "bias_thb": 522.3862377620286,
+      "fit_seconds": 18.11
+    },
+    "retrospective": {
+      "rows": 693,
+      "mae_thb": 5339.299044795779,
+      "rmse_thb": 7867.293415345483,
+      "median_absolute_error_thb": 2909.0125118707238,
+      "r2": 0.6191660852587184,
+      "mape_pct": 33.42156621353688,
+      "within_20pct": 0.4054834054834055,
+      "bias_thb": -3830.005181217784
+    }
+  }
+}

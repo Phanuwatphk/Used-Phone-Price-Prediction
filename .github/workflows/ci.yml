@@ -36,7 +36,7 @@ jobs:
       - name: Check dependencies
         run: python -m pip check
       - name: Check Python syntax
-        run: python -m compileall -q script
+        run: python -m compileall -q app script
       - name: Rebuild training input from public data
         run: python -B script/modeling/rebuild_features_v2.py
       - name: Run offline tests

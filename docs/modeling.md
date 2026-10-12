@@ -4,9 +4,18 @@
 
 ## สรุปผลก่อนอ่านรายละเอียด
 
-เลือก **HistGradientBoosting + log(price) + recency half-life 2 ปี** (`age_hist_log_half_2`) จาก 12 ตัวเลือกด้วย validation ตามเวลา 2 ช่วง MAE validation **4,339.41 บาท**
+เลือก **HGB / CatBoost weighted ensemble + price (THB)** (`blend_cat_share_0.5`) จาก 9 ตัวเลือกด้วย validation ตามเวลา 2 ช่วง MAE validation **4,277.71 บาท**
 
-เปรียบเทียบย้อนหลังบน **693 ประกาศเดิม**: MAE ลดจาก **8,107.82** เป็น **5,339.30 บาท** หรือ **34.15%**; R² **0.6192**; ทำนายใน ±20% ของราคาประกาศได้ **40.55%**
+เปรียบเทียบย้อนหลังบน **693 ประกาศเดิม**: MAE ลดจาก **8,107.82** เป็น **4,811.09 บาท** หรือ **40.66%**; R² **0.6780**; ทำนายใน ±20% ของราคาประกาศได้ **43.72%**
+
+เทียบกับโมเดลที่ใช้งานก่อนรอบนี้ บนประกาศย้อนหลังชุดเดียวกัน:
+
+| ตัววัด | ก่อนปรับ | รอบนี้ |
+|---|---|---|
+| MAE (บาท) | 5,339.30 | 4,811.09 |
+| RMSE (บาท) | 7,867.29 | 7,234.01 |
+| R² | 0.6192 | 0.6780 |
+
 
 **ผลนี้เป็นการประเมินย้อนหลังบนชุดเดิมที่เคยเปิดดูระหว่างพัฒนา ไม่ใช่ holdout ใหม่** โมเดลสำหรับใช้งานฝึกครบ 9,210 แถวและยังไม่มีคะแนนทดสอบอิสระของตัวที่ฝึกครบ
 
@@ -37,7 +46,7 @@ Features หลักคือเว็บ ยี่ห้อ รุ่น ค�
 
 Battery health %, ประกันวันและกล่องถอดจากข้อความด้วยกฎ เฉพาะคำระบุชัดและค่าเดียว ตรวจ listing_id/source/price ตรง lineage ค่าขัดกันหรือไม่ระบุคง missing; กล่องมี/ไม่มีใช้ 1/0 และไม่ทราบเป็น missing แยกจากศูนย์ ไม่ป้อน title/description ทั้งหมดหรือราคาในข้อความให้โมเดล
 
-One-hot encoding ใช้ unknown category ได้ ตัวเลขเติม median จาก train พร้อมคงคอลัมน์ที่ missing ทั้งหมดตาม imputer แล้ว scale จาก train ของ fold เท่านั้น ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
+ฝั่ง HGB ใช้ one-hot encoding ที่รับ unknown category ได้ ตัวเลขเติม median และ scale จาก train ของ fold เท่านั้น ส่วน CatBoost ใช้ categorical features และ numeric missing ตาม native behavior ไม่ใช้ target encoding จาก validation ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
 
 ## 3. แบ่ง train / validation / evaluation ตามเวลา
 
@@ -57,31 +66,62 @@ Validation สองช่วงรวม **1,054 แถว** จำนวน tr
 
 ## 4. เทรนอย่างไร และเลือกตัวไหน
 
-ทดลอง reference V1, HGB target ราคา/log(price), recency half-life เท่ากัน/2/4 ปี, transfer candidates ที่ลดการพึ่งชื่อรุ่น และ CatBoost depth 6/8 ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์
+ทดลอง 9 ตัวเลือกตาม frozen config มี reference V1 และโมเดลที่ใช้ก่อนปรับ รวมถึงการปรับ loss, ความซับซ้อน และแนวโน้มราคา ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์ ทุกตัวใช้ folds และแถวเดียวกัน
 
-วิธีชนะ: HGB loss `squared_error` บน log(price), `max_iter=400`, `max_leaf_nodes=31`, `learning_rate=0.07`, `l2_regularization=8`, `early_stopping=False`; seed **42**, threads **4** แปลงกลับด้วย exp ก่อนวัด error เป็นบาท ราคาทำนาย floor ที่ 1 บาทตาม inference เดิม
+วิธีชนะ: **HGB / CatBoost weighted ensemble + price (THB)**; seed **42**, threads **4** พารามิเตอร์ตัวเลือกที่ชนะ:
 
-Recency half-life 2 ปี: น้ำหนักก่อน normalize = max(0.01, 2^(−อายุข้อมูลปี/2)) อายุข้อมูลนับจากวันล่าสุดใน train ของ fold แล้ว normalize ให้เฉลี่ย 1 ไม่ลบข้อมูลเก่า ทดลอง CatBoost 800 iterations, learning rate 0.045, RMSE บน log target, fixed iterations และ `has_time=True`
+```json
+{
+  "name": "blend_cat_share_0.5",
+  "kind": "blend",
+  "components": [
+    {
+      "name": "age_hist_log_half_2",
+      "kind": "hist",
+      "log_target": true,
+      "loss": "squared_error",
+      "half_life": 2
+    },
+    {
+      "name": "age_catboost_log_depth_6",
+      "kind": "catboost",
+      "depth": 6,
+      "log_target": true,
+      "half_life": 2
+    }
+  ],
+  "blend_weights": [
+    0.5,
+    0.5
+  ],
+  "half_life": 2
+}
+```
+
+ตัวเลือก log target แปลงกลับด้วย exp ก่อนวัด error เป็นบาท ราคาทำนาย floor ที่ 1 บาทตาม inference เดิม HGB ไม่ใช้ early stopping ส่วน CatBoost ใช้ fixed iterations และ `has_time=True`
+
+Recency half-life ของวิธีชนะ **2 ปี**: ถ้าเป็นศูนย์ให้น้ำหนักเท่ากัน ถ้ามากกว่าศูนย์ใช้ max(0.01, 2^(−อายุข้อมูลปี/half-life)) อายุข้อมูลนับจากวันล่าสุดใน train ของ fold แล้ว normalize ให้เฉลี่ย 1 ไม่ลบข้อมูลเก่า
+
+Ensemble ฝึกสมาชิกแยกกันบน log ราคา แล้วเฉลี่ยราคาที่แปลงกลับเป็นบาทด้วยสัดส่วนที่กำหนดไว้ก่อน scoring; HGB default: 400 iterations, 31 leaves, learning rate 0.07, l2=8; CatBoost default: 800 iterations, depth 6, learning rate 0.045, RMSE บน log target สมาชิกได้รับ sample weights ชุดเดียวกัน ไม่มี stacking ที่เรียนจาก test
+
+ตัวเลือก trend ใช้ Ridge บน log ราคา เพิ่ม interaction รุ่น/ระดับเครื่องกับอายุ และยี่ห้อกับปีประกาศ เติม missing/encode/scale จาก train เท่านั้น แล้วทดลอง HGB เรียนรู้ residual โดยไม่อ่านราคา validation เป็น feature
 
 | ตัวเลือก | Validation MAE (บาท) | RMSE (บาท) | fit (วินาที) |
 |---|---|---|---|
-| age_hist_log_half_2 | 4,339.41 | 6,518.78 | 18.11 |
-| age_transfer_log_half_4 | 4,377.55 | 6,633.11 | 7.5 |
-| age_transfer_log_half_2 | 4,442.13 | 6,583.16 | 7.94 |
-| age_catboost_log_depth_6 | 4,477.19 | 7,009.32 | 11.27 |
-| age_catboost_transfer_log | 4,570.96 | 7,175.46 | 8.99 |
-| age_hist_log_half_4 | 4,571.61 | 6,798.44 | 17.26 |
-| age_hist_mae_half_4 | 4,713.19 | 7,151.32 | 27.72 |
-| age_catboost_log_depth_8 | 4,770.10 | 7,341.57 | 21.61 |
-| age_hist_log_half_0 | 4,899.77 | 6,896.68 | 16.85 |
-| age_hist_mae_half_0 | 4,929.66 | 7,456.31 | 22.14 |
-| age_hist_mae_half_2 | 5,134.67 | 7,427.15 | 24.64 |
-| v1_reference | 5,372.14 | 7,969.50 | 11.52 |
+| blend_cat_share_0.5 | 4,277.71 | 6,586.75 | 43.73 |
+| blend_cat_share_0.25 | 4,281.49 | 6,506.39 | 39.97 |
+| age_hist_log_half_2 | 4,339.41 | 6,518.78 | 75.32 |
+| blend_cat_share_0.75 | 4,342.08 | 6,756.56 | 59.5 |
+| cat_log_depth_6_half_2 | 4,380.89 | 6,935.75 | 33.29 |
+| cat_log_depth_4_half_2 | 4,490.36 | 6,821.56 | 32.33 |
+| cat_log_depth_6_half_1 | 4,543.18 | 6,993.23 | 38.8 |
+| cat_log_depth_4_half_1 | 4,610.48 | 6,914.70 | 45.44 |
+| v1_reference | 5,372.14 | 7,969.50 | 57.01 |
 
 
-![เปรียบเทียบ validation MAE](assets/modeling/asking_price_v2/figures/validation_comparison.png)
+![เปรียบเทียบ validation MAE](assets/modeling/figures/validation_comparison.png)
 
-**อ่านกราฟ:** แท่งสั้นคือ MAE ต่ำกว่า ใช้กราฟนี้และตัวเลข validation เลือกวิธี ไม่เลือกด้วยคะแนนชุดย้อนหลัง ตาราง [fold_metrics.csv](assets/modeling/asking_price_v2/tables/fold_metrics.csv) เก็บผลแต่ละ fold เพื่อดูความเปลี่ยนแปลงตามเวลา
+**อ่านกราฟ:** แท่งสั้นคือ MAE ต่ำกว่า ใช้กราฟนี้และตัวเลข validation เลือกวิธี ไม่เลือกด้วยคะแนนชุดย้อนหลัง ตาราง [fold_metrics.csv](assets/modeling/tables/fold_metrics.csv) เก็บผลแต่ละ fold เพื่อดูความเปลี่ยนแปลงตามเวลา
 
 ## 5. ใช้ตัววัดสถิติอะไร ได้ค่าเท่าไร
 
@@ -89,44 +129,52 @@ Recency half-life 2 ปี: น้ำหนักก่อน normalize = max(0.
 
 | ตัววัด | ความหมาย | V1 | V2 |
 |---|---|---|---|
-| MAE | เฉลี่ย abs(ŷ−y); ยิ่งต่ำยิ่งดี | 8,107.82 บาท | 5,339.30 บาท |
-| RMSE | รากของเฉลี่ย (ŷ−y)²; ไวต่อ error ก้อนใหญ่ | 11,774.11 บาท | 7,867.29 บาท |
-| Median absolute error | มัธยฐานของ abs(ŷ−y); ครึ่งหนึ่งมี error ไม่เกินค่านี้ | 4,732.28 บาท | 2,909.01 บาท |
-| R² | 1−SSE/SST; เทียบกับการทำนายด้วยค่าเฉลี่ยของชุดประเมิน | 0.1470 | 0.6192 |
-| MAPE | เฉลี่ย abs(ŷ−y)/y ×100; ราคาต่ำทำให้เปอร์เซ็นต์สูงง่าย | 44.02 % | 33.42 % |
-| ภายใน ±20% | สัดส่วนแถวที่ abs(ŷ−y)/y ≤0.20; ยิ่งสูงยิ่งดี | 26.98 % | 40.55 % |
-| Bias | เฉลี่ย (ŷ−y); ลบหมายถึงทำนายต่ำโดยเฉลี่ย | -6,177.61 บาท | -3,830.01 บาท |
+| MAE | เฉลี่ย abs(ŷ−y); ยิ่งต่ำยิ่งดี | 8,107.82 บาท | 4,811.09 บาท |
+| RMSE | รากของเฉลี่ย (ŷ−y)²; ไวต่อ error ก้อนใหญ่ | 11,774.11 บาท | 7,234.01 บาท |
+| Median absolute error | มัธยฐานของ abs(ŷ−y); ครึ่งหนึ่งมี error ไม่เกินค่านี้ | 4,732.28 บาท | 2,676.36 บาท |
+| R² | 1−SSE/SST; เทียบกับการทำนายด้วยค่าเฉลี่ยของชุดประเมิน | 0.1470 | 0.6780 |
+| MAPE | เฉลี่ย abs(ŷ−y)/y ×100; ราคาต่ำทำให้เปอร์เซ็นต์สูงง่าย | 44.02 % | 31.20 % |
+| ภายใน ±20% | สัดส่วนแถวที่ abs(ŷ−y)/y ≤0.20; ยิ่งสูงยิ่งดี | 26.98 % | 43.72 % |
+| Bias | เฉลี่ย (ŷ−y); ลบหมายถึงทำนายต่ำโดยเฉลี่ย | -6,177.61 บาท | -3,251.33 บาท |
 
 
 MAE คือจำนวนบาทที่คลาดเคลื่อนเฉลี่ย RMSE สูงกว่า MAE เพราะให้น้ำหนัก error ใหญ่ Median absolute error บอกผลทั่วไปที่ไม่ถูกบางแถวลากมาก Bias ติดลบหมายถึงมีแนวโน้มทำนายต่ำ R² ไม่ใช่เปอร์เซ็นต์ accuracy และ MAPE ไม่ใช่อัตราผ่าน ±20%
 
-**มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความ 34.15% ว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
+**มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความเปอร์เซ็นต์การปรับปรุงว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
 
 ## 6. ผลแยกเว็บและยี่ห้อ
 
 | เว็บ | n | MAE (บาท) | RMSE (บาท) | R² | ภายใน ±20% |
 |---|---|---|---|---|---|
-| ennxo | 479 | 6,089.79 | 8,790.50 | 0.4246 | 25.26% |
-| mac2hand | 214 | 3,659.47 | 5,241.39 | 0.8335 | 74.77% |
+| ennxo | 479 | 5,623.05 | 8,195.31 | 0.4999 | 27.14% |
+| mac2hand | 214 | 2,993.66 | 4,373.99 | 0.8841 | 80.84% |
 
+
+| รุ่นในชุดประเมิน | n | MAE (บาท) | ภายใน ±20% |
+|---|---|---|---|
+| เคยอยู่ในชุดฝึก | 455 | 3,246.90 | 54.29% |
+| ไม่เคยอยู่ในชุดฝึก | 238 | 7,801.45 | 23.53% |
+
+
+Apple ในชุดฝึก 93.80% เทียบกับ 63.78% ในชุดประเมิน มี 238 แถวที่เป็นรุ่นไม่เคยอยู่ในชุดฝึก แสดงว่าข้อมูลต่างช่วงมีส่วนผสมต่างกัน
 
 จำนวนและส่วนผสมรุ่นต่างกัน จึงไม่ถือว่าคะแนนเว็บหนึ่งดีกว่าเพราะชื่อเว็บอย่างเดียว กลุ่มเล็กไม่ใช้รับรองความแม่นยำ
 
-![MAE ตามยี่ห้อ](assets/modeling/asking_price_v2/figures/retrospective_brand_mae.png)
+![MAE ตามยี่ห้อ](assets/modeling/figures/retrospective_brand_mae.png)
 
-**อ่านกราฟ:** แสดงเฉพาะยี่ห้อที่มีอย่างน้อย 10 แถว พร้อม n; แท่งสั้นคือ error น้อย ดู [retrospective_by_group.csv](assets/modeling/asking_price_v2/tables/retrospective_by_group.csv) สำหรับทุกยี่ห้อ ปี สภาพ และรุ่นเคยเห็น/ไม่เคยเห็น กลุ่มน้อยกว่า 10 ยังคงอยู่ในตาราง ไม่ถูกลบจากผลประเมิน
+**อ่านกราฟ:** แสดงเฉพาะยี่ห้อที่มีอย่างน้อย 10 แถว พร้อม n; แท่งสั้นคือ error น้อย ดู [retrospective_by_group.csv](assets/modeling/tables/retrospective_by_group.csv) สำหรับทุกยี่ห้อ ปี สภาพ และรุ่นเคยเห็น/ไม่เคยเห็น กลุ่มน้อยกว่า 10 ยังคงอยู่ในตาราง ไม่ถูกลบจากผลประเมิน
 
 ## 7. กราฟวิเคราะห์ error
 
-![ราคาจริงและราคาทำนาย](assets/modeling/asking_price_v2/figures/retrospective_actual_vs_predicted.png)
+![ราคาจริงและราคาทำนาย](assets/modeling/figures/retrospective_actual_vs_predicted.png)
 
 **อ่านกราฟ:** จุดใกล้เส้นประคือทำนายใกล้ราคาประกาศ จุดใต้เส้นคือทำนายต่ำ จุดเหนือเส้นคือสูง ไม่ได้เทียบกับราคาขายสำเร็จ
 
-![Residual กับราคาประกาศ](assets/modeling/asking_price_v2/figures/retrospective_residuals.png)
+![Residual กับราคาประกาศ](assets/modeling/figures/retrospective_residuals.png)
 
 **อ่านกราฟ:** residual = ŷ−y เส้นศูนย์คือถูกพอดี จุดต่ำกว่าศูนย์คือทำนายต่ำ ใช้ดูว่าราคาสูงมี error ทางเดียวมากหรือไม่ ไม่ได้ทดสอบว่าข้อสมมติ residual ผ่านทางสถิติ
 
-![การกระจาย absolute error](assets/modeling/asking_price_v2/figures/retrospective_error_distribution.png)
+![การกระจาย absolute error](assets/modeling/figures/retrospective_error_distribution.png)
 
 **อ่านกราฟ:** แกนนอนคือ error เป็นบาท แกนตั้งคือจำนวนประกาศ หางด้านขวาคือกลุ่มที่คลาดเคลื่อนสูง ไม่ใช่ confidence interval ของราคาทำนาย
 
@@ -145,6 +193,7 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 | `prepare_features_v2.py` | อ่าน core/lineage/full-text และตรวจหลักฐาน ถอด optional claims | enrichment dataset/audit ใน intermediate (ต้องมีหลักฐาน private) |
 | `rebuild_features_v2.py` | core + public condition sidecar ตรวจ hashes | enriched CSV byte ตรงรอบจริง ไม่ต้องใช้ raw |
 | `features_v2.py` | สร้าง 22 features จากข้อมูลและ frozen catalog | โมดูลประกอบ ไม่รันแยก |
+| `trend.py` | Ridge/residual, age normalization และ fixed-weight ensemble | โมดูล estimator สำหรับทดลอง ไม่รันแยก |
 | `train_improved.py` | 2 temporal folds เลือก → evaluation → fit ครบ | artifacts, reports และ predictions รายแถว |
 | `report_improved.py` | อ่านผลจริง/ตัวเลขสร้างรายงานนี้และกราฟ | docs/modeling.md, HTML และ figures |
 | `predict.py` | ตรวจ checksum โหลด artifact และทำนาย | JSON หน้าจอ หรือ --output |
@@ -152,12 +201,12 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 | ไฟล์/โฟลเดอร์ | เก็บอะไร |
 |---|---|
 | `data/final/dataset.csv`, `condition_features.csv` | core 9,210 แถวและ optional values รวม Git |
-| `config/modeling/improved.json`, `iphone_release_years.json` | candidates, folds, weights, seed, input hashes และ catalog 54 รุ่นจาก Apple |
+| `config/modeling/current.json`, `iphone_release_years.json` | candidates, folds, weights, seed, input hashes และ catalog 54 รุ่นจาก Apple |
 | `models/asking_price_v2/evaluation.joblib` | fit ก่อน cutoff สำหรับคะแนนย้อนหลัง |
 | `models/asking_price_v2/model.joblib`, `metadata.json` | fit ครบสำหรับใช้งาน พร้อม checksum/version/บทบาท |
 | `data/intermediate/modeling/asking_price_v2/evaluation/` | actual/prediction/error รายแถวในเครื่อง |
 | `docs/modeling.md` | รายงานโมเดลหลักไฟล์เดียว |
-| `docs/assets/modeling/asking_price_v2/` | figures PNG/SVG, tables CSV, HTML, config/folds/selection, summary.json, validation และ hashes |
+| `docs/assets/modeling/` | metadata.json รวม summary/config/folds/selection/provenance/validation/hashes; figures, tables, HTML; history.zip เก็บผลทดลองเดิม |
 
 ```bash
 # หลัง clone: rebuild จาก public core + sidecar แล้วเทรน
@@ -169,6 +218,41 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 .venv/bin/python -B script/modeling/predict.py --source mac2hand --brand Apple --model 'iPhone 16 Pro' --storage-gb 256 --condition used --published-at 2026-10-06 --battery-health-pct 90
 ```
 
-Batch ใช้ --input-csv และ --output; รองรับ absolute path จาก directory อื่น V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; evaluation/V1 binary, raw, ข้อความต้นทาง และ predictions รายแถวเก็บในเครื่อง; code/config/core/sidecar/รายงานผลรวมขึ้น Git ได้ เวลา pipeline ที่บันทึกล่าสุด 121.8 วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม 195.6 วินาที ไม่รวมเขียนโค้ด/เตรียม feature
+Batch ใช้ --input-csv และ --output; รองรับ absolute path จาก directory อื่น V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; evaluation/V1 binary, raw, ข้อความต้นทาง และ predictions รายแถวเก็บในเครื่อง; code/config/core/sidecar/รายงานผลรวมขึ้น Git ได้ เวลา pipeline ที่บันทึกล่าสุด 109.0 วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม 425.4 วินาที ไม่รวมเขียนโค้ด/เตรียม feature
 
 แหล่งนิยาม: [scikit-learn regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics), [HGB](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html), [Apple iPhone release years](https://support.apple.com/en-us/108044)
+
+
+## 10. รอบปรับปรุง 2026-10-12
+
+ทดลอง **33 ตัวเลือกไม่ซ้ำ** โดยคงข้อมูล 9,210 แถวและ folds/cutoff เดิม ไม่ตัดประกาศเพิ่มเพื่อให้คะแนนดีขึ้น ค่า MAE/R² ทุกตัววัดบนแถวเดิม
+
+| กลุ่มทดลอง | ตัวเลือกที่ชนะ validation | Validation MAE (บาท) | สถานะ |
+|---|---|---|---|
+| loss / complexity / linear trend | hist_log_leaves_63 | 4,297.22 | ไม่เปลี่ยนโมเดลด้วยผลกลุ่มนี้ |
+| age normalization | age_hist_log_half_2 | 4,339.41 | ไม่เปลี่ยนโมเดลด้วยผลกลุ่มนี้ |
+| CatBoost log / ensemble | blend_cat_share_0.5 | 4,277.71 | ใช้ ensemble |
+
+
+เลือก ensemble HGB + CatBoost 50/50 เพราะมี MAE validation ต่ำสุดในทุกตัวเลือก และผ่านการตรวจย้อนหลัง: MAE ลดประมาณ 9.89%, RMSE ลด และ R² เพิ่ม ส่วน HGB 63 leaves แม้ validation ดีขึ้นเล็กน้อยแต่ผลย้อนหลังแย่ลง จึงไม่ใช้แทนตัวเดิม
+
+ผลรวมดีขึ้น แต่ไม่ได้ดีขึ้นทุกยี่ห้อ ต้องดู trade-off ต่อไปนี้ โดยเฉพาะ Samsung ที่ยังเป็นข้อจำกัด:
+
+| ยี่ห้อ (อย่างน้อย 10 แถว) | n | MAE ก่อน (บาท) | MAE รอบนี้ (บาท) |
+|---|---|---|---|
+| Apple | 442 | 5,624.15 | 4,583.66 |
+| Huawei | 11 | 1,831.98 | 1,930.68 |
+| Oppo | 33 | 2,254.93 | 2,371.09 |
+| Samsung | 163 | 6,290.16 | 6,873.85 |
+| Vivo | 17 | 3,339.67 | 3,233.30 |
+
+
+ดูทุกกลุ่มใน [ตารางก่อน/หลังแยกกลุ่ม](assets/modeling/tables/tuning_group_comparison.csv) ไม่ตัดกลุ่มที่ผลแย่ลงออกจากการรายงาน
+
+ตรวจความจุกับสเปก Apple เพิ่ม พบ 15 แถวที่ความจุประกาศไม่อยู่ในรายการของรุ่นที่ normalize ไว้ ยังไม่เดาว่ารุ่นหรือความจุผิด และไม่แก้ชุดฝึกในการเปรียบเทียบนี้ ต้องตรวจรายละเอียดต้นทางก่อน หน้าเว็บใช้ตัวเลือกจากสเปกผู้ผลิตสำหรับ iPhone เพื่อกันค่าที่ไม่รองรับ ดู [ผลตรวจความจุ](assets/modeling/tables/storage_reference_audit.csv) และ [Apple Support](https://support.apple.com/en-us/108044)
+
+ใช้ MAE validation เลือกพารามิเตอร์ แล้วตรวจผลย้อนหลังเพื่อรับหรือปฏิเสธการเปลี่ยนโมเดลใช้งาน ผลย้อนหลังจึงมีส่วนใน deployment decision และยังเป็นข้อมูลที่เคยเห็น ห้ามตีความเป็นการทดสอบอิสระหรือรับประกันผลในอนาคต
+
+อ่าน [ตัวเลข validation ทุกตัวเลือก](assets/modeling/tables/tuning_validation.csv) และ [บัญชีการทดลอง/ที่มาผล](assets/modeling/metadata.json#tuning_review) สำหรับ config, hashes, สถานะและค่าก่อนปรับ ข้อมูลรายแถวและ binary ของโมเดลทดลองอยู่ในเครื่อง
+
+ทำซ้ำกลุ่มทดลองด้วย `train_improved.py --experiment revision`, `--experiment age_transfer` และ `--experiment ensemble` แต่ละกลุ่มเขียนผลคนละ run folder; config หลัก `current.json` ใช้สร้างโมเดลใช้งานปัจจุบัน

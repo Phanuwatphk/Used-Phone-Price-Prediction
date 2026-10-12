@@ -1,7 +1,0 @@
-{
-  "refreshed_at": "2026-10-11T12:54:29.356542+00:00",
-  "training_repeated": false,
-  "renderer_sha256": "22e2a848ad607793624e9f73edd62bb81e951bfe208ca7c7dc9bca4c792df521",
-  "predictions_sha256": "a36b5fd754a128d9dd37785fb26d08d4aac740c47ae9b94f6d362779b7df0d88",
-  "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
-}

@@ -21,10 +21,26 @@ from script.modeling.predict import predict_rows
 from script.modeling.split_dataset import sha
 
 ROOT = Path(__file__).resolve().parents[2]
-APP = ROOT / 'script/app/app.py'
+APP = ROOT / 'app/app.py'
 
 
 class AppTests(unittest.TestCase):
+    def test_pages_in_fresh_process_with_project_root_already_on_path(self):
+        code = '''
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from streamlit.testing.v1 import AppTest
+app = AppTest.from_file(str(Path(sys.argv[1]) / 'app/app.py'), default_timeout=30).run()
+assert not app.exception, app.exception
+for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
+    app.radio(key='navigation').set_value(page).run()
+    assert not app.exception, app.exception
+'''
+        result = subprocess.run([sys.executable, '-B', '-c', code, str(ROOT)], cwd=self.temp.name,
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -43,12 +59,17 @@ class AppTests(unittest.TestCase):
         self.dataset = Path(self.temp.name) / 'dataset.csv'
         dataset_rows = [dict(row, price_thb=price) for row, price in zip(rows, [10000, 12000, 14000])]
         dataset_rows[1]['source'] = 'ennxo'
+        dataset_rows[0]['storage_gb'] = 64
+        dataset_rows[2]['storage_gb'] = 256
         with self.dataset.open('w', newline='') as handle:
             writer = csv.DictWriter(handle, fieldnames=list(dataset_rows[0]))
             writer.writeheader()
             writer.writerows(dataset_rows)
+        self.storage_reference = Path(self.temp.name) / 'storage_options.json'
+        self.storage_reference.write_text(json.dumps({'capacities': {'Apple:iPhone 13':[128], 'Apple:iPhone 12':[64]}}))
         self.env = patch.dict(os.environ, {'PHONE_PRICE_MODEL_PATH': str(path),
-                                          'PHONE_PRICE_DATASET_PATH': str(self.dataset)})
+                                          'PHONE_PRICE_DATASET_PATH': str(self.dataset),
+                                          'PHONE_PRICE_STORAGE_REFERENCE_PATH':str(self.storage_reference)})
         self.env.start()
         self.addCleanup(self.env.stop)
 
@@ -84,6 +105,33 @@ class AppTests(unittest.TestCase):
         self.assertEqual(app.selectbox(key='phone_model').value, 'Galaxy S22')
         self.assertEqual(len(app.metric), 0)
 
+    def test_storage_options_follow_model_and_reset_incompatible_selection(self):
+        app = AppTest.from_file(str(APP), default_timeout=20).run()
+        self.assertEqual(app.selectbox(key='storage').options, ['128 GB'])
+        self.assertNotIn('storage', [widget.key for widget in app.number_input])
+        app.selectbox(key='phone_model').select('iPhone 12').run()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.selectbox(key='storage').options, ['64 GB'])
+        self.assertEqual(app.selectbox(key='storage').value, 64)
+        app.selectbox(key='brand').select('Samsung').run()
+        self.assertEqual(app.selectbox(key='storage').options, ['256 GB'])
+        self.assertEqual(app.selectbox(key='storage').value, 256)
+
+    def test_selected_storage_reaches_prediction(self):
+        self.storage_reference.write_text(json.dumps({'capacities': {'Apple:iPhone 13':[128,256], 'Apple:iPhone 12':[64]}}))
+        with self.dataset.open() as handle:
+            rows = list(csv.DictReader(handle))
+        rows.append({**rows[1], 'storage_gb':64})
+        with self.dataset.open('w',newline='') as handle:
+            writer=csv.DictWriter(handle,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+        with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
+            app=AppTest.from_file(str(APP),default_timeout=20).run()
+            self.assertEqual(app.selectbox(key='storage').options,['128 GB','256 GB'])
+            app.selectbox(key='storage').select(256)
+            app.button[0].click().run()
+            self.assertFalse(app.exception)
+            self.assertEqual(predict.call_args.args[1][0]['storage_gb'],256)
+
     def test_explicit_zero_date_and_fixed_defaults_reach_inference(self):
         from datetime import date
         with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
@@ -113,7 +161,7 @@ class AppTests(unittest.TestCase):
         self.assertEqual(len(app.button), 0)
 
     def test_launcher_runs_from_another_directory(self):
-        result = subprocess.run([sys.executable, str(ROOT / 'script/app/run_app.py'), '--help'],
+        result = subprocess.run([sys.executable, str(ROOT / 'app/run_app.py'), '--help'],
                                 cwd=self.temp.name, capture_output=True, text=True, check=True)
         self.assertIn('--port', result.stdout)
 
@@ -152,7 +200,7 @@ class AppTests(unittest.TestCase):
 
     def test_explorer_axes_start_at_zero_for_full_and_filtered_data(self):
         import pandas as pd
-        from script.app.dashboard import explorer_charts
+        from app.dashboard import explorer_charts
 
         frame = pd.read_csv(self.dataset)
         frame['year'] = pd.to_datetime(frame['published_at']).dt.year
@@ -169,12 +217,20 @@ class AppTests(unittest.TestCase):
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_reference_preserves_shared_gb_units_and_converts_tb(self):
+        reference=json.loads((ROOT/'config/app/storage_options.json').read_text())['capacities']
+        self.assertEqual(reference['Apple:iPhone 12'],[64,128,256])
+        self.assertEqual(reference['Apple:iPhone 6s'],[16,32,64,128])
+        self.assertEqual(reference['Apple:iPhone 13'],[128,256,512])
+        self.assertEqual(reference['Apple:iPhone 17 Pro Max'],[256,512,1024,2048])
+
     def test_shipped_model_predicts_without_private_outputs_from_another_directory(self):
         with tempfile.TemporaryDirectory() as directory:
             checkout = Path(directory) / 'checkout'
             scripts = checkout / 'script'
             scripts.mkdir(parents=True)
             shutil.copy2(ROOT / 'script/__init__.py', scripts / '__init__.py')
+            shutil.copy2(ROOT / 'script/artifacts.py', scripts / 'artifacts.py')
             shutil.copytree(ROOT / 'script/modeling', scripts / 'modeling',
                             ignore=shutil.ignore_patterns('__pycache__'))
             modeldir = checkout / 'models/asking_price_v2'
@@ -190,7 +246,8 @@ class DeploymentTests(unittest.TestCase):
             prediction = json.loads(result.stdout)[0]
             self.assertTrue(math.isfinite(prediction['predicted_price_thb']))
             self.assertGreater(prediction['predicted_price_thb'], 0)
-            self.assertEqual(prediction['model'], 'age_hist_log_half_2')
+            metadata = json.loads((modeldir / 'metadata.json').read_text())
+            self.assertEqual(prediction['model'], metadata['selected_model'])
 
     def test_deployment_dependencies_match_shipped_artifact(self):
         manifest = (ROOT / 'requirements.txt').read_text().splitlines()

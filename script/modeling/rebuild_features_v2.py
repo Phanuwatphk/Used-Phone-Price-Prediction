@@ -7,6 +7,8 @@ if not __package__:sys.path.insert(0,str(ROOT))
 from script.modeling.split_dataset import read_dataset,sha,write_csv,protected_output
 
 
+from script.artifacts import reference_json
+
 def rebuild(config):
     dataset=ROOT/config['dataset'];core=ROOT/'data/final/dataset.csv';sidecar=ROOT/config['condition_features']
     if sha(core)!=config['core_dataset_sha256'] or sha(sidecar)!=config['condition_features_sha256']:
@@ -22,5 +24,5 @@ def rebuild(config):
     return dataset
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--config',type=Path,default=ROOT/'config/modeling/improved.json')
-    args=parser.parse_args();print(rebuild(json.loads(args.config.read_text())))
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--config',type=Path,default=ROOT/'config/modeling/current.json')
+    args=parser.parse_args();print(rebuild(reference_json(args.config)))

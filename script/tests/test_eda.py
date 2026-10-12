@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from script.analysis.eda.eda_statistics import analyze, duplicate_candidates, outlier_candidates, percentile, spearman, source_comparisons
 from script.analysis.eda.run_eda import DEFAULT_RULES, run, sha, attach_descriptions, body_html
@@ -14,6 +15,10 @@ from script.tests.test_combined_dataset import fixture as source_fixture
 
 RULES = json.loads(DEFAULT_RULES.read_text())
 
+
+
+
+from script.artifacts import has_metadata, read_metadata
 
 def row(identifier, price, source='ennxo', year=2026):
     return {'listing_id': f'{source}:{identifier}', 'source': source, 'brand': 'Apple', 'model': 'iPhone 13',
@@ -86,6 +91,28 @@ class EDAStatisticsTests(unittest.TestCase):
 
 
 class EDAWorkflowTests(unittest.TestCase):
+    def test_refresh_keeps_authored_methodology_in_single_canonical_document(self):
+        from script.analysis.eda import run_eda
+        summary = read_metadata(run_eda.DEFAULT_REPORT, 'summary')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = root / 'docs/assets/eda/example'
+            report.mkdir(parents=True)
+            document = root / 'docs/eda.md'
+            (root / 'data').mkdir()
+            (root / 'data/datasets.json').write_text(json.dumps({'model_input_dataset':{'records':1}}))
+            appendix = '<a id="stage-eda"></a>\n\n## Methodology\n\nKeep the full method and file guide.\n'
+            document.write_text('# Previous report\n\n' + appendix)
+            with patch.object(run_eda, 'ROOT', root), patch.object(run_eda, 'DEFAULT_REPORT', report):
+                run_eda.make_reports(summary, [], report)
+                first = document.read_text()
+                run_eda.make_reports(summary, [], report)
+            self.assertIn(appendix, first)
+            self.assertIn('ชุดใช้งานปัจจุบันมี 1 แถว', first)
+            self.assertEqual(first, document.read_text())
+            self.assertFalse(has_metadata(report, 'report_text'))
+            self.assertFalse(has_metadata(report, 'summary_text'))
+
     def build_input(self, root):
         datasets = {}
         for source in ('ennxo', 'mac2hand'):
@@ -116,7 +143,7 @@ class EDAWorkflowTests(unittest.TestCase):
             self.assertTrue((root / 'report/report.html').exists())
             self.assertTrue((root / 'private/outlier_candidates.csv').exists())
             self.assertFalse((root / 'report/outlier_candidates.csv').exists())
-            self.assertTrue(json.loads((root / 'private/validation.json').read_text())['row_data_not_in_public_tables'])
+            self.assertTrue(read_metadata(root/'private', 'validation')['row_data_not_in_public_tables'])
             with self.assertRaisesRegex(ValueError, 'overlap'):
                 run(inputs, root / 'report', root / 'report/private')
 

@@ -25,6 +25,10 @@ else:
 DEFAULT_RULES = ROOT / 'config/mac2hand/cleaning_rules.json'
 
 
+
+
+from script.artifacts import read_metadata, write_metadata, write_metadata_bytes
+
 def normalized(text):
     text = unicodedata.normalize('NFKC', str(text or '')).casefold()
     for a, b in [('ไอโฟน', 'iphone'), ('i phone', 'iphone'), ('โปรแม็กซ์', 'pro max'),
@@ -203,7 +207,7 @@ def clean_dataset(raw, extraction, output, rules_path=DEFAULT_RULES):
     expected = json.loads((extraction.parent / 'raw_audit/raw_checksums.json').read_text())
     if checksums(raw) != expected:
         raise ValueError('Raw does not match audited snapshot')
-    metadata = json.loads((extraction / 'run_metadata.json').read_text())
+    metadata = read_metadata(extraction, 'provenance')
     input_file = extraction / 'mac2hand_extracted.jsonl'
     if sha(input_file) != metadata['extracted_sha256']:
         raise ValueError('Extraction hash mismatch')
@@ -254,15 +258,15 @@ def clean_dataset(raw, extraction, output, rules_path=DEFAULT_RULES):
                'candidate_duplicate_groups': len(duplicate_groups),
                'candidate_duplicate_rows': sum(len(g['product_ids']) for g in duplicate_groups),
                'all_dates_retained': True}
-    dump(output / 'summary.json', summary)
-    dump(output / 'validation.json', {'accounting_passed': True, 'raw_unchanged': True,
+    write_metadata(output, 'summary', summary)
+    write_metadata(output, 'validation', {'accounting_passed': True, 'raw_unchanged': True,
                                       'original_cards_unchanged': True, 'extraction_hash_matches': True})
     dump(output / 'candidate_duplicate_groups.json', duplicate_groups)
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
          'input_sha256': sha(input_file), 'rules_sha256': sha(rules_path), 'script_sha256': sha(Path(__file__)),
          'raw': str(raw), 'extraction': str(extraction), 'rules': str(rules_path)})
-    (output / 'rules.json').write_bytes(rules_path.read_bytes())
-    (output / 'report.md').write_text('# ผล clean Mac2Hand\n\n' +
+    write_metadata_bytes(output, 'rules', rules_path.read_bytes())
+    write_metadata(output, 'report_text', '# ผล clean Mac2Hand\n\n' +
         f"ทั้งหมด {len(rows):,} รายการ ผล: {summary['status_counts']}\n\n" +
         'accepted = ผ่านกฎเตรียมข้อมูล ไม่ใช่ยืนยันสภาพจริงหรือพร้อมฝึกทันที ' +
         'needs_review = ข้อมูลขาด/ขัดกัน/ราคาไม่ชัด/อาการเสียหรือมีล็อก excluded = อุปกรณ์หรือบริการนอกขอบเขต\n\n' +
@@ -271,7 +275,7 @@ def clean_dataset(raw, extraction, output, rules_path=DEFAULT_RULES):
         'กลุ่มประกาศซ้ำเป็นผู้ต้องสงสัย ยังไม่รวม/ลบทิ้ง\n\n' +
         '| เหตุผลรอตรวจ | จำนวน |\n|---|---:|\n' +
         '\n'.join(f'| {key} | {n} |' for key, n in summary['hold_reasons'].items()) +
-        '\n\nจำนวนเหตุผลซ้อนกันได้ หลักฐานรายแถวอยู่ใน mac2hand_cleaned.jsonl และคิวอยู่ใน needs_review.csv\n', encoding='utf-8')
+        '\n\nจำนวนเหตุผลซ้อนกันได้ หลักฐานรายแถวอยู่ใน mac2hand_cleaned.jsonl และคิวอยู่ใน needs_review.csv\n')
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

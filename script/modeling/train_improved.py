@@ -1,5 +1,6 @@
 """V2 rolling temporal selection, retrospective comparison, and full-data deployment fit."""
 import argparse,csv
+from collections import Counter
 from datetime import datetime,timezone
 import importlib.metadata
 import json
@@ -21,8 +22,11 @@ from script.modeling.features import features as original_features,prices
 from script.modeling.split_dataset import read_dataset,sha,dump,write_csv,protected_output
 from script.modeling.train_models import build_model as original_model,metrics,group_metrics
 
-DEFAULT_CONFIG=ROOT/'config/modeling/improved.json'
+DEFAULT_CONFIG=ROOT/'config/modeling/current.json'
 
+
+
+from script.artifacts import collect_output_hashes, has_metadata, read_metadata, reference_json, write_metadata
 
 def weights(rows,half_life):
     if not half_life:return np.ones(len(rows))
@@ -34,11 +38,24 @@ def weights(rows,half_life):
 def build(spec,seed=42,threads=4):
     if spec['kind']=='v1':
         return original_model({'kind':'hist_boost','log_target':True,'parameters':{'max_iter':350,'max_leaf_nodes':31,'learning_rate':.06,'l2_regularization':10.,'early_stopping':False}},seed,threads)
+    if spec['kind']=='blend':
+        from script.modeling.trend import FixedBlendRegressor
+        return Pipeline([('regressor',FixedBlendRegressor(
+            estimators=tuple(build(component,seed,threads) for component in spec['components']),
+            blend_weights=tuple(spec['blend_weights'])))])
     categorical=[c for c in features_v2.CATEGORICAL if not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP]
     numeric=[c for c in features_v2.NUMERIC if not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP]
+    if spec['kind']=='trend':
+        from script.modeling.trend import TrendResidualRegressor
+        return Pipeline([('regressor',TrendResidualRegressor(alpha=spec.get('alpha',10.),
+                         residual_strength=spec.get('residual_strength',0.),random_state=seed))])
+    if spec['kind']=='depreciation':
+        from script.modeling.trend import DepreciationRegressor
+        return Pipeline([('regressor',DepreciationRegressor(rate=spec.get('rate',.3),
+                         max_leaf_nodes=spec.get('max_leaf_nodes',15),random_state=seed))])
     if spec['kind']=='catboost':
         # CatBoost cannot drop columns via cat_features, so use a trained column selector below.
-        estimator=CatBoostRegressor(iterations=800,depth=spec.get('depth',6),learning_rate=.045,loss_function='RMSE',
+        estimator=CatBoostRegressor(iterations=spec.get('iterations',800),depth=spec.get('depth',6),learning_rate=spec.get('learning_rate',.045),loss_function=spec.get('loss','RMSE'),
                                   cat_features=tuple(categorical),random_seed=seed,thread_count=threads,has_time=True,verbose=False,allow_writing_files=False)
         from sklearn.preprocessing import FunctionTransformer
         from script.modeling.train_improved import select_columns
@@ -46,8 +63,8 @@ def build(spec,seed=42,threads=4):
     else:
         transform=ColumnTransformer([('categorical',OneHotEncoder(handle_unknown='ignore',sparse_output=False),categorical),
                       ('numeric',Pipeline([('impute',SimpleImputer(strategy='median',keep_empty_features=True)),('scale',StandardScaler())]),numeric)],sparse_threshold=0)
-        model=Pipeline([('features',transform),('regressor',HistGradientBoostingRegressor(loss=spec.get('loss','squared_error'),max_iter=400,
-              max_leaf_nodes=31,learning_rate=.07,l2_regularization=8.,early_stopping=False,random_state=seed))])
+        model=Pipeline([('features',transform),('regressor',HistGradientBoostingRegressor(loss=spec.get('loss','squared_error'),max_iter=spec.get('max_iter',400),
+              max_leaf_nodes=spec.get('max_leaf_nodes',31),learning_rate=spec.get('learning_rate',.07),l2_regularization=spec.get('l2_regularization',8.),min_samples_leaf=spec.get('min_samples_leaf',20),early_stopping=False,random_state=seed))])
     return TransformedTargetRegressor(regressor=model,func=np.log,inverse_func=np.exp) if spec.get('log_target') else model
 
 
@@ -81,9 +98,11 @@ def artifact(model,spec,rows,catalog,dataset_hash):
 
 
 def run(config_path=DEFAULT_CONFIG, resume=False):
-    config_path=Path(config_path).resolve();config=json.loads(config_path.read_text())
+    config_path=Path(config_path).resolve();config=reference_json(config_path)
     start=time.monotonic();run_name=config['run']
-    report=ROOT/'docs/assets/modeling'/run_name;private=ROOT/'data/intermediate/modeling'/run_name;modeldir=ROOT/'models'/run_name
+    private=ROOT/'data/intermediate/modeling'/run_name
+    report=ROOT/'docs/assets/modeling' if run_name=='asking_price_v2' else private/'report'
+    modeldir=ROOT/'models'/run_name
     dataset=ROOT/config['dataset'];catalog_path=ROOT/config['catalog']
     for output in [report,private/'evaluation',modeldir]: protected_output(output,[config_path,dataset,catalog_path])
     for output in [report/'tables',private/'evaluation',modeldir]:output.mkdir(parents=True,exist_ok=True)
@@ -102,13 +121,13 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         validation=[r for r in rows if interval['start']<=r['published_at']<=interval['end']]
         if not training or not validation:raise ValueError('Empty fold')
         folds.append((training,validation))
-    previous_config = json.loads((report/'config.json').read_text()) if resume and (report/'config.json').exists() else None
+    previous_config = read_metadata(report, 'config') if resume and has_metadata(report, 'config') else None
     if previous_config:
         for key in ['dataset_sha256','core_dataset_sha256','catalog_sha256','seed','threads','folds','candidates']:
             if previous_config[key] != config[key]:
                 raise ValueError('Cannot resume after changing learning configuration: ' + key)
-    dump(report/'config.json',config)
-    dump(report/'folds.json',[{'fold':i+1,'train_rows':len(a),'validation_rows':len(b),'train_max':a[-1]['published_at'],
+    write_metadata(report, 'config', config)
+    write_metadata(report, 'folds', [{'fold':i+1,'train_rows':len(a),'validation_rows':len(b),'train_max':a[-1]['published_at'],
                              'validation_min':b[0]['published_at'],'validation_max':b[-1]['published_at']} for i,(a,b) in enumerate(folds)])
     comparisons=[];fold_results=[];best=None
     if previous_config:
@@ -135,12 +154,12 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
             fold_results.append({'candidate':spec['name'],'fold':index+1,**metrics(actual,pred)})
         score={'name':spec['name'],**metrics(actuals,predictions),'fit_seconds':round(time.monotonic()-clock,2)}
         comparisons.append(score);write_csv(report/'tables/validation_comparison.csv',comparisons);write_csv(report/'tables/fold_metrics.csv',fold_results)
-        dump(report/'progress.json',{'phase':'temporal_validation','completed':i,'total':len(config['candidates']),'last':score})
+        write_metadata(report, 'progress', {'phase':'temporal_validation','completed':i,'total':len(config['candidates']),'last':score})
         print(f'POOLED VALIDATION MAE {score["mae_thb"]:.2f} ({score["fit_seconds"]:.1f}s)',flush=True)
         if best is None or (score['mae_thb'],spec['name'])<(best[1]['mae_thb'],best[0]['name']):best=(spec,score)
     spec,validation=best
     # The former v1 test is already inspected. Freeze selection first and label reuse explicitly.
-    dump(report/'selection.json',{'candidate':spec,'validation_metrics':validation,'old_test_used_for_selection':False,
+    write_metadata(report, 'selection', {'candidate':spec,'validation_metrics':validation,'old_test_used_for_selection':False,
              'evaluation_status':'retrospective reuse of previously inspected v1 test; not a fresh independent holdout'})
     training=[r for r in rows if r['published_at']<config['retrospective_test_start']]
     test=[r for r in rows if r['published_at']>=config['retrospective_test_start']]
@@ -173,25 +192,38 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
              'fresh_independent_holdout':False,'deployment_independent_test_metrics':None,
              'groups':[r for r in groups if r['group']!='brand_model'],'duration_seconds':round(time.monotonic()-start,2),
              'policy':'Keep all 9,210 rows. Recency weights do not remove old data. No tuning from old test in this run; it was examined in v1 and informed general diagnosis.'}
+    summary['data_drift']={'training_brands':dict(Counter(r['brand'] for r in training)),
+                           'evaluation_brands':dict(Counter(r['brand'] for r in test)),
+                           'unseen_model_rows':sum(r['brand']+':'+r['model'] not in evaluation_artifact['fitted_models'] for r in test)}
+    if config.get('previous_round'):
+        summary['previous_round']=config['previous_round']
     meta={'run':run_name,'generated_at_utc':datetime.now(timezone.utc).isoformat(),'config_sha256':sha(config_path),'dataset_sha256':core_hash,
           'enriched_sha256':sha(dataset),'catalog_sha256':sha(catalog_path),'model_hashes':{p.name:sha(p) for p in modeldir.glob('*.joblib')},
           'code_sha256':{str(p.relative_to(ROOT)):sha(p) for p in sorted((ROOT/'script/modeling').glob('*.py'))},
           'versions':{x:importlib.metadata.version(x) for x in ['scikit-learn','catboost','pandas','numpy','joblib']},
           'fit_roles':{'evaluation.joblib':{'rows':len(training),'test_excluded':True},'model.joblib':{'rows':len(rows),'includes_old_test':True,'independent_test_score':None}},
           'selected_model':spec['name'],'feature_contract':deployment_artifact['feature_names']}
-    dump(modeldir/'metadata.json',meta);dump(report/'summary.json',summary);dump(report/'run_metadata.json',meta)
-    dump(report/'validation.json',{'core_unchanged':True,'strict_temporal_folds':True,'encoder_fit_on_fold_training_only':True,
+    dump(modeldir/'metadata.json',meta);write_metadata(report, 'summary', summary);write_metadata(report, 'provenance', meta)
+    write_metadata(report, 'validation', {'core_unchanged':True,'strict_temporal_folds':True,'encoder_fit_on_fold_training_only':True,
              'unknown_optional_values_not_imputed_in_dataset':True,'winner_chosen_before_retrospective_scoring':True,
              'model_roundtrip':True,'fresh_independent_holdout':False,'deployment_has_independent_test_score':False})
-    from script.modeling.report_improved import render
-    render(report,summary,comparisons,actual,pred)
-    dump(report/'output_hashes.json',{str(p.relative_to(report)):sha(p) for p in report.rglob('*') if p.is_file() and p.name not in ('output_hashes.json','progress.json')})
     if run_name == 'asking_price_v2':
-        hashes=json.loads((report/'output_hashes.json').read_text());hashes['../../../modeling.md']=sha(ROOT/'docs/modeling.md')
-        dump(report/'output_hashes.json',hashes)
-    dump(report/'progress.json',{'phase':'completed','selected_model':spec['name'],'retrospective_mae':evaluation['mae_thb'],'deployment_rows':len(rows)})
+        from script.modeling.report_improved import render
+        render(report,summary,comparisons,actual,pred)
+    write_metadata(report, 'hashes', collect_output_hashes(report))
+    if run_name == 'asking_price_v2':
+        hashes=read_metadata(report, 'hashes');hashes['../../modeling.md']=sha(ROOT/'docs/modeling.md')
+        write_metadata(report, 'hashes', hashes)
+    write_metadata(report, 'progress', {'phase':'completed','selected_model':spec['name'],'retrospective_mae':evaluation['mae_thb'],'deployment_rows':len(rows)})
     print('COMPLETE',json.dumps(summary,ensure_ascii=False),flush=True)
     return summary
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--config',type=Path,default=DEFAULT_CONFIG);parser.add_argument('--resume',action='store_true');args=parser.parse_args();run(args.config,args.resume)
+    parser=argparse.ArgumentParser(description=__doc__)
+    config_options=parser.add_mutually_exclusive_group()
+    config_options.add_argument('--config',type=Path,default=DEFAULT_CONFIG)
+    config_options.add_argument('--experiment',choices=['revision','age_transfer','ensemble'])
+    parser.add_argument('--resume',action='store_true')
+    args=parser.parse_args()
+    config_path=ROOT/('config/modeling/experiments.json#'+args.experiment) if args.experiment else args.config
+    run(config_path,args.resume)

@@ -24,6 +24,10 @@ BASE = ROOT / 'data/intermediate/mac2hand' / DEFAULT_RAW.name
 DEFAULT_LEDGER = ROOT / 'config/mac2hand/manual_reviews.json'
 
 
+
+
+from script.artifacts import write_metadata
+
 def fingerprint(row):
     return hashlib.sha256(json.dumps(row, sort_keys=True, ensure_ascii=False, allow_nan=False).encode()).hexdigest()
 
@@ -134,21 +138,21 @@ def review(input_file, ledger_path, output):
         'review_dispositions': dict(Counter(d['disposition'] for d in decisions.values())),
         'queue_reason_groups': dict(Counter(next_action(r)[0] for r in queue.values())),
         'baseline_hold_reasons': dict(Counter(reason for r in queue.values() for reason in r['hold_reasons']))}
-    dump(output / 'summary.json', summary)
+    write_metadata(output, 'summary', summary)
     dump(output / 'manual_reviews.json', ledger)
-    dump(output / 'validation.json', {'input_hashes_unchanged': True, 'records_preserved': len(rows)==len(results),
+    write_metadata(output, 'validation', {'input_hashes_unchanged': True, 'records_preserved': len(rows)==len(results),
          'originals_unchanged': all(a['original']==b['original'] for a,b in zip(rows,results)),
          'non_queue_rows_unchanged': all(a==b for a,b in zip(rows,results) if a['status']!='needs_review')})
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
         'baseline': str(input_file), 'baseline_sha256': hashes[0], 'ledger': str(ledger_path),
         'ledger_sha256': hashes[1], 'script_sha256': sha(Path(__file__))})
-    (output / 'report.md').write_text('# ตรวจคิว Mac2Hand\n\n' +
+    write_metadata(output, 'report_text', '# ตรวจคิว Mac2Hand\n\n' +
         f"คิวเดิม {len(queue):,} ตรวจด้วย manual review {len(decisions)} รับเพิ่ม {summary['newly_accepted']} รายการ\n\n" +
         f"ผลล่าสุด: {summary['final_status_counts']}\n\n" +
         'queue_plan.csv จัดกลุ่มปัญหาและงานถัดไปครบทุกแถว ไม่ใช่ยืนยันว่าตรวจ manual ครบแล้ว ' +
         'queue_evidence.json เก็บหลักฐานเต็ม คำตัดสินผูก hash และข้อความตรงกับต้นฉบับ ' +
         'ชุดล่าสุดอยู่ใน mac2hand_reviewed.jsonl และ CSV แยกสถานะ ไม่แก้ raw หรือ clean baseline\n\n' +
-        'รายการที่ข้อมูลต้นทางขาด ขัดกัน หรืออาจเสีย/ล็อกยังพักไว้ ไม่มีการเดา SE จากวันที่หรือเติมความจุจากราคา\n', encoding='utf-8')
+        'รายการที่ข้อมูลต้นทางขาด ขัดกัน หรืออาจเสีย/ล็อกยังพักไว้ ไม่มีการเดา SE จากวันที่หรือเติมความจุจากราคา\n')
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_on": "2026-10-11",
+  "updated_on": "2026-10-12",
   "merged_dataset": {
     "snapshot": "ennxo_20261005_mac2hand_20261006",
     "usable_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
@@ -11,14 +11,14 @@
       "mac2hand": 8753
     },
     "schema": "config/shared/dataset_schema.json",
-    "summary": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/summary.json",
-    "documentation": "docs/details/shared/combined_dataset.md",
+    "summary": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/metadata.json#summary",
+    "documentation": "docs/data.md#stage-combined_dataset",
     "status": "eda_review_closed_model_input_selected",
     "deduplicated": false,
     "eda": {
-      "report_directory": "docs/assets/eda/ennxo_20261005_mac2hand_20261006",
-      "summary": "docs/assets/eda/ennxo_20261005_mac2hand_20261006/summary.json",
-      "documentation": "docs/details/shared/eda.md",
+      "report_directory": "docs/assets/eda",
+      "summary": "docs/assets/eda/metadata.json#summary",
+      "documentation": "docs/eda.md",
       "private_review_directory": "data/intermediate/eda/ennxo_20261005_mac2hand_20261006",
       "outlier_candidates": 205,
       "text_candidate_components": 280,
@@ -35,35 +35,35 @@
     "ennxo": {
       "snapshot": "ennxo_20261005T231833_239519_Asia-Bangkok",
       "raw_directory": "data/raw/ennxo_20261005T231833_239519_Asia-Bangkok",
-      "usable_csv": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/dataset.csv",
+      "usable_csv": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/accepted/dataset.csv",
       "usable_records": 1279,
       "snapshot_records": 1381,
-      "summary": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/summary.json",
-      "documentation": "docs/summary/ennxo.md",
+      "summary": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/accepted/metadata.json#summary",
+      "documentation": "docs/data.md#ennxo",
       "status": "source_review_closed_accepted_retained",
       "all_dates_retained": true,
       "intermediate_directory": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok",
-      "final_directory": "data/final/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok",
       "review_policy": {
         "decided_on": "2026-10-11",
         "decided_by": "user",
         "nonaccepted_rows": "exclude_from_first_model; no further review or evidence collection",
         "historical_evidence": "retain for reproducibility",
         "nonaccepted_records": 102
-      }
+      },
+      "accepted_directory": "data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/accepted",
+      "included_in_git": false
     },
     "mac2hand": {
       "snapshot": "mac2hand_20261006T172805_252838_Asia-Bangkok",
       "raw_directory": "data/raw/mac2hand_20261006T172805_252838_Asia-Bangkok",
-      "usable_csv": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/dataset.csv",
+      "usable_csv": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/accepted/dataset.csv",
       "usable_records": 8753,
       "snapshot_records": 10220,
-      "summary": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/summary.json",
-      "documentation": "docs/summary/mac2hand.md",
+      "summary": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/accepted/metadata.json#summary",
+      "documentation": "docs/data.md#mac2hand",
       "status": "source_review_closed_accepted_retained",
       "all_dates_retained": true,
       "intermediate_directory": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
-      "final_directory": "data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok",
       "review_directory": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/finalization",
       "review_policy": {
         "decided_on": "2026-10-11",
@@ -71,13 +71,14 @@
         "nonaccepted_rows": "exclude_from_first_model; no further review or evidence collection",
         "historical_evidence": "retain for reproducibility",
         "nonaccepted_records": 1467
-      }
+      },
+      "accepted_directory": "data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/accepted",
+      "included_in_git": false
     }
   },
   "model_input_dataset": {
     "snapshot": "ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1",
     "usable_csv": "data/final/dataset.csv",
-    "typed_jsonl": "data/final/dataset.jsonl",
     "records": 9210,
     "source_counts": {
       "ennxo": 1202,
@@ -85,23 +86,26 @@
     },
     "final_directory": "data/final",
     "intermediate_directory": "data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1",
-    "summary": "data/final/summary.json",
+    "summary": "data/final/metadata.json#summary",
     "policy": "config/shared/model_input_policy.json",
-    "documentation": "docs/details/shared/model_input.md",
+    "documentation": "docs/data.md#stage-model_input",
     "status": "split_and_trained",
     "base_merged_records": 10032,
     "excluded_records": 822,
     "active_for_first_model": true,
     "train_validation_test_split": true,
     "model_trained": true,
-    "included_in_git": true
+    "included_in_git": true,
+    "schema": "data/final/metadata.json#schema",
+    "typed_jsonl_archive": "data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1/dataset.jsonl",
+    "metadata": "data/final/metadata.json"
   },
   "default_dataset": "model_input_dataset",
   "modeling_run": {
     "run": "asking_price_v2",
     "input": "model_input_dataset",
     "condition_features": "data/final/condition_features.csv",
-    "config": "config/modeling/improved.json",
+    "config": "config/modeling/current.json",
     "deployment_model": "models/asking_price_v2/model.joblib",
     "deployment_fit_rows": 9210,
     "evaluation_model": "models/asking_price_v2/evaluation.joblib",
@@ -109,9 +113,12 @@
     "retrospective_evaluation_rows": 693,
     "fresh_independent_holdout": false,
     "deployment_independent_test_score": null,
-    "report": "docs/assets/modeling/asking_price_v2/summary.md",
+    "report": "docs/modeling.md",
     "status": "trained_with_temporal_validation_and_retrospective_comparison",
-    "model_included_in_git": false
+    "model_included_in_git": true,
+    "summary": "docs/assets/modeling/metadata.json#summary",
+    "metadata": "models/asking_price_v2/metadata.json",
+    "selected_model": "blend_cat_share_0.5"
   },
   "modeling_history": {
     "asking_price_v1": {
@@ -123,10 +130,17 @@
       "fit_rows": 8517,
       "split_directory": "data/intermediate/modeling/asking_price_v1/split",
       "model": "models/asking_price_v1/model.joblib",
-      "report": "docs/assets/modeling/asking_price_v1/summary.md",
-      "config": "config/modeling/training.json",
+      "report": "docs/assets/modeling/history.zip#asking_price_v1/report.md",
+      "config": "config/modeling/experiments.json#baseline",
       "status": "trained_evaluated",
       "model_included_in_git": false
     }
+  },
+  "layout_version": 2,
+  "layout_migration": {
+    "date": "2026-10-12",
+    "backup": "archive/structure_before_simplification_20261012.zip",
+    "report_history": "docs/assets/modeling/history.zip",
+    "metadata_format": "One metadata.json per output directory; sections retain original values and verifiable section hashes."
   }
 }

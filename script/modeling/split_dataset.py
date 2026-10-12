@@ -15,11 +15,14 @@ if not __package__:
 from script.modeling.features import validate_listing
 
 RUN = 'asking_price_v1'
-DEFAULT_CONFIG = ROOT / 'config/modeling/training.json'
+DEFAULT_CONFIG = ROOT / 'config/modeling/experiments.json#baseline'
 
+
+
+from script.artifacts import reference_json, reference_sha, write_metadata
 
 def sha(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    return reference_sha(path)
 
 
 def dump(path, value):
@@ -95,7 +98,7 @@ def describe_splits(splits):
 
 def create_split(config_path=DEFAULT_CONFIG, output=None):
     config_path = Path(config_path).resolve()
-    config = json.loads(config_path.read_text())
+    config = reference_json(config_path)
     dataset = ROOT / config['dataset']
     output = Path(output or ROOT / 'data/intermediate/modeling' / config['run'] / 'split').resolve()
     protected_output(output, [dataset, config_path])
@@ -114,8 +117,8 @@ def create_split(config_path=DEFAULT_CONFIG, output=None):
         write_csv(output / f'{name}.csv', part)
         assignments.extend({'listing_id': r['listing_id'], 'published_at': r['published_at'], 'split': name} for r in part)
     write_csv(output / 'assignments.csv', assignments)
-    dump(output / 'summary.json', summary)
-    dump(output / 'validation.json', {'all_rows_accounted': len(assignments) == len(rows), 'listing_ids_disjoint': len({r['listing_id'] for r in assignments}) == len(rows), 'publication_days_disjoint': True, 'strict_chronological_order': True, 'dataset_unchanged': sha(dataset) == config['dataset_sha256']})
+    write_metadata(output, 'summary', summary)
+    write_metadata(output, 'validation', {'all_rows_accounted': len(assignments) == len(rows), 'listing_ids_disjoint': len({r['listing_id'] for r in assignments}) == len(rows), 'publication_days_disjoint': True, 'strict_chronological_order': True, 'dataset_unchanged': sha(dataset) == config['dataset_sha256']})
     dump(output / 'hashes.json', {p.name: sha(p) for p in sorted(output.glob('*.csv'))})
     return splits, summary, output
 

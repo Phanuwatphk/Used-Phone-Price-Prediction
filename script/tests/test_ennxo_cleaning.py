@@ -15,6 +15,9 @@ DESCRIPTION_RULES = copy.deepcopy(RULES)
 RULES.pop('field_source_priority', None)  # Keep regression coverage for the previous source policy.
 
 
+
+from script.artifacts import write_metadata
+
 def row(title='iPhone 13 128GB', detail='iPhone 13 128GB ใช้เอง ไม่ติดไอคลาวด์'):
     return {'url': 'https://www.ennxo.com/product/123', 'product_id': '123', 'source': 'ennxo',
             'raw_listing': {'url': 'https://www.ennxo.com/product/123', 'price': 5000, 'brand': None, 'scraped_at': '2026-10-05T20:00:00+07:00'},
@@ -284,14 +287,17 @@ class CleaningTests(unittest.TestCase):
             before = inventory(raw)
             (extraction / 'ennxo_extracted.jsonl').write_text(json.dumps(original) + '\n')
             dump(extraction / 'raw_checksums.json', before)
-            dump(extraction / 'summary.json', {'accounting_passed': True, 'records': 1})
+            write_metadata(extraction, 'summary', {'accounting_passed': True, 'records': 1})
             ledger = root / 'test_config/corrections.json'
             ledger.parent.mkdir()
             dump(ledger, {'schema_version': 1, 'corrections': []})
             clean(extraction, raw, root / 'one', corrections_path=ledger)
             clean(extraction, raw, root / 'two', corrections_path=ledger)
             for path in (root / 'one').iterdir():
-                if path.name != 'run_metadata.json':
+                if path.name == 'metadata.json':
+                    a=json.loads(path.read_text());b=json.loads((root/'two'/path.name).read_text())
+                    a.pop('provenance');b.pop('provenance');self.assertEqual(a,b)
+                else:
                     self.assertEqual(path.read_bytes(), (root / 'two' / path.name).read_bytes())
             self.assertEqual(inventory(raw), before)
             (raw / 'extra.txt').write_text('changed')

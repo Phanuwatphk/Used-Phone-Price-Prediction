@@ -22,6 +22,10 @@ else:
     from script.scraper.ennxo.ennxo_html import page_evidence
 
 
+
+
+from script.artifacts import write_metadata
+
 def specific_label(field):
     return isinstance(field, dict) and isinstance(field.get('name'), str) and bool(field['name'].strip()) and field.get('slug') != 'others' and field['name'] != 'อื่นๆ'
 
@@ -112,7 +116,7 @@ def extract(raw, output):
     with (output / 'ennxo_extracted.jsonl').open('w', encoding='utf-8') as file:
         for row in extracted:
             file.write(json.dumps(row, ensure_ascii=False, sort_keys=True, allow_nan=False) + '\n')
-    dump(output / 'summary.json', result)
+    write_metadata(output, 'summary', result)
     dump(output / 'raw_checksums.json', checksums)
     with (output / 'observations.csv').open('w', encoding='utf-8-sig', newline='') as file:
         writer = csv.writer(file)
@@ -124,7 +128,7 @@ def extract(raw, output):
                                  row['raw_listing'].get('model'), json.dumps(subfields.get('maker'), ensure_ascii=False),
                                  json.dumps(subfields.get('model'), ensure_ascii=False), row['provenance']['page_file']])
     scripts = [Path(__file__).resolve(), ROOT / 'script/scraper/ennxo/ennxo_html.py', Path(__file__).resolve().with_name('audit_ennxo_raw.py')]
-    dump(output / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(output, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
          'python': platform.python_version(), 'beautifulsoup4': version('beautifulsoup4'), 'soupsieve': version('soupsieve'),
          'code_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in scripts},
          'raw_fingerprint': hashlib.sha256(json.dumps(checksums, sort_keys=True).encode()).hexdigest()})
@@ -138,10 +142,10 @@ def extract(raw, output):
               'คำว่า “อื่นๆ” หรือไม่เลือกช่องไม่ได้ใช้เป็นยี่ห้อ/รุ่นเฉพาะ แต่ค่าต้นฉบับยังอยู่ครบ การมีรุ่นเฉพาะไม่ได้รับรองว่าตรงกับชื่อ/รายละเอียด', '',
               '## ผลลัพธ์', '', '- `ennxo_extracted.jsonl`: ทุกประกาศ แยก raw เดิม การ์ด ข้อมูลฝัง และที่มา',
               '- `observations.csv`: ข้อสังเกตรายประกาศ ไม่ใช่คำตัดสินรับเข้า/ตัดออก',
-              '- `summary.json`: จำนวน ความครบ และการเทียบกับ payload เดิม',
-              '- `raw_checksums.json`, `run_metadata.json`: หลักฐานไฟล์และเวอร์ชันโค้ด', '',
+              '- `metadata.json#summary`: จำนวน ความครบ และการเทียบกับ payload เดิม',
+              '- `raw_checksums.json`, `metadata.json#provenance`: หลักฐานไฟล์และเวอร์ชันโค้ด', '',
               'ยังไม่แก้รุ่น ความจุ ราคา หรือสภาพ และไม่สร้างชุดฝึก ขั้นต่อไปคือกำหนดกฎ clean และตรวจความขัดแย้งจากหลักฐานที่ถอดได้', '']
-    (output / 'report.md').write_text('\n'.join(report))
+    write_metadata(output, 'report_text', '\n'.join(report))
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
 

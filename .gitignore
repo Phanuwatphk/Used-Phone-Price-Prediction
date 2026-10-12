@@ -24,13 +24,7 @@ Thumbs.db
 !/data/final/
 /data/final/*
 !/data/final/dataset.csv
-!/data/final/dataset.jsonl
-!/data/final/schema.json
-!/data/final/policy.json
-!/data/final/summary.json
-!/data/final/validation.json
-!/data/final/run_metadata.json
-!/data/final/report.md
+!/data/final/metadata.json
 
 # Evidence ledgers contain snapshot-specific source text.
 # Keep the corresponding *.example.json templates in Git.
@@ -44,7 +38,6 @@ Thumbs.db
 /models/asking_price_v2/*
 !/models/asking_price_v2/model.joblib
 !/models/asking_price_v2/metadata.json
-/docs/assets/modeling/*/progress.json
 
 # Audited numerical condition claims used to rebuild V2 features after clone.
 !/data/final/condition_features.csv

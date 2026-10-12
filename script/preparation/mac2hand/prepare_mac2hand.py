@@ -20,6 +20,10 @@ ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_RAW = ROOT / 'data/raw/mac2hand_20261006T172805_252838_Asia-Bangkok'
 
 
+
+
+from script.artifacts import write_metadata
+
 def dump(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False), encoding='utf-8')
 
@@ -97,23 +101,23 @@ def prepare(raw, output):
     audit_dir, extract_dir = output / 'raw_audit', output / 'extraction'
     audit_dir.mkdir(parents=True, exist_ok=True)
     extract_dir.mkdir(parents=True, exist_ok=True)
-    dump(audit_dir / 'summary.json', audit)
+    write_metadata(audit_dir, 'summary', audit)
     dump(audit_dir / 'issues.json', issues)
     dump(audit_dir / 'raw_checksums.json', before)
     with (extract_dir / 'mac2hand_extracted.jsonl').open('w', encoding='utf-8') as file:
         for row in results:
             file.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + '\n')
-    dump(extract_dir / 'summary.json', audit)
-    dump(extract_dir / 'run_metadata.json', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
+    write_metadata(extract_dir, 'summary', audit)
+    write_metadata(extract_dir, 'provenance', {'generated_at': datetime.now(ZoneInfo('Asia/Bangkok')).isoformat(),
          'raw': str(raw), 'script_sha256': sha(Path(__file__)),
          'parser_sha256': sha(ROOT / 'script/scraper/mac2hand/mac2hand.py'),
          'extracted_sha256': sha(extract_dir / 'mac2hand_extracted.jsonl')})
-    (audit_dir / 'report.md').write_text('# ตรวจ raw Mac2Hand\n\n' +
+    write_metadata(audit_dir, 'report_text', '# ตรวจ raw Mac2Hand\n\n' +
         f"ประกาศ {len(rows):,} รายการ หน้ารวม {len(pages)} หน้า อ่านรายละเอียดได้ {audit['parsed_details']:,} " +
         f"มีข้อผิดพลาด {audit['rows_with_errors']} รายการ\n\n" +
         'ตรวจรหัสและ URL ไม่ซ้ำ บัญชี manifest ตรงกับประกาศ และ hash raw ก่อน/หลังตรงกัน ' +
         'ทุก HTML รายละเอียดถูก parse ใหม่โดยจับคู่ Product sku; ไม่ส่ง request เพิ่ม\n\n' +
-        'ดู summary.json สำหรับค่าขาด issues.json สำหรับข้อผิดพลาด และ raw_checksums.json สำหรับต้นฉบับทั้งหมด\n', encoding='utf-8')
+        'ดู metadata.json#summary สำหรับค่าขาด issues.json สำหรับข้อผิดพลาด และ raw_checksums.json สำหรับต้นฉบับทั้งหมด\n')
     print(json.dumps(audit, ensure_ascii=False, indent=2), flush=True)
     return audit
 

@@ -17,6 +17,9 @@ import numpy as np
 from script.modeling.report import table
 
 
+
+from script.artifacts import collect_output_hashes, has_metadata, read_metadata, write_metadata
+
 def html_export(markdown, report):
     """Render this report's headings, tables and graphs into one portable HTML file."""
     def inline(text):
@@ -61,8 +64,14 @@ def render(report, s, comparisons, actual, predicted):
     figures.mkdir(exist_ok=True)
     actual, predicted = np.asarray(actual, dtype=float), np.asarray(predicted, dtype=float)
     residual = predicted - actual
-    config = json.loads((report / 'config.json').read_text())
-    folds = json.loads((report / 'folds.json').read_text())
+    config = read_metadata(report, 'config')
+    folds = read_metadata(report, 'folds')
+    selected = next(candidate for candidate in config['candidates'] if candidate['name'] == s['selected_model'])
+    method = {'hist': 'HistGradientBoosting', 'catboost': 'CatBoost', 'trend': 'Ridge trend + residual boosting',
+              'depreciation': 'Age-normalized HistGradientBoosting',
+              'blend': 'HGB / CatBoost weighted ensemble',
+              'v1': 'V1 reference'}[selected['kind']]
+    method += ' + log(price)' if selected.get('log_target') or selected['kind'] in ('trend','depreciation') else ' + price (THB)'
 
     def save(name):
         plt.tight_layout()
@@ -73,7 +82,7 @@ def render(report, s, comparisons, actual, predicted):
         plt.close()
 
     ordered = sorted(comparisons, key=lambda r: r['mae_thb'], reverse=True)
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, max(6, len(comparisons) * .32)))
     plt.barh([r['name'] for r in ordered], [r['mae_thb'] for r in ordered])
     plt.xlabel('Pooled forward validation MAE (THB)')
     save('validation_comparison')
@@ -104,10 +113,63 @@ def render(report, s, comparisons, actual, predicted):
     save('retrospective_brand_mae')
 
     e, b, v = s['retrospective'], s['v1_same_cutoff'], s['validation']
+    previous_text = ''
+    if previous := s.get('previous_round'):
+        old = previous['retrospective']
+        previous_text = '\n\nเทียบกับโมเดลที่ใช้งานก่อนรอบนี้ บนประกาศย้อนหลังชุดเดียวกัน:\n\n' + table(
+            ['ตัววัด', 'ก่อนปรับ', 'รอบนี้'],
+            [[label, f'{old[key]:,.4f}' if key == 'r2' else f'{old[key]:,.2f}',
+              f'{e[key]:,.4f}' if key == 'r2' else f'{e[key]:,.2f}']
+             for label, key in [('MAE (บาท)', 'mae_thb'), ('RMSE (บาท)', 'rmse_thb'), ('R²', 'r2')]])
     source = [r for r in s['groups'] if r['group'] == 'source']
     source_table = table(['เว็บ', 'n', 'MAE (บาท)', 'RMSE (บาท)', 'R²', 'ภายใน ±20%'],
                          [[r['value'], r['rows'], f'{r["mae_thb"]:,.2f}', f'{r["rmse_thb"]:,.2f}',
                            f'{r["r2"]:.4f}', f'{r["within_20pct"]*100:.2f}%'] for r in source])
+    coverage_table = table(['รุ่นในชุดประเมิน', 'n', 'MAE (บาท)', 'ภายใน ±20%'],
+        [['เคยอยู่ในชุดฝึก' if r['value'] == 'seen' else 'ไม่เคยอยู่ในชุดฝึก', r['rows'],
+          f'{r["mae_thb"]:,.2f}', f'{r["within_20pct"]*100:.2f}%']
+         for r in s['groups'] if r['group'] == 'model_coverage'])
+    drift_text = ''
+    if drift := s.get('data_drift'):
+        drift_text = (f"Apple ในชุดฝึก {drift['training_brands'].get('Apple',0)/s['evaluation_fit_rows']*100:.2f}% "
+                      f"เทียบกับ {drift['evaluation_brands'].get('Apple',0)/s['retrospective_rows']*100:.2f}% ในชุดประเมิน "
+                      f"มี {drift['unseen_model_rows']} แถวที่เป็นรุ่นไม่เคยอยู่ในชุดฝึก แสดงว่าข้อมูลต่างช่วงมีส่วนผสมต่างกัน")
+    tuning_text = ''
+    if has_metadata(report, 'tuning_review'):
+        review = read_metadata(report, 'tuning_review')
+        trials = table(['กลุ่มทดลอง', 'ตัวเลือกที่ชนะ validation', 'Validation MAE (บาท)', 'สถานะ'],
+            [[r['label'], r['selected'], f'{r["validation_mae_thb"]:,.2f}', r['status']] for r in review['experiments']])
+        tradeoffs = table(['ยี่ห้อ (อย่างน้อย 10 แถว)', 'n', 'MAE ก่อน (บาท)', 'MAE รอบนี้ (บาท)'],
+            [[r['value'], r['rows'], f'{r["previous_mae_thb"]:,.2f}', f'{r["current_mae_thb"]:,.2f}']
+             for r in review.get('group_tradeoffs',[])])
+        storage_text = ''
+        if storage_audit := review.get('storage_reference_audit'):
+            storage_text = (f"ตรวจความจุกับสเปก Apple เพิ่ม พบ {storage_audit['flagged_rows']} แถวที่ความจุประกาศไม่อยู่ในรายการของรุ่นที่ normalize ไว้ "
+                            "ยังไม่เดาว่ารุ่นหรือความจุผิด และไม่แก้ชุดฝึกในการเปรียบเทียบนี้ ต้องตรวจรายละเอียดต้นทางก่อน "
+                            "หน้าเว็บใช้ตัวเลือกจากสเปกผู้ผลิตสำหรับ iPhone เพื่อกันค่าที่ไม่รองรับ "
+                            "ดู [ผลตรวจความจุ](tables/storage_reference_audit.csv) และ [Apple Support](https://support.apple.com/en-us/108044)")
+        tuning_text = f'''\n\n## 10. รอบปรับปรุง 2026-10-12
+
+ทดลอง **{review['unique_candidates']} ตัวเลือกไม่ซ้ำ** โดยคงข้อมูล 9,210 แถวและ folds/cutoff เดิม ไม่ตัดประกาศเพิ่มเพื่อให้คะแนนดีขึ้น ค่า MAE/R² ทุกตัววัดบนแถวเดิม
+
+{trials}
+
+{review['decision']}
+
+ผลรวมดีขึ้น แต่ไม่ได้ดีขึ้นทุกยี่ห้อ ต้องดู trade-off ต่อไปนี้ โดยเฉพาะ Samsung ที่ยังเป็นข้อจำกัด:
+
+{tradeoffs}
+
+ดูทุกกลุ่มใน [ตารางก่อน/หลังแยกกลุ่ม](tables/tuning_group_comparison.csv) ไม่ตัดกลุ่มที่ผลแย่ลงออกจากการรายงาน
+
+{storage_text}
+
+ใช้ MAE validation เลือกพารามิเตอร์ แล้วตรวจผลย้อนหลังเพื่อรับหรือปฏิเสธการเปลี่ยนโมเดลใช้งาน ผลย้อนหลังจึงมีส่วนใน deployment decision และยังเป็นข้อมูลที่เคยเห็น ห้ามตีความเป็นการทดสอบอิสระหรือรับประกันผลในอนาคต
+
+อ่าน [ตัวเลข validation ทุกตัวเลือก](tables/tuning_validation.csv) และ [บัญชีการทดลอง/ที่มาผล](metadata.json#tuning_review) สำหรับ config, hashes, สถานะและค่าก่อนปรับ ข้อมูลรายแถวและ binary ของโมเดลทดลองอยู่ในเครื่อง
+
+ทำซ้ำกลุ่มทดลองด้วย `train_improved.py --experiment revision`, `--experiment age_transfer` และ `--experiment ensemble` แต่ละกลุ่มเขียนผลคนละ run folder; config หลัก `current.json` ใช้สร้างโมเดลใช้งานปัจจุบัน
+'''
     compare = table(['ตัวเลือก', 'Validation MAE (บาท)', 'RMSE (บาท)', 'fit (วินาที)'],
                     [[r['name'], f'{r["mae_thb"]:,.2f}', f'{r["rmse_thb"]:,.2f}', r['fit_seconds']]
                      for r in sorted(comparisons, key=lambda r: r['mae_thb'])])
@@ -136,9 +198,9 @@ def render(report, s, comparisons, actual, predicted):
 
 ## สรุปผลก่อนอ่านรายละเอียด
 
-เลือก **HistGradientBoosting + log(price) + recency half-life 2 ปี** (`{s['selected_model']}`) จาก {len(comparisons)} ตัวเลือกด้วย validation ตามเวลา 2 ช่วง MAE validation **{v['mae_thb']:,.2f} บาท**
+เลือก **{method}** (`{s['selected_model']}`) จาก {len(comparisons)} ตัวเลือกด้วย validation ตามเวลา 2 ช่วง MAE validation **{v['mae_thb']:,.2f} บาท**
 
-เปรียบเทียบย้อนหลังบน **{s['retrospective_rows']} ประกาศเดิม**: MAE ลดจาก **{b['mae_thb']:,.2f}** เป็น **{e['mae_thb']:,.2f} บาท** หรือ **{s['retrospective_mae_improvement_pct']:.2f}%**; R² **{e['r2']:.4f}**; ทำนายใน ±20% ของราคาประกาศได้ **{e['within_20pct']*100:.2f}%**
+เปรียบเทียบย้อนหลังบน **{s['retrospective_rows']} ประกาศเดิม**: MAE ลดจาก **{b['mae_thb']:,.2f}** เป็น **{e['mae_thb']:,.2f} บาท** หรือ **{s['retrospective_mae_improvement_pct']:.2f}%**; R² **{e['r2']:.4f}**; ทำนายใน ±20% ของราคาประกาศได้ **{e['within_20pct']*100:.2f}%**{previous_text}
 
 **ผลนี้เป็นการประเมินย้อนหลังบนชุดเดิมที่เคยเปิดดูระหว่างพัฒนา ไม่ใช่ holdout ใหม่** โมเดลสำหรับใช้งานฝึกครบ {s['deployment_fit_rows']:,} แถวและยังไม่มีคะแนนทดสอบอิสระของตัวที่ฝึกครบ
 
@@ -169,7 +231,7 @@ Features หลักคือเว็บ ยี่ห้อ รุ่น ค�
 
 Battery health %, ประกันวันและกล่องถอดจากข้อความด้วยกฎ เฉพาะคำระบุชัดและค่าเดียว ตรวจ listing_id/source/price ตรง lineage ค่าขัดกันหรือไม่ระบุคง missing; กล่องมี/ไม่มีใช้ 1/0 และไม่ทราบเป็น missing แยกจากศูนย์ ไม่ป้อน title/description ทั้งหมดหรือราคาในข้อความให้โมเดล
 
-One-hot encoding ใช้ unknown category ได้ ตัวเลขเติม median จาก train พร้อมคงคอลัมน์ที่ missing ทั้งหมดตาม imputer แล้ว scale จาก train ของ fold เท่านั้น ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
+ฝั่ง HGB ใช้ one-hot encoding ที่รับ unknown category ได้ ตัวเลขเติม median และ scale จาก train ของ fold เท่านั้น ส่วน CatBoost ใช้ categorical features และ numeric missing ตาม native behavior ไม่ใช้ target encoding จาก validation ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
 
 ## 3. แบ่ง train / validation / evaluation ตามเวลา
 
@@ -185,11 +247,21 @@ Validation สองช่วงรวม **1,054 แถว** จำนวน tr
 
 ## 4. เทรนอย่างไร และเลือกตัวไหน
 
-ทดลอง reference V1, HGB target ราคา/log(price), recency half-life เท่ากัน/2/4 ปี, transfer candidates ที่ลดการพึ่งชื่อรุ่น และ CatBoost depth 6/8 ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์
+ทดลอง {len(comparisons)} ตัวเลือกตาม frozen config มี reference V1 และโมเดลที่ใช้ก่อนปรับ รวมถึงการปรับ loss, ความซับซ้อน และแนวโน้มราคา ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์ ทุกตัวใช้ folds และแถวเดียวกัน
 
-วิธีชนะ: HGB loss `squared_error` บน log(price), `max_iter=400`, `max_leaf_nodes=31`, `learning_rate=0.07`, `l2_regularization=8`, `early_stopping=False`; seed **{config['seed']}**, threads **{config['threads']}** แปลงกลับด้วย exp ก่อนวัด error เป็นบาท ราคาทำนาย floor ที่ 1 บาทตาม inference เดิม
+วิธีชนะ: **{method}**; seed **{config['seed']}**, threads **{config['threads']}** พารามิเตอร์ตัวเลือกที่ชนะ:
 
-Recency half-life 2 ปี: น้ำหนักก่อน normalize = max(0.01, 2^(−อายุข้อมูลปี/2)) อายุข้อมูลนับจากวันล่าสุดใน train ของ fold แล้ว normalize ให้เฉลี่ย 1 ไม่ลบข้อมูลเก่า ทดลอง CatBoost 800 iterations, learning rate 0.045, RMSE บน log target, fixed iterations และ `has_time=True`
+```json
+{json.dumps(selected, ensure_ascii=False, indent=2)}
+```
+
+ตัวเลือก log target แปลงกลับด้วย exp ก่อนวัด error เป็นบาท ราคาทำนาย floor ที่ 1 บาทตาม inference เดิม HGB ไม่ใช้ early stopping ส่วน CatBoost ใช้ fixed iterations และ `has_time=True`
+
+Recency half-life ของวิธีชนะ **{selected.get("half_life", 0)} ปี**: ถ้าเป็นศูนย์ให้น้ำหนักเท่ากัน ถ้ามากกว่าศูนย์ใช้ max(0.01, 2^(−อายุข้อมูลปี/half-life)) อายุข้อมูลนับจากวันล่าสุดใน train ของ fold แล้ว normalize ให้เฉลี่ย 1 ไม่ลบข้อมูลเก่า
+
+Ensemble ฝึกสมาชิกแยกกันบน log ราคา แล้วเฉลี่ยราคาที่แปลงกลับเป็นบาทด้วยสัดส่วนที่กำหนดไว้ก่อน scoring; HGB default: 400 iterations, 31 leaves, learning rate 0.07, l2=8; CatBoost default: 800 iterations, depth 6, learning rate 0.045, RMSE บน log target สมาชิกได้รับ sample weights ชุดเดียวกัน ไม่มี stacking ที่เรียนจาก test
+
+ตัวเลือก trend ใช้ Ridge บน log ราคา เพิ่ม interaction รุ่น/ระดับเครื่องกับอายุ และยี่ห้อกับปีประกาศ เติม missing/encode/scale จาก train เท่านั้น แล้วทดลอง HGB เรียนรู้ residual โดยไม่อ่านราคา validation เป็น feature
 
 {compare}
 
@@ -205,11 +277,15 @@ Recency half-life 2 ปี: น้ำหนักก่อน normalize = max(0.
 
 MAE คือจำนวนบาทที่คลาดเคลื่อนเฉลี่ย RMSE สูงกว่า MAE เพราะให้น้ำหนัก error ใหญ่ Median absolute error บอกผลทั่วไปที่ไม่ถูกบางแถวลากมาก Bias ติดลบหมายถึงมีแนวโน้มทำนายต่ำ R² ไม่ใช่เปอร์เซ็นต์ accuracy และ MAPE ไม่ใช่อัตราผ่าน ±20%
 
-**มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความ 34.15% ว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
+**มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความเปอร์เซ็นต์การปรับปรุงว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
 
 ## 6. ผลแยกเว็บและยี่ห้อ
 
 {source_table}
+
+{coverage_table}
+
+{drift_text}
 
 จำนวนและส่วนผสมรุ่นต่างกัน จึงไม่ถือว่าคะแนนเว็บหนึ่งดีกว่าเพราะชื่อเว็บอย่างเดียว กลุ่มเล็กไม่ใช้รับรองความแม่นยำ
 
@@ -246,6 +322,7 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 | `prepare_features_v2.py` | อ่าน core/lineage/full-text และตรวจหลักฐาน ถอด optional claims | enrichment dataset/audit ใน intermediate (ต้องมีหลักฐาน private) |
 | `rebuild_features_v2.py` | core + public condition sidecar ตรวจ hashes | enriched CSV byte ตรงรอบจริง ไม่ต้องใช้ raw |
 | `features_v2.py` | สร้าง 22 features จากข้อมูลและ frozen catalog | โมดูลประกอบ ไม่รันแยก |
+| `trend.py` | Ridge/residual, age normalization และ fixed-weight ensemble | โมดูล estimator สำหรับทดลอง ไม่รันแยก |
 | `train_improved.py` | 2 temporal folds เลือก → evaluation → fit ครบ | artifacts, reports และ predictions รายแถว |
 | `report_improved.py` | อ่านผลจริง/ตัวเลขสร้างรายงานนี้และกราฟ | docs/modeling.md, HTML และ figures |
 | `predict.py` | ตรวจ checksum โหลด artifact และทำนาย | JSON หน้าจอ หรือ --output |
@@ -253,12 +330,12 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 | ไฟล์/โฟลเดอร์ | เก็บอะไร |
 |---|---|
 | `data/final/dataset.csv`, `condition_features.csv` | core 9,210 แถวและ optional values รวม Git |
-| `config/modeling/improved.json`, `iphone_release_years.json` | candidates, folds, weights, seed, input hashes และ catalog 54 รุ่นจาก Apple |
+| `config/modeling/current.json`, `iphone_release_years.json` | candidates, folds, weights, seed, input hashes และ catalog 54 รุ่นจาก Apple |
 | `models/asking_price_v2/evaluation.joblib` | fit ก่อน cutoff สำหรับคะแนนย้อนหลัง |
 | `models/asking_price_v2/model.joblib`, `metadata.json` | fit ครบสำหรับใช้งาน พร้อม checksum/version/บทบาท |
 | `data/intermediate/modeling/asking_price_v2/evaluation/` | actual/prediction/error รายแถวในเครื่อง |
 | `docs/modeling.md` | รายงานโมเดลหลักไฟล์เดียว |
-| `docs/assets/modeling/asking_price_v2/` | figures PNG/SVG, tables CSV, HTML, config/folds/selection, summary.json, validation และ hashes |
+| `docs/assets/modeling/` | metadata.json รวม summary/config/folds/selection/provenance/validation/hashes; figures, tables, HTML; history.zip เก็บผลทดลองเดิม |
 
 ```bash
 # หลัง clone: rebuild จาก public core + sidecar แล้วเทรน
@@ -273,16 +350,18 @@ Catalog Apple รวบรวมภายหลัง ใช้ปีเปิ�
 Batch ใช้ --input-csv และ --output; รองรับ absolute path จาก directory อื่น V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; evaluation/V1 binary, raw, ข้อความต้นทาง และ predictions รายแถวเก็บในเครื่อง; code/config/core/sidecar/รายงานผลรวมขึ้น Git ได้ เวลา pipeline ที่บันทึกล่าสุด {s['duration_seconds']:.1f} วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม {sum(r['fit_seconds'] for r in comparisons):.1f} วินาที ไม่รวมเขียนโค้ด/เตรียม feature
 
 แหล่งนิยาม: [scikit-learn regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics), [HGB](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html), [Apple iPhone release years](https://support.apple.com/en-us/108044)
+{tuning_text}
 '''
-    if report.resolve() == (ROOT / 'docs/assets/modeling/asking_price_v2').resolve():
+    detailed = detailed.rstrip() + '\n'
+    if report.resolve() == (ROOT / 'docs/assets/modeling').resolve():
         document = ROOT / 'docs/modeling.md'
-        detailed_for_docs = detailed.replace('](figures/', '](assets/modeling/asking_price_v2/figures/').replace('](tables/', '](assets/modeling/asking_price_v2/tables/')
+        detailed_for_docs = detailed.replace('](figures/', '](assets/modeling/figures/').replace('](tables/', '](assets/modeling/tables/').replace('](metadata.json#tuning_review)', '](assets/modeling/metadata.json#tuning_review)')
     else:
-        document = report / 'report.md'
-        detailed_for_docs = detailed
-    temporary_document = document.with_suffix('.tmp.md')
-    temporary_document.write_text(detailed_for_docs, encoding='utf-8')
-    temporary_document.replace(document)
+        document = None
+    if document:
+        temporary_document = document.with_suffix('.tmp.md')
+        temporary_document.write_text(detailed_for_docs, encoding='utf-8')
+        temporary_document.replace(document)
     # Keep a single Markdown document; HTML is an export of the same text.
     temporary_html = report / 'report.tmp.html'
     temporary_html.write_text(html_export(detailed, report), encoding='utf-8')
@@ -295,9 +374,9 @@ def main():
     from datetime import datetime, timezone
     from script.modeling.train_models import metrics
     from script.modeling.split_dataset import dump, sha
-    report = ROOT / 'docs/assets/modeling/asking_price_v2'
+    report = ROOT / 'docs/assets/modeling'
     predictions = ROOT / 'data/intermediate/modeling/asking_price_v2/evaluation/retrospective_predictions.csv'
-    summary = json.loads((report / 'summary.json').read_text())
+    summary = read_metadata(report, 'summary')
     with (report / 'tables/validation_comparison.csv').open() as handle:
         comparisons = [{k: (v if k == 'name' else float(v)) for k, v in row.items()}
                        for row in csv.DictReader(handle)]
@@ -311,15 +390,14 @@ def main():
         if abs(value - summary['retrospective'][key]) > 1e-6:
             raise ValueError('Stored predictions differ from recorded metric: ' + key)
     render(report, summary, comparisons, actual, predicted)
-    dump(report / 'report_refresh.json', {
+    write_metadata(report, 'report_refresh', {
         'refreshed_at': datetime.now(timezone.utc).isoformat(), 'training_repeated': False,
         'renderer_sha256': sha(Path(__file__)), 'predictions_sha256': sha(predictions),
         'note': 'Presentation refresh only. Original training metadata and artifact hashes remain unchanged.'})
-    dump(report / 'output_hashes.json', {str(p.relative_to(report)): sha(p) for p in report.rglob('*')
-                                       if p.is_file() and p.name not in ('output_hashes.json', 'progress.json')})
-    hashes = json.loads((report / 'output_hashes.json').read_text())
-    hashes['../../../modeling.md'] = sha(ROOT / 'docs/modeling.md')
-    dump(report / 'output_hashes.json', hashes)
+    write_metadata(report, 'hashes', collect_output_hashes(report))
+    hashes = read_metadata(report, 'hashes')
+    hashes['../../modeling.md'] = sha(ROOT / 'docs/modeling.md')
+    write_metadata(report, 'hashes', hashes)
     print('Refreshed docs/modeling.md, HTML export and five diagnostic figures; no retraining')
 
 

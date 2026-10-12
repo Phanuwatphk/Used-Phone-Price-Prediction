@@ -8,6 +8,8 @@
 
 `data/final/condition_features.csv` เป็น sidecar 9,210 แถว: listing_id + battery_health_pct/warranty_days/box_mentioned ไม่มีข้อความหรือข้อมูลติดต่อ ใช้ rebuild V2 หลัง clone โดยคง schema ชุดหลักเดิม ค่าว่างคือไม่ทราบ อ่าน [การใช้ features และโมเดล](modeling.md)
 
+ข้อจำกัดที่ตรวจเพิ่ม: พบ 15 แถวที่ความจุประกาศไม่อยู่ในสเปก iPhone ของรุ่นที่ normalize ไว้ ยังไม่ยืนยันว่ารุ่นหรือความจุผิด จึงคงข้อมูลเดิมและบันทึกไว้ใน [รายงานโมเดล](modeling.md#10-รอบปรับปรุง-2026-10-12) หน้าเว็บใช้ตัวเลือกความจุจากผู้ผลิตแล้ว การผ่าน clean หมายถึงผ่านกฎและหลักฐานของ snapshot ไม่ใช่การยืนยันสภาพเครื่องหรือทุกสเปกจากผู้ผลิต
+
 เนื้อหารายขั้นบันทึกผล ณ รอบที่ทำ; การแบ่ง/ฝึกเสร็จแล้ว อ่านผลล่าสุดใน [รายงานโมเดล](modeling.md)
 
 ## เลือกอ่านตามขั้น
@@ -49,7 +51,7 @@ HTML อยู่ `data/raw/<รอบ>/{pages,details}/`; `listings.jsonl` เ�
 
 ค่าที่มีใน HTML แต่ JSON ไม่มีใช้หลักฐาน HTML พร้อมบันทึกที่มา ค่าที่เว็บไม่ได้ระบุคง missing แยก storage จาก RAM ราคาเงินดาวน์/bundle และเครื่องเสีย/ล็อกออกจากเครื่องปกติ ป้าย `new` ไม่ถูกตัดเพียงอย่างเดียวตามนโยบายโครงการ ค่าที่ไม่ชัดไม่เติมด้วยการเดา
 
-โค้ดอยู่ `script/preparation/{ennxo,mac2hand}/`; กฎอยู่ `config/<เว็บ>/`; extraction/clean/review และกลุ่มแยกออกอยู่ `data/intermediate/<เว็บ>/<รอบ>/` ผลผ่านอยู่ `data/final/<เว็บ>/<รอบ>/` Raw ไม่ถูกแก้ ผ่าน ENNXO 1,279 และ Mac2Hand 8,753 ประกาศ
+โค้ดอยู่ `script/preparation/{ennxo,mac2hand}/`; กฎอยู่ `config/<เว็บ>/`; extraction/clean/review และกลุ่มแยกออกอยู่ `data/intermediate/<เว็บ>/<รอบ>/` ผลผ่านอยู่ `data/intermediate/<เว็บ>/<รอบ>/accepted/` Raw ไม่ถูกแก้ ผ่าน ENNXO 1,279 และ Mac2Hand 8,753 ประกาศ
 
 <a id="workflow-3-รวม-schema-และทำ-eda"></a>
 
@@ -59,7 +61,7 @@ HTML อยู่ `data/raw/<รอบ>/{pages,details}/`; `listings.jsonl` เ�
 
 `script/analysis/eda/run_eda.py` สำรวจค่าขาด รุ่น ราคา สภาพ ความจุ วันที่และสัดส่วนเว็บ ใช้ IQR ภายในกลุ่มเว็บ/รุ่น/ความจุ/สภาพ/ปีเมื่อมีอย่างน้อย 10 แถว ตรวจ candidate ข้อความซ้ำด้วยข้อความ normalized ยาวอย่างน้อย 80 ตัวอักษรและข้อมูลสินค้าที่ตรงกัน เป็นสัญญาณ ไม่ใช่ยืนยันว่าเครื่องเดียวกัน
 
-ผลอยู่ `docs/assets/eda/ennxo_20261005_mac2hand_20261006/`; คิวรายแถวอยู่ `data/intermediate/eda/` EDA ไม่แก้ dataset
+ผลอยู่ `docs/assets/eda/`; คิวรายแถวอยู่ `data/intermediate/eda/` EDA ไม่แก้ dataset
 
 <a id="workflow-4-คัดชุดสำหรับโมเดล"></a>
 
@@ -152,15 +154,15 @@ python3 -m venv .venv
 
 | ไฟล์ผลลัพธ์ | ใช้ทำอะไร |
 |---|---|
-| `report.md` | สรุปอ่านง่ายสำหรับรายงาน/นำเสนอ |
+| `metadata.json` | report_text: สรุปอ่านง่ายสำหรับรายงาน/นำเสนอ |
 | `profile.json` | ข้อค้นพบทั้งหมด จำนวนซ้ำ ค่าขาด ช่วงราคา และข้อจำกัด |
 | `field_profile.csv` | ตรวจทุกฟิลด์ว่า absent/null/blank และชนิดข้อมูลเป็นอะไร |
 | `issues.csv` | แถวที่มีข้อสังเกต พร้อม URL; ไม่ใช่รายการตัดออก |
 | `page_accounting.json` | เทียบจำนวนและ URL ใน JSON กับการ์ดใน HTML ทีละหน้า |
 | `raw_checksums.json` | SHA-256 ของไฟล์ raw ทุกไฟล์ |
-| `run_metadata.json` | เวลา Python/BeautifulSoup/SoupSieve และ hash ของโค้ดที่ใช้ |
+| `metadata.json` | provenance: เวลา Python/BeautifulSoup/SoupSieve และ hash ของโค้ดที่ใช้ |
 
-เมื่อ raw, โค้ด และ environment เดียวกัน ไฟล์ผลควรเหมือนกันทุก byte ยกเว้น `run_metadata.json` ซึ่งบันทึกเวลาแต่ละรัน ปรับ `--raw <raw-dir>` และ `--output <output-dir>` ได้; path ค่าเริ่มต้นอิงตำแหน่งสคริปต์ ไม่อิง working directory สคริปต์ไม่ยอมเขียนผลทับโฟลเดอร์ raw
+เมื่อ raw, โค้ด และ environment เดียวกัน ไฟล์ผลควรเหมือนกันทุก byte ยกเว้น `metadata.json#provenance` ซึ่งบันทึกเวลาแต่ละรัน ปรับ `--raw <raw-dir>` และ `--output <output-dir>` ได้; path ค่าเริ่มต้นอิงตำแหน่งสคริปต์ ไม่อิง working directory สคริปต์ไม่ยอมเขียนผลทับโฟลเดอร์ raw
 
 ผลตรวจบัญชีผ่านหมายถึง URL/จำนวนในไฟล์ที่เก็บตรงกัน ยังไม่พิสูจน์ว่าเนื้อหา สเปค ราคา และสภาพสินค้าถูกต้อง `model_contains_only_brand` ตรวจชื่อยี่ห้อที่พบในชุดนี้ เป็นสัญญาณคุณภาพ ไม่ใช่การเลือกหรือแก้รุ่น
 
@@ -297,10 +299,9 @@ Raw ที่ใช้เริ่มใหม่อยู่ใน `data/raw/en
 |---|---|
 | `ennxo_extracted.jsonl` | ทุกประกาศพร้อมค่าแยกตามแหล่งและหลักฐาน |
 | `observations.csv` | รายการที่มีข้อสังเกตพร้อมค่าเดิมและค่าของเว็บ |
-| `summary.json` | จำนวน/ความครบและผลเปรียบเทียบ payload เดิม |
-| `report.md` | สรุปอ่านง่าย |
+| `metadata.json` | summary: จำนวน/ความครบและผลเปรียบเทียบ payload เดิม; report_text: สรุปอ่านง่าย |
 | `raw_checksums.json` | Hash ของ raw ที่อ่าน |
-| `run_metadata.json` | เวลา environment และ hash ของโค้ดทั้งสามโมดูล |
+| `metadata.json` | provenance: เวลา environment และ hash ของโค้ดทั้งสามโมดูล |
 
 สคริปต์หยุดเมื่อจับคู่การ์ด/ข้อมูลฝังไม่ได้ เมื่อข้อความอ้างอิงอ่านไม่สำเร็จ หรือเมื่อพบ object ของรหัสเดียวกันแต่ข้อมูลต่างกัน โดยไม่เลือกค่าแทนผู้ใช้ ผลที่รันซ้ำควรตรงกันทุก byte ยกเว้น metadata ของเวลา
 
@@ -390,18 +391,17 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
-| `report.md`, `summary.json` | จำนวนก่อน/หลังและเหตุผลรวม |
+| `metadata.json` | report_text/summary: จำนวนก่อน/หลังและเหตุผลรวม |
 | `review_plan.json` | จำนวนคิวแยกตามปัญหาและวิธีตรวจต่อ; แต่ละกลุ่มซ้อนกันได้ |
 | `ennxo_cleaned.jsonl` | ทุกแถว: ค่า clean, สถานะ, เหตุผล, หลักฐาน, input hash และ extraction เดิมครบ |
 | `accepted.csv` | แถวผ่านกฎปัจจุบัน |
 | `needs_review.csv` | คิวตรวจพร้อมชื่อ รายละเอียด URL เหตุผล และ hash |
 | `excluded.csv` | แถวนอกขอบเขตพร้อมเหตุผล ไม่ได้ลบทิ้ง |
-| `rules.json`, `corrections.json` | สำเนากฎและคำแก้ที่ใช้รอบนี้ |
+| `metadata.json` | rules: สำเนากฎและคำแก้ที่ใช้รอบนี้ |
 | `model_catalog.json` | ชื่อรุ่นจากช่องเลือกและแหล่งผู้ผลิต พร้อม key ที่ใช้เทียบ; URL ผู้ผลิตอยู่ใน rules และหลักฐานรายแถว |
-| `validation.json`, `raw_checksums.json` | ผลตรวจจำนวน URL ค่าเดิม และความคงเดิมของ raw |
-| `run_metadata.json` | Python เวลา และ hash ของ input/config/โค้ด |
+| `metadata.json` | validation: ผลตรวจจำนวน URL ค่าเดิม และความคงเดิมของ raw; provenance: Python เวลา และ hash ของ input/config/โค้ด |
 
-ผลควรเหมือนกันทุก byte เมื่อ input/config/โค้ดเดียวกัน ยกเว้นเวลาใน `run_metadata.json` รองรับ `--input`, `--raw`, `--output`, `--rules`, `--corrections` และรันตรงจากโฟลเดอร์อื่นได้ด้วย path สคริปต์เต็ม
+ผลควรเหมือนกันทุก byte เมื่อ input/config/โค้ดเดียวกัน ยกเว้นเวลาใน `metadata.json#provenance` รองรับ `--input`, `--raw`, `--output`, `--rules`, `--corrections` และรันตรงจากโฟลเดอร์อื่นได้ด้วย path สคริปต์เต็ม
 
 <a id="ennxo-บันทึกคำตอบและแก้ข้อมูล"></a>
 
@@ -439,7 +439,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 ขั้นต่อไป: ตรวจคิว needs_review และสุ่มตรวจ accepted → ตรวจกลุ่มประกาศซ้ำ → กำหนด split → EDA บน train → baseline/โมเดล ข้อความ description มีราคาและข้อมูลติดต่อ จึงยังไม่ใช้เป็นฟีเจอร์ตรงๆ หรือเผยแพร่เป็นชุดข้อมูลสาธารณะ
 
-ดู [สรุป ENNXO]() และ รายงานผลเต็ม (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/report.md`)
+ดู [สรุป ENNXO](#ennxo-stage-cleaning) และ รายงานผลเต็ม (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean/metadata.json#report_text`)
 
 <a id="ennxo-stage-review"></a>
 
@@ -484,7 +484,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 
 | ตำแหน่ง | เนื้อหา |
 |---|---|
-| `data/intermediate/ennxo/<รอบ>/manual_review/report.md` | สรุป 126 รายการและสิ่งที่ยังต้องยืนยัน 35 รายการ |
+| `metadata.json` | report_text: สรุป 126 รายการและสิ่งที่ยังต้องยืนยัน 35 รายการ |
 | `reviewed.csv` ในโฟลเดอร์เดียวกัน | ผลและเหตุผลรายแถวครบ 126 |
 | `review_evidence.json` | ข้อความต้นทางครบ เลขบรรทัด ช่องเลือก HTML/hash และคำแก้ |
 | `accepted_from_queue.csv`, `excluded_from_queue.csv` | รายการผ่านเพิ่ม37 และแยกออกเพิ่ม5 |
@@ -496,7 +496,7 @@ Output: `data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/clean
 | `data/intermediate/ennxo/<รอบ>/history/rules_v5/` | ผลก่อนรอบนี้ พร้อมกฎและledgerเดิม; v1–v4ยังเก็บไว้ |
 | `data/intermediate/ennxo/<รอบ>/review/` | บัญชีภาพรวมเทียบคิว264ของv4กับผลปัจจุบัน |
 
-เปิด รายงานรอบนี้ (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/report.md`), ผลทุกแถว (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/reviewed.csv`) หรือ หลักฐานเต็ม (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/review_evidence.json`)
+เปิด รายงานรอบนี้ (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/metadata.json#report_text`), ผลทุกแถว (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/reviewed.csv`) หรือ หลักฐานเต็ม (`data/intermediate/ennxo/ennxo_20261005T231833_239519_Asia-Bangkok/manual_review/review_evidence.json`)
 
 <a id="ennxo-รันซ้ำ"></a>
 
@@ -589,7 +589,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 
 #### การเตรียมข้อมูล
 
-ผลล่าสุดอยู่ที่ `data/final/mac2hand/<รอบ>/dataset.csv` ดู [ขั้นส่งมอบ](#mac2hand-stage-finalization) และ [วิธีตรวจ clean baseline](#mac2hand-stage-cleaning) ยังไม่มี train/test ราคาที่เก็บเป็นราคาประกาศและสภาพเป็นข้อมูลผู้ขาย ดู [คู่มือไฟล์](#stage-data_guide) และ [ข้อมูลดิบ](#stage-data_schema)
+ผลล่าสุดอยู่ที่ `data/intermediate/mac2hand/<รอบ>/dataset.csv` ดู [ขั้นส่งมอบ](#mac2hand-stage-finalization) และ [วิธีตรวจ clean baseline](#mac2hand-stage-cleaning) ยังไม่มี train/test ราคาที่เก็บเป็นราคาประกาศและสภาพเป็นข้อมูลผู้ขาย ดู [คู่มือไฟล์](#stage-data_guide) และ [ข้อมูลดิบ](#stage-data_schema)
 
 <a id="mac2hand-stage-cleaning"></a>
 
@@ -640,7 +640,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 
 | ไฟล์ | อ่านเพื่ออะไร |
 |---|---|
-| `raw_audit/report.md`, `summary.json` | ความครบ ข้อมูลขาด และข้อผิดพลาด |
+| `metadata.json` | report_text/summary: ความครบ ข้อมูลขาด และข้อผิดพลาด |
 | `raw_audit/issues.json`, `raw_checksums.json` | เหตุผลรายประกาศและ hash ต้นฉบับ |
 | `extraction/mac2hand_extracted.jsonl` | ค่าที่ parse ใหม่ พร้อม card เดิม path และ hash ของ HTML |
 | `clean/mac2hand_cleaned.jsonl` | ทุกแถว: `clean`, `status`, เหตุผล, `evidence`, `original`, hash ของ input |
@@ -648,8 +648,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 | `clean/needs_review.csv` | คิวข้อมูลขาด ขัดกัน ราคาไม่ชัด หรืออาการเสีย/ล็อก |
 | `clean/excluded.csv` | นอกขอบเขต แต่ยังเก็บต้นฉบับครบ |
 | `clean/candidate_duplicate_groups.json` | กลุ่มที่ต้องตรวจประกาศซ้ำ |
-| `clean/summary.json`, `report.md` | จำนวนแต่ละสถานะและเหตุผล (เหตุผลซ้อนกันได้) |
-| `clean/validation.json`, `run_metadata.json`, `rules.json` | ผลตรวจ input/raw โค้ดและ config ที่ใช้ ทำซ้ำได้ |
+| `metadata.json` | summary/report_text: จำนวนแต่ละสถานะและเหตุผล (เหตุผลซ้อนกันได้); validation/provenance/rules: ผลตรวจ input/raw โค้ดและ config ที่ใช้ ทำซ้ำได้ |
 
 คิวที่ขาดหน้าสินค้าจะไม่ใช้ค่าการ์ดแทนข้อมูลที่ยืนยันแล้วโดยอัตโนมัติ การ clean รอบนี้ใช้กฎตรวจหลักฐาน ไม่ใช่ manual review ทุกประกาศ ยังไม่รวม schema กลางกับ ENNXO และยังไม่แบ่ง train/test
 
@@ -680,7 +679,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 
 ### ตรวจคิว Mac2Hand
 
-> เอกสารนี้เป็นขั้น manual ก่อนส่งมอบ ผลล่าสุดอ่าน [finalization](#mac2hand-stage-finalization) และใช้ `final/dataset.csv`
+> เอกสารนี้เป็นขั้น manual ก่อนส่งมอบ ผลล่าสุดอ่าน [finalization](#mac2hand-stage-finalization) และใช้ `accepted/dataset.csv`
 
 เริ่มจาก clean v1 ที่รอตรวจ 1,789 รายการ ไม่ลบทิ้งทั้งหมด เพราะบางรายการมีข้อมูลอยู่แต่กฎอ่านคำย่อไม่ได้ ส่วนที่ขาดจริง ขัดกัน หรือมีอาการเสียต้องเก็บรอหลักฐาน
 
@@ -713,9 +712,7 @@ Parser เลือก Product JSON-LD ที่ sku ตรงกับรหั
 | `needs_review.csv` | กลุ่มที่ยังติดปัญหาล่าสุด ไม่รวมแถวที่รับแล้ว |
 | `excluded.csv` | กลุ่มนอกขอบเขตเดิม ไม่มีการลบทิ้ง |
 | `manual_reviews.json` | สำเนา ledger ที่ใช้ในรอบนี้ |
-| `summary.json`, `report.md` | จำนวนก่อน/หลังและขอบเขตที่ตรวจ สำหรับเครื่องและคนอ่าน |
-| `validation.json` | ผลตรวจว่าต้นฉบับ จำนวนแถว และแถวที่อยู่นอกคิวไม่เปลี่ยน |
-| `run_metadata.json` | เวลา path และ hash ของ baseline, ledger และโค้ด |
+| `metadata.json` | summary/report_text: จำนวนก่อน/หลังและขอบเขตที่ตรวจ สำหรับเครื่องและคนอ่าน; validation: ผลตรวจว่าต้นฉบับ จำนวนแถว และแถวที่อยู่นอกคิวไม่เปลี่ยน; provenance: เวลา path และ hash ของ baseline, ledger และโค้ด |
 
 <a id="mac2hand-ผลรอบแรก"></a>
 
@@ -753,7 +750,7 @@ Ledger มี `baseline_sha256` ผูกกับไฟล์ clean และ `
 
 ### ส่งมอบชุดข้อมูล Mac2Hand
 
-ผลล่าสุดอยู่ใน `data/final/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/` เริ่มใช้ `dataset.csv` สำหรับ EDA ของเครื่องกลุ่มปกติ **8,753 แถว** ใช้ทุกวันที่ที่เก็บมา มีชุดรวมกับ ENNXO แล้ว แต่ผลในหน้านี้เป็นเฉพาะ Mac2Hand ไม่แบ่ง train/test และไม่ฝึกโมเดล
+ผลล่าสุดอยู่ใน `data/intermediate/mac2hand/mac2hand_20261006T172805_252838_Asia-Bangkok/` เริ่มใช้ `dataset.csv` สำหรับ EDA ของเครื่องกลุ่มปกติ **8,753 แถว** ใช้ทุกวันที่ที่เก็บมา มีชุดรวมกับ ENNXO แล้ว แต่ผลในหน้านี้เป็นเฉพาะ Mac2Hand ไม่แบ่ง train/test และไม่ฝึกโมเดล
 
 <a id="mac2hand-วิธีทำและผล"></a>
 
@@ -803,17 +800,17 @@ Ledger มี `baseline_sha256` ผูกกับไฟล์ clean และ `
 | `script/preparation/mac2hand/finalize_mac2hand.py` | ตรวจ hash และบัญชีข้อมูล เรียกกฎทุกแถว เขียน CSV/JSONL และรายงาน |
 | `script/preparation/mac2hand/resolution_rules.py` | ตรวจและแก้เฉพาะค่าที่มีหลักฐานตรงกัน กำหนดเหตุผล/สถานะ; ไม่รันแยก |
 | `config/mac2hand/finalization_rules.json` | กฎรูปแบบชื่อ ความจุ ราคา ขอบเขต และสภาพ |
-| `config/mac2hand/iphone_model_names.json` | ชื่อรุ่น iPhone พร้อม URL ที่มาและวันที่ตรวจ |
+| `metadata.json` | model_catalog: ชื่อรุ่น iPhone พร้อม URL ที่มาและวันที่ตรวจ |
 | `manual_review/mac2hand_reviewed.jsonl` | ข้อมูลเข้าทุกแถวพร้อมต้นฉบับและคำตัดสินก่อนหน้า |
 | `raw_audit/raw_checksums.json` | hash อ้างอิงเพื่อป้องกันใช้ raw ที่เปลี่ยนไป |
 
-ขั้น `clean/` และ `manual_review/` เป็นประวัติก่อนส่งมอบ คงไว้เพื่อเทียบผล อย่าใช้ CSV เก่าแทน `final/dataset.csv`
+ขั้น `clean/` และ `manual_review/` เป็นประวัติก่อนส่งมอบ คงไว้เพื่อเทียบผล อย่าใช้ CSV เก่าแทน `accepted/dataset.csv`
 
 <a id="mac2hand-ไฟล์ผลลัพธ์เก็บอะไร"></a>
 
 #### ไฟล์ผลลัพธ์เก็บอะไร
 
-`dataset.csv`, summary/report/validation/metadata และสำเนากฎอยู่ใน `data/final/mac2hand/<รอบ>/` ไฟล์ข้อมูลทุกแถว คิว กลุ่มปัญหา และ candidate อยู่ใน `data/intermediate/mac2hand/<รอบ>/finalization/` ของรอบเดียวกัน ใช้ `--output` และ `--review-output` เมื่อต้องการรันทดลองแยกปลายทาง
+`dataset.csv`, metadata.json (summary/report_text/validation/provenance) และสำเนากฎอยู่ใน `data/intermediate/mac2hand/<รอบ>/` ไฟล์ข้อมูลทุกแถว คิว กลุ่มปัญหา และ candidate อยู่ใน `data/intermediate/mac2hand/<รอบ>/finalization/` ของรอบเดียวกัน ใช้ `--output` และ `--review-output` เมื่อต้องการรันทดลองแยกปลายทาง
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
@@ -827,10 +824,7 @@ Ledger มี `baseline_sha256` ผูกกับไฟล์ clean และ `
 | `non_normal.csv` | เครื่องเสีย ล็อก หรือรายการที่สั่งเก็บศึกษาแยก |
 | `excluded.csv` | สินค้านอกขอบเขต พร้อมเหตุผล |
 | `candidate_duplicate_groups.json` | 185 กลุ่ม 394 แถวที่อาจเป็นการลงประกาศซ้ำ ยังไม่ยืนยันว่าเครื่องเดียวกัน |
-| `summary.json`, `report.md` | จำนวนและสรุปผลสำหรับอ่านภาพรวม |
-| `validation.json` | ผลตรวจบัญชีทุกแถว ฟิลด์จำเป็น และการไม่เปลี่ยนต้นฉบับ |
-| `run_metadata.json` | เวลา hash ข้อมูลเข้า โค้ด กฎ และ dataset สำหรับทำซ้ำ |
-| `rules.json`, `iphone_model_names.json` | สำเนากฎและ catalogue ที่ใช้รอบนี้ |
+| `metadata.json` | summary/report_text: จำนวนและสรุปผลสำหรับอ่านภาพรวม; validation: ผลตรวจบัญชีทุกแถว ฟิลด์จำเป็น และการไม่เปลี่ยนต้นฉบับ; provenance: เวลา hash ข้อมูลเข้า โค้ด กฎ และ dataset สำหรับทำซ้ำ; rules/model_catalog: สำเนากฎและ catalogue ที่ใช้รอบนี้ |
 
 CSV ทุกกลุ่มมี `hold_reasons`, `exclusion_reasons`, `notes`, `next_action` เหตุผลหลายข้อในแถวเดียวคั่นด้วย `|` จำนวนเหตุผลจึงบวกแทนจำนวนแถวไม่ได้ ช่องว่างคือข้อมูลไม่มี ไม่ใช่ศูนย์
 
@@ -902,11 +896,11 @@ CSV ต้องกำหนด dtype เมื่อโหลด โดยเ�
 .venv/bin/python -u -B script/preparation/shared/prepare_combined_dataset.py
 ```
 
-อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/final/<เว็บ>/<รอบ>/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม รองรับรันจาก directory อื่นผ่าน absolute path และ `python -m script.preparation.shared.prepare_combined_dataset` จากรากโปรเจค ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
+อ่าน CSV ที่ `data/datasets.json` ระบุ: ENNXO และ Mac2Hand ใช้ `data/intermediate/<เว็บ>/<รอบ>/accepted/dataset.csv` ตรวจ hash จำนวน ฟิลด์ ชนิดข้อมูลและ URL ก่อน normalize แล้วรวม รองรับรันจาก directory อื่นผ่าน absolute path และ `python -m script.preparation.shared.prepare_combined_dataset` จากรากโปรเจค ไม่ส่ง request ไม่แก้ raw/CSV/ledger ต้นทาง
 
 ### ไฟล์ผลเก็บอะไร
 
-dataset CSV/JSONL, schema, summary/report/validation/metadata อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/` ส่วน lineage, audit รายเว็บ, normalization_changes และ price_review อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/` ใช้ `--output` และ `--audit-output` เพื่อเลือกปลายทางสองขั้น
+dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provenance) อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/` ส่วน lineage, audit รายเว็บ, normalization_changes และ price_review อยู่ใน `data/intermediate/combined/ennxo_20261005_mac2hand_20261006/audit/` ใช้ `--output` และ `--audit-output` เพื่อเลือกปลายทางสองขั้น
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
@@ -916,10 +910,7 @@ dataset CSV/JSONL, schema, summary/report/validation/metadata อยู่ใน
 | `ennxo_audit.json`, `mac2hand_audit.json` | ค่าขาด จำนวนรุ่น ยี่ห้อ ความจุ สภาพ ช่วงราคา quartile และวันที่แยกเว็บ |
 | `price_review.csv` | ราคาสูงสุดที่ควรทบทวน พร้อม URL และงานถัดไป |
 | `normalization_changes.json` | ค่าที่เปลี่ยนก่อน/หลัง เช่นรูปแบบชื่อรุ่น ราคา และวัน |
-| `schema.json` | สำเนา schema/alias ที่ใช้กับรอบนี้ |
-| `summary.json`, `report.md` | จำนวนรวม สัดส่วนและสรุปข้อจำกัด |
-| `validation.json` | ผลตรวจจำนวน source key ฟิลด์ และข้อมูลเข้าไม่เปลี่ยน |
-| `run_metadata.json` | เวลา โค้ด/schema/input hashes บัญชี input และ hash dataset |
+| `metadata.json` | schema: สำเนา schema/alias ที่ใช้กับรอบนี้; summary/report_text: จำนวนรวม สัดส่วนและสรุปข้อจำกัด; validation: ผลตรวจจำนวน source key ฟิลด์ และข้อมูลเข้าไม่เปลี่ยน; provenance: เวลา โค้ด/schema/input hashes บัญชี input และ hash dataset |
 
 ผ่าน 110 tests รวม source ที่ขาด/ขัดกัน URLไม่ตรง ตัวเลข/วันไม่ถูกต้อง namespace รหัส การไม่เปลี่ยน input การเก็บ lineage และทำซ้ำผล CSV รัน workflow จริงจาก `/tmp` ได้
 
@@ -939,7 +930,7 @@ dataset CSV/JSONL, schema, summary/report/validation/metadata อยู่ใน
 
 | ข้อมูลเข้า | หน้าที่ |
 |---|---|
-| `data/intermediate/combined/<รอบ>/before_selection/dataset.csv`, `dataset.jsonl`, `schema.json` | ชุดรวมและ schema ก่อนคัด ตรวจ CSV/JSONL ตรงกันและรหัสไม่ซ้ำ |
+| `data/intermediate/combined/<รอบ>/before_selection/dataset.csv`, `dataset.jsonl`, `metadata.json#schema` | ชุดรวมและ schema ก่อนคัด ตรวจ CSV/JSONL ตรงกันและรหัสไม่ซ้ำ |
 | `data/intermediate/combined/<รอบ>/audit/lineage.jsonl` | ที่มาทุกแถว ต้องมีครบตรง listing_id |
 | `data/intermediate/eda/<รอบ>/outlier_candidates.csv` | รหัสที่ flag ราคา IQR205 แถว |
 | `.../text_candidate_components.json` | สมาชิก 280 กลุ่มข้อความอาจซ้ำ รวม 617 แถว |
@@ -950,22 +941,19 @@ dataset CSV/JSONL, schema, summary/report/validation/metadata อยู่ใน
 
 ### ผลลัพธ์และแต่ละไฟล์
 
-ปลายทาง final: `data/final/`
+ปลายทาง final: `data/final/` มีเพียง 3 ไฟล์
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
-| `dataset.csv` | 9,210 แถวพร้อม source ENNXO1,202 / Mac2Hand8,008 |
-| `dataset.jsonl` | ชุดเดียวกัน พร้อมชนิดข้อมูล JSON เดิม |
-| `schema.json` | schema กลาง 13 คอลัมน์เดิม |
-| `policy.json` | สำเนานโยบายและ hash ที่ใช้คัดรอบนี้ |
-| `summary.json`, `report.md` | จำนวนก่อน/หลัง สัดส่วนเว็บ ปี ยี่ห้อ ช่วงวันและราคา |
-| `validation.json` | ผลตรวจ input คงเดิม ไม่มีสมาชิกคิวหลุดเข้าชุดใหม่ และบัญชีแถวครบ |
-| `run_metadata.json` | เวลา code/policy/input hashes และ hashdataset |
+| `dataset.csv` | 9,210 แถว 13 คอลัมน์ พร้อม source ENNXO1,202 / Mac2Hand8,008 |
+| `condition_features.csv` | listing_id และแบตเตอรี่/ประกันวัน/กล่อง; ไม่ทราบเป็นค่าว่าง |
+| `metadata.json` | schema กลาง, policy ที่ใช้คัด, summary ก่อน/หลัง, report_text, validation และ provenance (เวลา code/policy/input/dataset hashes) |
 
 ปลายทาง intermediate: `data/intermediate/model_input/ennxo_20261005_mac2hand_20261006_eda_queue_excluded_v1/`
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
+| `dataset.jsonl` | ชุดเลือก 9,210 แถวพร้อมชนิด JSON ชัดเจน เก็บสำหรับตรวจย้อนหลัง |
 | `excluded_rows.csv` | 822 แถวที่ตัด พร้อม selection_reasons; เก็บเป็นประวัติ ไม่ใช่คิวงานต่อ |
 | `selection_decisions.csv` | ผล selected และเหตุผลของทุก 10,032 รหัส บอกหลายเหตุผลในแถวเดียวได้ |
 | `lineage.jsonl` | ที่มาต้นฉบับของ 9,210 แถวที่ใช้ต่อ |
@@ -1037,7 +1025,7 @@ CSV แยกสามสถานะเพื่ออ่านคิวแล�
 
 ### Mac2Hand — ชุดส่งมอบล่าสุด
 
-`final/dataset.csv` ใช้คอลัมน์หลัก `source`, `product_id`, `url`, `brand`, `model`, `storage_gb`, `condition`, `price_thb`, `published_at` พร้อม `seller_key`, `candidate_duplicate_group`, `disposition`, `hold_reasons`, `exclusion_reasons`, `notes`, `next_action` ช่องเหตุผลและคำแนะนำเป็นข้อมูลตรวจสอบ ไม่ใช่ฟีเจอร์ฝึกโดยอัตโนมัติ
+`accepted/dataset.csv` ใช้คอลัมน์หลัก `source`, `product_id`, `url`, `brand`, `model`, `storage_gb`, `condition`, `price_thb`, `published_at` พร้อม `seller_key`, `candidate_duplicate_group`, `disposition`, `hold_reasons`, `exclusion_reasons`, `notes`, `next_action` ช่องเหตุผลและคำแนะนำเป็นข้อมูลตรวจสอบ ไม่ใช่ฟีเจอร์ฝึกโดยอัตโนมัติ
 
 `data/intermediate/mac2hand/<รอบ>/finalization/mac2hand_final.jsonl` เก็บทุกแถว พร้อม `original`, `resolution` (หลักฐานจากแต่ละแหล่ง), `disposition` และ `next_action` ดู [ความหมายไฟล์ทั้งหมด](#mac2hand-stage-finalization) ผล ENNXO และ Mac2Hand มีฟิลด์หลักคล้ายกัน แต่ฟิลด์ประกอบต่างกัน ชุดรวมเก็บฟิลด์เฉพาะเว็บทั้งหมดใน `data/intermediate/combined/<รอบ>/audit/lineage.jsonl` ตามหัวข้อท้ายเอกสาร
 
@@ -1072,8 +1060,7 @@ CSV แยกสามสถานะเพื่ออ่านคิวแล�
 | `manual_review/` ENNXO | `reviewed.csv` ผลคิวครบ126; `review_evidence.json` หลักฐาน; `confirmed_damage_or_lock.csv` 49เครื่องเสีย/ล็อก; `awaiting_evidence.csv` 35รอหลักฐาน; `accepted_from_queue.csv`, `excluded_from_queue.csv` ผลกลุ่มอื่น |
 | `manual_review/` Mac2Hand | `mac2hand_reviewed.jsonl` ผลหลังคำแก้; `queue_plan.csv`, `queue_evidence.json` แผน/หลักฐาน; `manual_reviews.json` สำเนา ledger |
 | `history/rules_v1` ถึง `rules_v5` ENNXO | ผลเก่า กฎและ metadata สำหรับเทียบย้อนหลัง |
-| `summary.json`, `report.md` ของแต่ละขั้น | จำนวนและสรุปให้คนอ่าน |
-| `validation.json`, `run_metadata.json` ของแต่ละขั้น | ผลตรวจ ข้อมูลเข้า เวอร์ชันโค้ดและ hash สำหรับทำซ้ำ |
+| `metadata.json` | summary/report_text: จำนวนและสรุปให้คนอ่าน; validation/provenance: ผลตรวจ ข้อมูลเข้า เวอร์ชันโค้ดและ hash สำหรับทำซ้ำ |
 
 ดู [clean ENNXO](#ennxo-stage-cleaning), [review ENNXO](#ennxo-stage-review), [clean Mac2Hand](#mac2hand-stage-cleaning) และ [review Mac2Hand](#mac2hand-stage-review)
 
@@ -1098,15 +1085,15 @@ CSV แยกสามสถานะเพื่ออ่านคิวแล�
 
 `data/intermediate/combined/<รอบ>/` เก็บ `lineage.jsonl` mapping ทุกแถวไป CSV ต้นทางพร้อมค่าเดิมทุกคอลัมน์, `{ennxo,mac2hand}_audit.json` ผลตรวจรายเว็บ, `normalization_changes.json` ค่าก่อน/หลังแปลง และ `price_review.csv` ราคาสูงสุด5รายการต่อเว็บพร้อม URL/งานถัดไป
 
-`data/intermediate/eda/<รอบ>/` เก็บ `outlier_candidates.csv` 205แถวและ peer/fence, `price_extremes.csv` ราคาสูงสุดจากขั้นรวม, `duplicate_groups.json` กลุ่ม candidate, `duplicate_memberships.csv` สมาชิกแต่ละกลุ่ม, `text_candidate_components.json` กลุ่มข้อความหลังรวมการซ้อนกัน280กลุ่ม617แถว และ `validation.json` ผลตรวจ คิวเหล่านี้ไม่แก้ชุดก่อนคัด; ขั้นคัดชุดโมเดลนำ union 822 แถวออกจาก final แล้ว
+`data/intermediate/eda/<รอบ>/` เก็บ `outlier_candidates.csv` 205แถวและ peer/fence, `price_extremes.csv` ราคาสูงสุดจากขั้นรวม, `duplicate_groups.json` กลุ่ม candidate, `duplicate_memberships.csv` สมาชิกแต่ละกลุ่ม, `text_candidate_components.json` กลุ่มข้อความหลังรวมการซ้อนกัน280กลุ่ม617แถว และ `metadata.json#validation` ผลตรวจ คิวเหล่านี้ไม่แก้ชุดก่อนคัด; ขั้นคัดชุดโมเดลนำ union 822 แถวออกจาก final แล้ว
 
 ### Final: ชุดผ่านสำหรับส่งต่อ
 
 | โฟลเดอร์ | เก็บอะไร |
 |---|---|
-| `data/final/ennxo/<รอบ>/` | `dataset.csv` 1,279แถว คัดลอก accepted.csv ทุก byte; `summary.json`, `report.md`, `validation.json`, `run_metadata.json` เก็บจำนวน ผลตรวจและ hash |
-| `data/final/mac2hand/<รอบ>/` | `dataset.csv` 8,753แถว; summary/report/validation/metadata; `rules.json`, `iphone_model_names.json` สำเนากฎ/catalogue |
-| `data/intermediate/combined/<รอบ>/before_selection/` | `dataset.csv`, `dataset.jsonl` 10,032แถว schemaกลาง13คอลัมน์ พร้อม source; `schema.json` สำเนา schema; summary/report/validation/metadata |
+| `data/intermediate/ennxo/<รอบ>/accepted/` | `dataset.csv` 1,279แถว คัดลอก accepted.csv ทุก byte; `metadata.json#summary`, `metadata.json#report_text`, `metadata.json#validation`, `metadata.json#provenance` เก็บจำนวน ผลตรวจและ hash |
+| `data/intermediate/mac2hand/<รอบ>/accepted/` | `dataset.csv` 8,753แถว; metadata.json (summary/report_text/validation/provenance); `metadata.json#rules`, `metadata.json#model_catalog` สำเนากฎ/catalogue |
+| `data/intermediate/combined/<รอบ>/before_selection/` | `dataset.csv`, `dataset.jsonl` 10,032แถว schemaกลาง13คอลัมน์ พร้อม source; `metadata.json#schema` สำเนา schema; metadata.json (summary/report_text/validation/provenance) |
 
 CSV เฉพาะเว็บมีฟิลด์ประกอบต่างกัน ชุด combined ปรับมาตรฐานแล้ว อ่าน [schema](#stage-data_schema) และ [วิธีรวม](#stage-combined_dataset) `final` คงชุดก่อน split ไว้ครบ; split/โมเดลสร้างแยกแล้ว ส่วน candidate ซ้ำยังไม่ใช่ข้อยืนยันเครื่องเดียวกัน
 
@@ -1119,3 +1106,5 @@ CSV เฉพาะเว็บมีฟิลด์ประกอบต่า�
 ชุดใช้ต่อสำหรับโมเดล9,210แถวอยู่ data/final/ หลักฐานคัดและexcluded_rows/selection_decisions/lineage อยู่ data/intermediate/model_input/<รอบ>/ อ่าน [หน้าที่ทุกไฟล์](#stage-model_input)
 
 ขั้นโมเดลอ่าน [วิธี ผล และหน้าที่ทุกไฟล์](modeling.md) split/assignments และ predictions อยู่ใน `data/intermediate/modeling/<รอบ>/`; V1 เก็บเป็นประวัติ โมเดลล่าสุดเป็น V2
+
+รูปแบบผลปัจจุบัน: แต่ละโฟลเดอร์ใช้ `metadata.json` รวมข้อมูลกำกับ ส่วน `metadata.json#summary` หมายถึง key summary ใน JSON ไม่ใช่ไฟล์อีกไฟล์ ชื่อไฟล์กำกับเดิมในประวัติ/raw คงเดิมเพื่อรักษาหลักฐาน; registry `data/datasets.json` ระบุตำแหน่งปัจจุบัน รายงาน EDA อยู่ `docs/eda.md` และโมเดลอยู่ `docs/modeling.md` ผลประกอบใน `docs/assets/eda/` และ `docs/assets/modeling/` ไม่มีชั้นชื่อรอบปัจจุบันซ้ำ รายงานโมเดลเดิม 4 รอบอยู่ history.zip สำรองก่อนลดไฟล์ทั้งโครงการอยู่ `archive/structure_before_simplification_20261012.zip` (เฉพาะในเครื่อง)

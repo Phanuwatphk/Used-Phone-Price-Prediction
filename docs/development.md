@@ -15,25 +15,31 @@
 
 ติดตั้งตาม [README](../README.md) ใช้ Python 3.12 กับ `requirements-lock.txt` คำสั่งต่อไปนี้รันจากรากโปรเจค
 
+เว็บออนไลน์: **[Used Phone Price](https://secondhand-phone-price-prediction.streamlit.app/)** คำสั่ง localhost ด้านล่างใช้สำหรับพัฒนาบนเครื่องเท่านั้น
+
 ## คำสั่งหลัก
 
 | คำสั่งหลัง .venv/bin/python | หน้าที่ / ผล |
 |---|---|
-| `script/app/run_app.py` | เปิดเว็บ localhost:8501 ผลทำนายแสดงบนหน้าจอ |
+| `app/run_app.py` | เปิดเว็บ localhost:8501 ผลทำนายแสดงบนหน้าจอ |
 | `-B script/modeling/rebuild_features_v2.py` | core + sidecar → enriched CSV ใน intermediate ตรวจ hashes |
 | `-u -B script/modeling/train_improved.py` | เลือก/ฝึก → models, ไฟล์ประกอบรายงานใน docs/assets/ และ predictions ใน intermediate |
 | `-u -B script/modeling/train_improved.py --resume` | ใช้ผลตัวเลือกที่ทำครบแล้วต่อ เมื่อ config/hashes ตรง |
 | `-B -m unittest discover -s script/tests -t .` | ตรวจ workflow offline ด้วย fixtures |
 
-`script/app/app.py` เป็น entry point/ฟอร์ม; `dashboard.py` อ่าน dataset และรายงานเพื่อแสดงกราฟ/ตัวกรอง; `run_app.py` เปิดเซิร์ฟเวอร์ ตัวทำนายร่วมคือ `script/modeling/predict.py` ธีมอยู่ `.streamlit/config.toml`
+`app/app.py` เป็น entry point/ฟอร์ม; `dashboard.py` อ่าน dataset และรายงานเพื่อแสดงกราฟ/ตัวกรอง; `run_app.py` เปิดเซิร์ฟเวอร์ ตัวทำนายร่วมคือ `script/modeling/predict.py` ธีมอยู่ `.streamlit/config.toml`
 
-หน้าเว็บใช้โทนขาว/เทาและปุ่มสีเข้ม ไม่มีอีโมจิ Sidebar จัดชื่อ คำอธิบาย และเมนูไว้กลาง พร้อมพื้นหลังระบุเมนูที่เลือก ยี่ห้อ/รุ่นและข้อมูลเพิ่มเติมเรียงสองช่องคู่กัน ช่องตัวเลขกรอกจำนวนเต็มโดยไม่มีปุ่มบวก/ลบ ยังตรวจขอบเขตเดิม (ความจุ 1–8,192 GB, แบตเตอรี่ 0–100%, ประกัน 0–999 วัน); optional ว่างคือไม่ทราบและ 0 คงเป็นศูนย์จริง แยกตัวกรองเป็นกรอบและตัวเลขสรุปเป็นการ์ด CSS ใน `apply_layout()` ของ app.py ปรับระยะห่าง/ขนาดสำหรับหน้าจอเล็ก โดยคง widgets และการใช้คีย์บอร์ด
+หน้าเว็บใช้พื้นสว่างกับสีกรมท่า `#1E3A5F` ไม่มีอีโมจิ ข้อความรองใช้เทาเข้ม `#475569` แสดงเต็มความเข้ม (ยกเลิก opacity 60% ของ caption เดิม) และ placeholder เข้มขึ้นเพื่อให้อ่านง่าย Sidebar จัดชื่อ คำอธิบาย และเมนูไว้กลาง เมนูที่เลือกใช้พื้นกรมท่าตัวอักษรขาว ส่วนแสดงตัวเลขมีขอบเน้นสีกรมท่า เส้นแบ่งและขอบช่องกรอกเข้มขึ้น ยี่ห้อ/รุ่นและข้อมูลเพิ่มเติมเรียงสองช่องคู่กัน ความจุเป็น dropdown ที่เปลี่ยนตามยี่ห้อ/รุ่นและ reset เมื่อค่าที่เลือกไม่อยู่ในรุ่นใหม่ iPhone ใช้ความจุจาก Apple Support ใน `config/app/storage_options.json` ส่วนรุ่นอื่นใช้ค่าที่พบใน public clean dataset (`data/final/dataset.csv`) ช่องตัวเลขแบตเตอรี่/ประกันไม่มีปุ่มบวก/ลบและยังตรวจขอบเขต 0–100% / 0–999 วัน; optional ว่างคือไม่ทราบและ 0 คงเป็นศูนย์จริง แยกตัวกรองเป็นกรอบและตัวเลขสรุปเป็นการ์ด CSS ใน `apply_layout()` ของ app.py ปรับระยะห่าง/ขนาดสำหรับหน้าจอเล็ก โดยคง widgets และการใช้คีย์บอร์ด
+
+ตัวเลือกความจุหน้าเว็บ: `config/app/storage_options.json` เก็บสเปก 54 รุ่น iPhone หน่วย GB พร้อม URL/วันที่ตรวจ/hash ของ [Apple Support](https://support.apple.com/en-us/108044) ส่วน `storage_catalog()` ใน `app/app.py` อ่าน public dataset แล้วให้ค่าผู้ผลิตแทนค่าประกาศที่อาจผิด ใช้ cache ตามเวลาแก้ไขไฟล์ ไม่ส่ง request ไปเว็บระหว่างใช้งาน
+
+ฟอร์มกรอกยี่ห้อ รุ่น ความจุ วันที่ แบตเตอรี่ ประกัน และกล่องครบแล้ว ข้อมูลที่เหลือ เช่นอายุรุ่น กลุ่มรุ่นและ missing indicators คำนวณให้ ไม่มี feature ความเสียหาย/รอยตำหนิ/ประวัติซ่อมในโมเดลที่ฝึก จึงไม่รับประเมินเครื่องเสีย จอแตก ล็อก หรือขายเป็นอะไหล่
 
 ฟอร์มประเมินไม่ให้เลือกเว็บต้นทางหรือสภาพ และไม่แสดงเว็บในข้อความผลลัพธ์ ใช้ `source=mac2hand` และ `condition=used` คงที่ตามค่าเริ่มต้นเดิม เพราะโมเดล V2 ที่ฝึกแล้วมีสอง features นี้อยู่ การซ่อนช่องไม่ใช่การนำ features ออกจากโมเดล หากต้องการให้โมเดลไม่ใช้สองค่านี้ ต้องฝึกและประเมินรอบใหม่ ส่วนหน้าสำรวจยังกรองเว็บ/สภาพของ dataset ได้ตามเดิม
 
-กราฟสำรวจใน `dashboard.py` ใช้ Altair: แกนจำนวนประกาศและราคามัธยฐานเริ่มที่ 0 เสมอ ขอบบนปรับตามข้อมูลที่กรองพร้อมพื้นที่เหนือค่าสูงสุด 12% ไม่เปิดการลากเปลี่ยนสเกล เรียงยี่ห้อตามจำนวนจากมากไปน้อย ปีแสดงเป็นจำนวนเต็มและ tooltip ระบุหน่วยชัดเจน การตั้งแกนนี้ใช้กับกราฟสำรวจสองกราฟ; กราฟ error ในรายงานโมเดลคงค่าคลาดเคลื่อนบวก/ลบตามจริง
+กราฟสำรวจใน `dashboard.py` ใช้ Altair สีกรมท่าและข้อความแกนเทาเข้ม: แกนจำนวนประกาศและราคามัธยฐานเริ่มที่ 0 เสมอ ขอบบนปรับตามข้อมูลที่กรองพร้อมพื้นที่เหนือค่าสูงสุด 12% ไม่เปิดการลากเปลี่ยนสเกล เรียงยี่ห้อตามจำนวนจากมากไปน้อย ปีแสดงเป็นจำนวนเต็มและ tooltip ระบุหน่วยชัดเจน การตั้งแกนนี้ใช้กับกราฟสำรวจสองกราฟ; กราฟ error ในรายงานโมเดลคงค่าคลาดเคลื่อนบวก/ลบตามจริง
 
-แอปอ่าน `data/final/dataset.csv`, `docs/assets/modeling/asking_price_v2/` และโมเดลใน `models/asking_price_v2/` ดาวน์โหลด CSV ตามตัวกรองได้ แต่ไม่เขียนทับ dataset ไม่ scrape/เทรนเอง
+แอปอ่าน `data/final/dataset.csv`, `docs/assets/modeling/` และโมเดลใน `models/asking_price_v2/` ดาวน์โหลด CSV ตามตัวกรองได้ แต่ไม่เขียนทับ dataset ไม่ scrape/เทรนเอง
 
 กด `Ctrl+C` เพื่อหยุด ใช้ `--port 8502` เมื่อพอร์ตไม่ว่าง หรือ `--headless` ไม่เปิด browser อัตโนมัติ CLI รองรับ absolute path จาก directory อื่น Path ภายในอิงตำแหน่งไฟล์
 
@@ -45,13 +51,15 @@
 
 | ต้องส่งขึ้น Git | หน้าที่ |
 |---|---|
-| `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ 9,210 แถว ขนาดประมาณ 555 KB |
+| `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ 9,210 แถว ขนาดประมาณ 1 MB |
 | `models/asking_price_v2/metadata.json` | checksum, เวอร์ชันไลบรารี และสัญญา features ของโมเดล |
 | `requirements.txt` + `requirements-lock.txt` | Cloud อ่าน requirements.txt ซึ่งอ้าง lock ให้ติดตั้งเวอร์ชันเดียวกับการฝึก |
-| `script/`, `config/`, `data/final/` และ `docs/` ตาม whitelist | โค้ด หน้าเว็บ ข้อมูลสำรวจ และรายงานที่ใช้งาน |
+| `app/`, `script/`, `config/`, `data/final/` และ `docs/` ตาม whitelist | โค้ด หน้าเว็บ ข้อมูลสำรวจ และรายงานที่ใช้งาน |
+
+หาก deploy ไว้แล้วด้วย path เดิม `script/app/app.py` ให้เปลี่ยน Main file path ใน Settings เป็น `app/app.py` หลัง push การย้ายไฟล์ ไม่ต้องสร้างแอปใหม่
 
 1. Commit/push การแก้ไขพร้อมไฟล์โมเดลสองไฟล์ (ไม่ต้องใช้ git add -f เพราะ whitelist แล้ว)
-2. เลือก repository/branch ที่มี commit นี้ และ Main file path เป็น `script/app/app.py`
+2. เลือก repository/branch ที่มี commit นี้ และ Main file path เป็น `app/app.py`
 3. ตั้ง Python 3.12 ใน Advanced settings ให้ตรง environment ที่ฝึก ถ้าแอปเดิมใช้ Python รุ่นอื่น ให้ deploy ใหม่ด้วยรุ่นนี้
 4. รอ build dependencies และเปิดประเมินราคา แอปอ่านโมเดลที่ฝึกแล้ว ไม่เทรนใหม่บน Cloud
 
@@ -60,6 +68,8 @@
 ตรวจไฟล์ก่อน commit ด้วย `git status --short --untracked-files=all models` และ `git ls-files -co --exclude-standard models/asking_price_v2/` ต้องเห็น model.joblib กับ metadata.json; evaluation.joblib ยังถูก ignore การโหลดไฟล์ของโปรเจคยังตรวจ SHA-256 ตามเดิม
 
 อ้างอิง [การจัด dependencies ของ Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies) และ [การเลือก entry point/Python](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
+
+`script/artifacts.py` อ่าน/เขียน metadata รวม ใช้ร่วมทั้งสองเว็บและงาน EDA/โมเดล รองรับอ่าน snapshot รูปแบบเดิม และตรวจ checksum ของแต่ละส่วนได้ `script/tests/test_artifacts.py` ตรวจการเก็บหลักฐาน byte เดิม การแทนที่ และการไม่ hash อ้างตัวเอง
 
 ## ข้อมูลอยู่ตรงไหน
 
@@ -74,17 +84,19 @@
 | `docs/assets/{eda,modeling}/` | กราฟ ตาราง CSV HTML และ metadata; เอกสารอ่านอยู่ docs/eda.md และ docs/modeling.md |
 | `docs/history/` | บัญชีย้ายไฟล์ในอดีต (JSON) |
 
+Path/hash ใน metadata และ `docs/history/` บันทึกตำแหน่ง ณ รอบเดิม จึงคงไว้เป็นหลักฐานย้อนหลัง ตำแหน่งใช้งานปัจจุบันอ่านจาก `data/datasets.json` และคู่มือนี้ ใช้ [บัญชีย้ายไฟล์](history/) เมื่อต้องตามหลักฐานที่ย้ายแล้ว
+
 ## CI และ tests
 
-ใช้ **workflow เดียว** `.github/workflows/ci.yml` ชื่อ **CI** ติดตั้งผ่าน requirements.txt/lock แบบเดียวกับ deploy แล้วตรวจ dependencies → compile Python → rebuild input จากข้อมูล public → unittest ทั้งหมด รวม Streamlit AppTest รันเมื่อ push/PR เข้า `main` หรือกด Actions → CI → Run workflow
+ใช้ **workflow เดียว** `.github/workflows/ci.yml` ชื่อ **CI** ติดตั้งผ่าน requirements.txt/lock แบบเดียวกับ deploy แล้วตรวจ dependencies → compile Python → rebuild input จากข้อมูล public → unittest ทั้งหมด รวม Streamlit AppTest รวมการตรวจเอกสาร/registry/checksum รายงาน รันเมื่อ push/PR เข้า `main` หรือกด Actions → CI → Run workflow
 
-`script/tests/` เป็นโค้ดทดสอบ ส่วน CI เรียกการตรวจอัตโนมัติ จึงไม่เปลี่ยนชื่อโฟลเดอร์ tests และไม่สร้าง workflow ซ้ำ ไม่ scrape หรือเทรนจริงใน CI Tests ใช้ fixtures ไม่ต้องมี raw, ledger หรือ model binary ส่วนตัว
+`script/tests/` เป็นโค้ดทดสอบ ส่วน CI เรียกการตรวจอัตโนมัติ จึงไม่เปลี่ยนชื่อโฟลเดอร์ tests และไม่สร้าง workflow ซ้ำ ไม่ scrape หรือเทรนจริงใน CI Tests ใช้ fixtures และไฟล์ public ของโปรเจค รวมโมเดลใช้งานที่ส่งขึ้น Git ไม่ต้องมี raw, ledger หรือ binary ของโมเดลทดลอง
 
 ตรวจ locally ด้วยคำสั่งเดียวกับ CI:
 
 ```bash
 .venv/bin/python -m pip check
-.venv/bin/python -m compileall -q script
+.venv/bin/python -m compileall -q app script
 .venv/bin/python -B script/modeling/rebuild_features_v2.py
 .venv/bin/python -B -m unittest discover -s script/tests -t .
 ```
@@ -93,11 +105,13 @@
 
 รวมโค้ด config/แม่แบบ ledger, เอกสาร รายงานผลรวม requirements/lock, workflow, ธีม ชุด final หลักพร้อม sidecar/ไฟล์กำกับ และโมเดลใช้งาน V2 กับ metadata ตาม `.gitignore`
 
+`.gitattributes` ปิดการแปลง line endings ของ CSV (`-text`) เพื่อรักษา byte/checksum ของ dataset และรายงาน แม้เครื่องที่ commit ตั้ง core.autocrlf ไว้
+
 เก็บ raw/intermediate, ledger จริง, evaluation/V1 binary, `.venv`, `.env` และ `.streamlit/secrets.toml` ในเครื่อง หลัง clone ใช้โมเดลที่รวมใน Git ได้ทันที หรือสร้าง V2 ใหม่จาก core + sidecar ได้โดยไม่ต้องมี raw ส่วนทำซ้ำ scraping/clean/EDA เดิมต้องคืนหลักฐาน private ก่อน ไม่มี deploy อัตโนมัติใน workflow นี้
 
 คำสั่งและหน้าที่ไฟล์ทุกขั้นอ่าน [คู่มือสคริปต์](#scripts); กฎแยกเว็บอ่าน [คู่มือ config](#config) แนวทาง CI: [GitHub Actions](https://docs.github.com/en/actions/get-started/understand-github-actions) รูปแบบ dashboard อ้างอิง [Gaming Statistics Dashboard](https://github.com/Phanuwatphk/Gaming-Statistics-Dashboard)
 
-ผลตรวจล่าสุด: 151 tests ผ่าน ทั้ง workspace และสำเนา public ที่มีเฉพาะโมเดลใช้งาน ไม่มี raw/intermediate หรือโมเดล evaluation; เปิดทั้ง 3 หน้าเว็บจาก directory อื่นได้ ตรวจลิงก์เอกสารและ checksum ข้อมูลหลักผ่าน ผล GitHub Actions ต้องดูหลัง push/PR จริง
+ผลตรวจล่าสุด: 167 tests ผ่าน ทั้ง workspace และสำเนา public ที่มีเฉพาะโมเดลใช้งาน ไม่มี raw/intermediate หรือโมเดล evaluation; เปิดทั้ง 3 หน้าเว็บจาก directory อื่นได้ รวม process ใหม่ที่ยังไม่ import app มาก่อน; entry point จัดรากโปรเจคไว้ก่อน directory ของ app.py เพื่อไม่ให้ชื่อไฟล์บังแพ็กเกจ ตรวจลิงก์เอกสารและ checksum ข้อมูลหลักผ่าน คำสั่ง CLI 24 ตัวเปิด --help จาก /tmp ได้ ผล GitHub Actions ต้องดูหลัง push/PR จริง
 
 <a id="model-artifacts"></a>
 
@@ -110,6 +124,19 @@
 | `metadata.json` | input/code/catalog/model hashes, versions และบทบาทของแต่ละ artifact |
 
 V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นประวัติในเครื่อง เฉพาะ V2 model.joblib กับ metadata.json รวมใน Git สำหรับ deploy; ฝึกใหม่ได้จาก core + public condition sidecar โหลดผ่าน `script/modeling/predict.py` เพื่อเช็ค checksum และ feature contract ของ V1/V2 ไม่เปิด joblib จากแหล่งที่ไม่เชื่อถือ ผล/ข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
+
+รอบปรับปรุง 2026-10-12 ใช้ `train_improved.py` ตัวเดียว:
+
+| ไฟล์ | หน้าที่ |
+|---|---|
+| `config/modeling/current.json` | แผนโมเดลใช้งานปัจจุบัน; ผล docs/assets/modeling/ และ models/asking_price_v2/ |
+| `config/modeling/experiments.json` | เก็บ baseline/revision/age_transfer/ensemble ครบในไฟล์เดียว |
+| `script/modeling/trend.py` | estimator สำหรับ trend, age normalization และ ensemble; ไม่รันแยก |
+| `docs/assets/modeling/history.zip` | รายงาน กราฟ ตาราง และ config ของ 4 รอบเดิม เปิดอ่านโดยแตก ZIP |
+
+ทำซ้ำ V2 กลุ่มทดลองด้วย `train_improved.py --experiment revision` (หรือ `age_transfer`, `ensemble`) และเพิ่ม `--resume` เมื่อ input/config เดิม ผลใหม่อยู่ `data/intermediate/modeling/<run>/report/` เพื่อเก็บประวัติเดิมใน ZIP; baseline ใช้ `train_models.py` ตามแผน baseline ใน experiments.json แต่ละผลมี metadata.json รวม summary/config/folds/selection/provenance/validation/hashes ส่วน CSV/กราฟยังแยกตามรูปแบบการใช้งาน
+
+ผล 33 ตัวเลือกอยู่ `docs/assets/modeling/metadata.json#tuning_review` กับ `tables/tuning_validation.csv` อ่านคำอธิบายใน [รายงานโมเดล](modeling.md#10-รอบปรับปรุง-2026-10-12) สำรองก่อนปรับอยู่ `archive/modeling/before_tuning_20261012/` การฝึกหลักเลือกด้วย validation แล้ว refit evaluation/operational ไม่ใช้ราคา test เป็น feature
 
 <a id="archive"></a>
 
@@ -147,7 +174,7 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 
 ### เปิดเว็บ
 
-รัน `.venv/bin/python -m streamlit run script/app/app.py` จากรากโปรเจค แล้วเข้า **http://localhost:8501** มีเมนูประเมินราคา สำรวจข้อมูล และผลโมเดล กด `Ctrl+C` เพื่อหยุด ตัวช่วยเปิดจาก directory อื่นคือ `run_app.py` รองรับ `--port 8502` และ `--headless`
+รัน `.venv/bin/python -m streamlit run app/app.py` จากรากโปรเจค แล้วเข้า **http://localhost:8501** มีเมนูประเมินราคา สำรวจข้อมูล และผลโมเดล กด `Ctrl+C` เพื่อหยุด ตัวช่วยเปิดจาก directory อื่นคือ `run_app.py` รองรับ `--port 8502` และ `--headless`
 
 | ไฟล์ใน app/ | หน้าที่ |
 |---|---|
@@ -169,9 +196,9 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 
 ### เก็บข้อมูลจากเว็บ
 
-สคริปต์ใน `scraper/` ใช้ส่ง request เก็บ HTML และอ่านข้อความจากเว็บ แยกตามต้นทาง งาน audit/clean/review/รวมข้อมูลอยู่ใน [preparation](#scripts-preparation) และงาน EDA อยู่ใน [analysis](#scripts-analysis)
+สคริปต์ใน `script/scraper/` ใช้ส่ง request เก็บ HTML และอ่านข้อความจากเว็บ แยกตามต้นทาง งาน audit/clean/review/รวมข้อมูลอยู่ใน [preparation](#scripts-preparation) และงาน EDA อยู่ใน [analysis](#scripts-analysis)
 
-| ไฟล์ใน scraper/ | ใช้กับ | หน้าที่และผลลัพธ์ |
+| ไฟล์ใน script/scraper/ | ใช้กับ | หน้าที่และผลลัพธ์ |
 |---|---|---|
 | `ennxo/collect_ennxo.py` | ENNXO | เก็บหน้าหมวดทุกวันโดยไม่จำกัดช่วงเวลา เทียบ URL กับ snapshot เดิม และบันทึก checkpoint เพื่อ resume |
 | `ennxo/ennxo_html.py` | ENNXO | parser การ์ดและข้อมูลฝังใน HTML ใช้ร่วมกับขั้น extraction; ไม่รันแยก |
@@ -205,11 +232,11 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 | `ennxo/clean_ennxo.py` | ENNXO | extraction + กฎ + corrections → normalize และแยกสถานะ | `.../clean/` |
 | `ennxo/review_ennxo_queue.py` | ENNXO | clean + baseline → เทียบคิวก่อน/หลัง | `.../review/` |
 | `ennxo/finalize_ennxo_manual_review.py` | ENNXO | clean + ledger + baseline → ตรวจคำตัดสินครบคิวและแยกผล | `.../manual_review/` |
-| `ennxo/export_ennxo_dataset.py` | ENNXO | clean → ตรวจ accepted.csv เทียบ JSONL แล้วคัดลอก CSV ทุก byte | `data/final/ennxo/<รอบ>/` |
+| `ennxo/export_ennxo_dataset.py` | ENNXO | clean → ตรวจ accepted.csv เทียบ JSONL แล้วคัดลอก CSV ทุก byte | `data/intermediate/ennxo/<รอบ>/` |
 | `mac2hand/prepare_mac2hand.py` | Mac2Hand | raw → ตรวจ manifest/hash และ parse HTML | `data/intermediate/mac2hand/<รอบ>/{raw_audit,extraction}/` |
 | `mac2hand/clean_mac2hand.py` | Mac2Hand | extraction + กฎ → ตรวจและแยกสถานะ | `.../clean/` |
 | `mac2hand/review_mac2hand_queue.py` | Mac2Hand | clean + ledger → ตรวจคำแก้และจัดคิว | `.../manual_review/` |
-| `mac2hand/finalize_mac2hand.py` | Mac2Hand | ผล review + กฎ → ส่งมอบกลุ่มผ่านและแยกปัญหาทุกแถว | `data/final/mac2hand/<รอบ>/` และ `data/intermediate/mac2hand/<รอบ>/finalization/` |
+| `mac2hand/finalize_mac2hand.py` | Mac2Hand | ผล review + กฎ → ส่งมอบกลุ่มผ่านและแยกปัญหาทุกแถว | `data/intermediate/mac2hand/<รอบ>/` และ `data/intermediate/mac2hand/<รอบ>/finalization/` |
 | `shared/select_model_input.py` | ทั้งสองเว็บ | ชุดรวม + คิวEDA + นโยบาย → ตัดunion822รหัส | `data/final/` และ `data/intermediate/model_input/<รอบ>/` |
 | `shared/prepare_combined_dataset.py` | ทั้งสองเว็บ | อ่าน CSV ผ่านจาก registry → ตรวจรายเว็บ ปรับ schema รวม พร้อม source | `data/intermediate/combined/<รอบ>/before_selection/` และ `data/intermediate/combined/<รอบ>/audit/` |
 
@@ -251,7 +278,7 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 
 รายงานหลักอยู่ใน `docs/eda.md`; ไฟล์ประกอบอยู่ใน `docs/assets/eda/<รอบ>/`: summary JSON, HTML, `figures/` และ `tables/` คิวรายแถวและ URL อยู่ใน `data/intermediate/eda/<รอบ>/` สคริปต์ไม่แก้ dataset
 
-รองรับรันจาก directory อื่นด้วย absolute path และ `python -m script.analysis.eda.run_eda` จากรากโปรเจค ปรับ `--input`, `--evidence`, `--mac2hand-details`, `--report`, `--private-output` เพื่อเลือกข้อมูลเข้าและผลทดลอง `--without-mac2hand-details` ใช้ข้อความจาก CSV เท่านั้นและระบุความครอบคลุมที่ลดลง ใช้ Python 3.12+ ตาม lock อ่าน [หลักเกณฑ์และทุกไฟล์ EDA](eda.md#stage-eda)
+รองรับรันจาก directory อื่นด้วย absolute path และ `python -m script.analysis.eda.run_eda` จากรากโปรเจค ปรับ `--input`, `--evidence`, `--mac2hand-details`, `--report`, `--private-output` เพื่อเลือกข้อมูลเข้าและผลทดลอง `--without-mac2hand-details` ใช้ข้อความจาก CSV เท่านั้นและระบุความครอบคลุมที่ลดลง ใช้ Python 3.12+ ตาม lock การสร้างรายงานหลักซ้ำคงส่วนวิธีทำใต้ anchor `stage-eda` ไว้ อ่าน [หลักเกณฑ์และทุกไฟล์ EDA](eda.md#stage-eda)
 
 เมื่อใช้ปลายทางทดลองแบบเดิมและไม่ส่ง option ปลายทางเสริม CLI ยังรองรับ bundle ใน output/input เดียว ค่าเริ่มต้นของ snapshot ปัจจุบันแยกขั้นตาม registry
 
@@ -303,11 +330,13 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 
 `test_modeling.py` ตรวจ split ตามวัน ไม่ใช้ target/ID เป็น feature, encoder ไม่ฟิตกับ validation, input/hash และปลายทางที่ห้ามทับ, หน่วย metric, workflow fixture และ model roundtrip พร้อม test แยกจาก fit
 
-`test_modeling_improved.py` ตรวจ explicit/ambiguous description claims, อายุจาก frozen catalog, missing/unknown model inference, train-only recency weights และ regression ของ CatBoost clone
+`test_modeling_improved.py` ตรวจ explicit/ambiguous description claims, อายุจาก frozen catalog, missing/unknown model inference, train-only recency weights, การตั้ง loss/พารามิเตอร์, CatBoost clone, การทำนาย/serialization ของ trend และ ensemble
 
-`test_app.py` ตรวจโมเดลที่ส่งไป deploy จาก checkout แยก การตรึง dependencies ให้ตรง artifact และฟอร์มภาษาไทย การเลือกรุ่นตามยี่ห้อ unknown/ศูนย์/วันที่ และค่าคงที่ source=mac2hand, condition=used ตัวกรอง/empty state การไม่เปลี่ยน dataset การเปิดหน้าสำรวจ/ผลโมเดลโดยไม่มี binary และตัวเปิดจาก directory อื่น ใช้ fixture ชั่วคราว ไม่ต้องมี binary ส่วนตัว CI เรียก tests เหล่านี้ผ่าน `.github/workflows/ci.yml`
+`test_app.py` ตรวจโมเดลที่ส่งไป deploy จาก checkout แยก การตรึง dependencies ให้ตรง artifact และฟอร์มภาษาไทย การเลือกรุ่นตามยี่ห้อ unknown/ศูนย์/วันที่ และค่าคงที่ source=mac2hand, condition=used dropdown ความจุตามรุ่นและค่าที่ส่งเข้า inference ตัวกรอง/empty state การไม่เปลี่ยน dataset การเปิดหน้าสำรวจ/ผลโมเดลโดยไม่มี binary และตัวเปิดจาก directory อื่น ใช้ fixture ชั่วคราว ไม่ต้องมี binary ส่วนตัว CI เรียก tests เหล่านี้ผ่าน `.github/workflows/ci.yml`
 
-`test_model_report.py` ตรวจตัวเลขรายงานกับ summary.json, การแยก metrics จาก hypothesis test, ตารางสูตร และ HTML ที่ฝังกราฟ 5 ภาพในไฟล์เดียว
+`test_project_integrity.py` ตรวจลิงก์เอกสารและ dataset registry, CSV/JSONL/sidecar, จำนวน/source/schema และความตรงกันของโมเดลกับรายงาน รวม checksum ของไฟล์ประกอบรายงานทุกชุด ตรวจเฉพาะ public files จึงรันหลัง clone และใน CI ได้
+
+`test_model_report.py` ตรวจตัวเลขรายงานกับ metadata.json#summary, การแยก metrics จาก hypothesis test, ตารางสูตร และ HTML ที่ฝังกราฟ 5 ภาพในไฟล์เดียว
 
 <a id="config"></a>
 
@@ -340,7 +369,7 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 | `cleaning_rules.json` | baseline ของ `clean_mac2hand.py`: version, ขอบเขต, ความจุ, ราคา placeholder และ regex ตรวจอุปกรณ์/บริการ/เงินดาวน์/เครื่องเสีย/คำปฏิเสธ |
 | `manual_reviews.json` | `review_mac2hand_queue.py`: hash baseline, คำตัดสิน/ค่าที่แก้ เหตุผล ข้อความหลักฐาน ผู้ตรวจและวันที่ |
 | `finalization_rules.json` | กฎตรวจซ้ำทุกแถวของ `finalize_mac2hand.py` |
-| `iphone_model_names.json` | ชื่อรุ่น iPhone ที่ตรวจจาก Apple พร้อม URL/วันที่ ใช้ตรวจชื่อ ไม่เติมสเปก |
+| `metadata.json` | model_catalog: ชื่อรุ่น iPhone ที่ตรวจจาก Apple พร้อม URL/วันที่ ใช้ตรวจชื่อ ไม่เติมสเปก |
 
 แต่ละขั้นเก็บสำเนากฎ/catalog และ hash ในผลลัพธ์ กฎของ Mac2Hand ไม่ใช้กับ ENNXO อ่าน [clean](data.md#mac2hand-stage-cleaning), [review](data.md#mac2hand-stage-review) และ [ส่งมอบ](data.md#mac2hand-stage-finalization)
 
@@ -358,6 +387,12 @@ V1 ใน `models/asking_price_v1/` และ evaluation.joblib เป็นป�
 
 Schema ไม่เปลี่ยนคำตัดสิน source cleaner รุ่นไม่มี alias คงไว้ ไม่เติมความจุ/ราคา ไม่ fuzzy match รุ่นย่อย กฎ EDA ใช้สำรวจ ไม่แก้ dataset อ่าน [รวมข้อมูล](data.md#stage-combined_dataset), [EDA](eda.md#stage-eda) และ [คัดชุดโมเดล](data.md#stage-model_input)
 
+### หน้าเว็บ
+
+| ไฟล์ใน app/ | หน้าที่ |
+|---|---|
+| `storage_options.json` | ความจุ iPhone จาก Apple Support 54 รุ่น หน่วย GB พร้อมที่มา/วันที่/hash; ใช้กับ dropdown โดยไม่แก้ชุดฝึก |
+
 <a id="config-modeling"></a>
 
 <a id="config-โมเดล"></a>
@@ -366,9 +401,10 @@ Schema ไม่เปลี่ยนคำตัดสิน source cleaner ร
 
 | ไฟล์ใน modeling/ | หน้าที่ |
 |---|---|
-| `improved.json` | รอบ V2: 2 forward folds, 12 ตัวเลือก, recency weights, catalog/condition sidecar hashes และการวัด test เดิมย้อนหลัง |
+| `current.json` | รอบ V2: 2 forward folds, 9 ตัวเลือกใน config หลัก (33 ตัวเลือกไม่ซ้ำรวมรอบปรับปรุง), recency weights, catalog/condition sidecar hashes และการวัด test เดิมย้อนหลัง |
+| `experiments.json` (revision/age_transfer/ensemble) | กลุ่มทดลองแยก loss/trend, age normalization และ ensemble; outputs แยก run |
 | `iphone_release_years.json` | ปีเปิดตัวจาก Apple ไม่ใช้ target ใน dataset เป็นที่มา |
-| `training.json` | รอบ V1: SHA-256 ชุด 9,210 แถว, split ตามเวลา, seed, threads และพารามิเตอร์ 15 ตัวเลือก |
+| `experiments.json` (baseline) | รอบ V1: SHA-256 ชุด 9,210 แถว, split ตามเวลา, seed, threads และพารามิเตอร์ 15 ตัวเลือก |
 
 เลือกจาก validation MAE แล้ว refit ก่อนประเมิน รอบ V1 ไม่ปรับโมเดลตาม test; V2 ใช้ test เดิมที่ดูแล้ว จึงเป็นผลย้อนหลัง สำหรับทดลองใหม่เปลี่ยน run และปลายทาง เก็บผลแต่ละรอบแยกกัน อ่าน [วิธีและผลโมเดล](modeling.md)
 
@@ -377,3 +413,5 @@ Schema ไม่เปลี่ยนคำตัดสิน source cleaner ร
 ### สิ่งที่ขึ้น Git และสิ่งที่ต้องคืนหลัง clone
 
 เก็บกฎ catalog และ `*.example.json` เป็นแม่แบบใน Git ส่วน ledger จริง `ennxo/corrections.json`, `ennxo/manual_review.json`, `mac2hand/manual_reviews.json` ถูก ignore เพราะมีหลักฐานรายประกาศ การทำซ้ำ snapshot เดิมต้องคืน ledger และข้อมูลตรงรอบ ห้ามใช้แม่แบบว่างแทน ledger เดิม อ่าน [วิธีทำซ้ำและ GitHub](development.md)
+
+รูปแบบผลปัจจุบัน: แต่ละโฟลเดอร์ใช้ `metadata.json` รวมข้อมูลกำกับ ส่วน `metadata.json#summary` หมายถึง key summary ใน JSON ไม่ใช่ไฟล์อีกไฟล์ ชื่อไฟล์กำกับเดิมในประวัติ/raw คงเดิมเพื่อรักษาหลักฐาน; registry `data/datasets.json` ระบุตำแหน่งปัจจุบัน รายงาน EDA อยู่ `docs/eda.md` และโมเดลอยู่ `docs/modeling.md` ผลประกอบใน `docs/assets/eda/` และ `docs/assets/modeling/` ไม่มีชั้นชื่อรอบปัจจุบันซ้ำ รายงานโมเดลเดิม 4 รอบอยู่ history.zip สำรองก่อนลดไฟล์ทั้งโครงการอยู่ `archive/structure_before_simplification_20261012.zip` (เฉพาะในเครื่อง)

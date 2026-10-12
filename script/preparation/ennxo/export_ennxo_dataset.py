@@ -10,8 +10,14 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT = 'ennxo_20261005T231833_239519_Asia-Bangkok'
 DEFAULT_INPUT = ROOT / 'data/intermediate/ennxo' / SNAPSHOT / 'clean'
-DEFAULT_OUTPUT = ROOT / 'data/final/ennxo' / SNAPSHOT
+DEFAULT_OUTPUT = ROOT / 'data/intermediate/ennxo' / SNAPSHOT / 'accepted'
 
+
+if not __package__:
+    import sys
+    sys.path.insert(0, str(ROOT))
+
+from script.artifacts import read_metadata, write_metadata
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -22,11 +28,11 @@ def export(input_dir, output):
     for protected in (input_dir, ROOT / 'data/raw', ROOT / 'config'):
         if output == protected or protected in output.parents or output in protected.parents:
             raise ValueError('Output overlaps a protected input')
-    files = [input_dir / name for name in ('accepted.csv', 'summary.json', 'ennxo_cleaned.jsonl')]
+    files = [input_dir / name for name in ('accepted.csv', 'metadata.json', 'ennxo_cleaned.jsonl')]
     before = {str(p): sha(p) for p in files}
     with files[0].open(encoding='utf-8-sig', newline='') as file:
         rows = list(csv.DictReader(file))
-    clean_summary = json.loads(files[1].read_text())
+    clean_summary = read_metadata(input_dir, 'summary')
     cleaned = [json.loads(line) for line in files[2].read_text().splitlines()]
     accepted = [r for r in cleaned if r['status'] == 'accepted']
     ids = [str(r['product_id']) for r in rows]
@@ -62,12 +68,11 @@ def export(input_dir, output):
                               'script_sha256': sha(Path(__file__)),
                               'dataset_sha256': sha(output / 'dataset.csv')}}
     for name, content in artifacts.items():
-        (output / name).write_text(json.dumps(content, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    (output / 'report.md').write_text(
-        f'# ชุดข้อมูล ENNXO ส่งมอบ\n\n`dataset.csv` เก็บเฉพาะกลุ่มผ่าน {len(rows):,} แถว '
+        write_metadata(output, {'summary.json':'summary','validation.json':'validation','run_metadata.json':'provenance'}[name], content)
+    write_metadata(output, 'report_text', f'# ชุดข้อมูล ENNXO ส่งมอบ\n\n`dataset.csv` เก็บเฉพาะกลุ่มผ่าน {len(rows):,} แถว '
         'คัดลอก accepted.csv ทุก byte โดยไม่ clean ใหม่หรือเปลี่ยนคอลัมน์\n\n'
-        'summary.json เก็บจำนวน, validation.json เก็บผลตรวจ, run_metadata.json เก็บที่มาและ hash '
-        'ข้อมูลทุกสถานะและหลักฐานคิวเก็บใน data/intermediate/ennxo/<รอบ>/\n', encoding='utf-8')
+        'metadata.json#summary เก็บจำนวน, metadata.json#validation เก็บผลตรวจ, metadata.json#provenance เก็บที่มาและ hash '
+        'ข้อมูลทุกสถานะและหลักฐานคิวเก็บใน data/intermediate/ennxo/<รอบ>/\n')
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return summary
 
