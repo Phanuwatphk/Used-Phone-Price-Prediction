@@ -1,0 +1,70 @@
+{
+  "run": "asking_price_v1",
+  "started_at_utc": "2026-10-11T08:58:23.484589+00:00",
+  "finished_at_utc": "2026-10-11T09:00:57.393383+00:00",
+  "duration_seconds": 153.909,
+  "dataset": "data/final/dataset.csv",
+  "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+  "config_sha256": "810f7e336472d74fe5aad63ecb88d67d85321ed35e25209f2686a82aef408914",
+  "code_sha256": {
+    "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
+    "script/modeling/features.py": "dece45bfcc28f2d8997cacd95707fb627d9bd3ccf70a8a6dd4dcdc6f99c73d38",
+    "script/modeling/predict.py": "b5ca405dd3870a5f9e48fd71a9c0dc1b8a9dd84a2fae6ba51fbc3e4cc90ae5ca",
+    "script/modeling/report.py": "cb7c9d3e688a8f2beaf00efead22dc92ee03e5ab0b4ea8457243b6f33a5577af",
+    "script/modeling/split_dataset.py": "9f891b7f6a8f5018afc7e13d100a0fd5e15ba49ad5ed98f31f6b20133c0ad352",
+    "script/modeling/train_models.py": "abaeb7b393de770f7079e1e680b697687e7690605d6c3353d79eb68fbf7b967f"
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "joblib": "1.6.0",
+    "matplotlib": "3.11.2"
+  },
+  "feature_names": [
+    "source",
+    "brand",
+    "model",
+    "brand_model",
+    "model_family",
+    "condition",
+    "storage_gb",
+    "log_storage",
+    "model_number",
+    "publication_days",
+    "publication_year",
+    "publication_month"
+  ],
+  "excluded_features": [
+    "price_thb (target)",
+    "listing_id",
+    "product_id",
+    "url",
+    "source_snapshot",
+    "published_at_raw",
+    "published_at_precision"
+  ],
+  "seed": 42,
+  "model_hashes": {
+    "model.joblib": "ab0f03b814e19708472e7e35ad264adf17a9674591ad52e57c1168fb5de80930"
+  },
+  "final_fit": "train + validation; test excluded",
+  "coverage": {
+    "models_seen_in_fit": 228,
+    "brands_seen_in_fit": 15,
+    "fit_date_max": "2025-01-07"
+  },
+  "selected_model": "hist_boost_31_log",
+  "test_metrics": {
+    "rows": 693,
+    "mae_thb": 8107.824675736678,
+    "rmse_thb": 11774.106186904371,
+    "median_absolute_error_thb": 4732.275347382005,
+    "r2": 0.1470161312110173,
+    "mape_pct": 44.024542218681255,
+    "within_20pct": 0.2698412698412698,
+    "bias_thb": -6177.610645959517
+  }
+}

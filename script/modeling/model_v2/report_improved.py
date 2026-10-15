@@ -51,6 +51,8 @@ def html_export(markdown, report):
         elif match := re.fullmatch(r'!\[([^\]]*)\]\((figures/[^)]+)\)', line):
             data = base64.b64encode((report / match[2]).read_bytes()).decode()
             blocks.append('<figure><img alt="' + html.escape(match[1]) + '" src="data:image/png;base64,' + data + '"><figcaption>' + inline(match[1]) + '</figcaption></figure>')
+        elif match := re.fullmatch(r'<a id="([\w-]+)"></a>', line):
+            blocks.append('<a id="' + html.escape(match[1], quote=True) + '"></a>')
         elif match := re.match(r'^(#{1,6}) (.+)$', line):
             level = str(len(match[1]))
             blocks.append('<h' + level + ' id="' + html.escape(heading_anchor(match[2]), quote=True)
@@ -147,274 +149,176 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
     if evaluation_rows is not None:
         s['platform_evaluation'] = platform_evaluation(evaluation_rows, actual, predicted)
         write_metadata(report, 'summary', s)
-    platform_text = ''
-    if platform := s.get('platform_evaluation'):
-        labels = {'iOS': 'iOS (iPhone)', 'Android': 'Android (อนุมาน)', 'unconfirmed': 'ยังไม่ยืนยัน OS'}
-        keys = [name for name in labels if name in platform['groups']]
-        specifications = [('จำนวนประกาศ', 'rows', 'count'), ('MAE (บาท)', 'mae_thb', 'number'),
-            ('RMSE (บาท)', 'rmse_thb', 'number'), ('Median absolute error (บาท)', 'median_absolute_error_thb', 'number'),
-            ('R²', 'r2', 'r2'), ('MAPE', 'mape_pct', 'percent'),
-            ('ทำนายใน ±20%', 'within_20pct', 'fraction'), ('Bias (บาท)', 'bias_thb', 'number')]
-        metric_rows = []
-        for label, key, kind in specifications:
-            values = []
-            for name in keys:
-                value = platform['groups'][name][key]
-                values.append('ไม่คำนวณ' if value is None else
-                    str(value) if kind == 'count' else
-                    f'{value:.4f}' if kind == 'r2' else
-                    f'{value * 100:.2f}%' if kind == 'fraction' else
-                    f'{value:.2f}%' if kind == 'percent' else f'{value:,.2f}')
-            metric_rows.append([label, *values])
-        platform_text = '\n## 7. ผลการประเมินแยก Android และ iOS\n\n' + table(['ตัววัด', *[labels[name] for name in keys]], metric_rows)
-        platform_text += f"\nใช้ราคาจริงและผลทำนายของ evaluation artifact บน {len(actual):,} ประกาศย้อนหลังชุดเดิม ไม่ฝึกโมเดลแยกหรือเปลี่ยนพารามิเตอร์เพื่อคำนวณตารางนี้ Dataset ไม่มีฟิลด์ OS จริง จึงจัด Apple ที่ระบุรุ่น iPhone เป็น iOS และยี่ห้อ Android ตาม allowlist ที่บันทึกไว้ กลุ่มที่ยืนยันไม่ได้แยกไว้ครบ\n"
-        if unknown := platform['groups'].get('unconfirmed'):
-            platform_text += f"\nกลุ่มยังไม่ยืนยัน OS มี {unknown['rows']:,} แถว ได้แก่ {', '.join(platform['unconfirmed_brands'])} จึงไม่รวมเป็น Android อัตโนมัติ ตารางนี้ไม่ยืนยัน OS ที่ติดตั้งจริงหรือการดัดแปลงเครื่อง\n"
-        if all(name in platform['groups'] for name in ['iOS', 'Android']):
-            ios, android = platform['groups']['iOS'], platform['groups']['Android']
-            platform_text += f"\n**อ่านผล:** iOS มี MAE {ios['mae_thb']:,.2f} บาท และ R² {ios['r2']:.4f} ส่วน Android มี MAE {android['mae_thb']:,.2f} บาท และ R² {android['r2']:.4f}; ทำนายใน ±20% ได้ {ios['within_20pct']*100:.2f}% และ {android['within_20pct']*100:.2f}% ตามลำดับ ดูทั้งความคลาดเคลื่อนเป็นบาทและสัดส่วนราคา Bias ติดลบหมายถึงแนวโน้มทำนายต่ำ\n"
-        if drift := s.get('data_drift'):
-            apple = drift['training_brands'].get('Apple', 0)
-            platform_text += f"\n**ข้อมูลฝึก:** evaluation artifact มี Apple {apple:,} จาก {s['evaluation_fit_rows']:,} แถว ({apple/s['evaluation_fit_rows']*100:.2f}%) ส่วน catalog อายุรุ่นมีเฉพาะ iPhone จึงมีทั้งความไม่สมดุลของข้อมูลและความต่างของข้อมูลประกอบ\n"
-        platform_text += "\n**ข้อจำกัด:** รุ่น ช่วงราคา และช่วงเวลาของแต่ละกลุ่มต่างกัน R² เทียบกับค่าเฉลี่ยภายในกลุ่ม และไม่ใช่เปอร์เซ็นต์ accuracy ผลนี้ไม่พิสูจน์ว่า OS เป็นสาเหตุของความแม่นยำ ไม่ได้ทดสอบนัยสำคัญทางสถิติ และยังไม่ใช่คะแนน holdout ใหม่ ควรเพิ่มข้อมูล Android และประเมินช่วงเวลาใหม่ก่อนรับรองผลแยกแพลตฟอร์ม\n"
-
-    e, b, v = s['retrospective'], s['v1_same_cutoff'], s['validation']
-    previous_text = ''
-    if previous := s.get('previous_round'):
-        old = previous['retrospective']
-        previous_text = '\n\nเทียบกับโมเดลที่ใช้งานก่อนรอบนี้ บนประกาศย้อนหลังชุดเดียวกัน:\n\n' + table(
-            ['ตัววัด', 'ก่อนปรับ', 'รอบนี้'],
-            [[label, f'{old[key]:,.4f}' if key == 'r2' else f'{old[key]:,.2f}',
-              f'{e[key]:,.4f}' if key == 'r2' else f'{e[key]:,.2f}']
-             for label, key in [('MAE (บาท)', 'mae_thb'), ('RMSE (บาท)', 'rmse_thb'), ('R²', 'r2')]])
-    source = [r for r in s['groups'] if r['group'] == 'source']
-    source_table = table(['เว็บ', 'n', 'MAE (บาท)', 'RMSE (บาท)', 'R²', 'ภายใน ±20%'],
-                         [[r['value'], r['rows'], f'{r["mae_thb"]:,.2f}', f'{r["rmse_thb"]:,.2f}',
-                           f'{r["r2"]:.4f}', f'{r["within_20pct"]*100:.2f}%'] for r in source])
-    coverage_table = table(['รุ่นในชุดประเมิน', 'n', 'MAE (บาท)', 'ภายใน ±20%'],
-        [['เคยอยู่ในชุดฝึก' if r['value'] == 'seen' else 'ไม่เคยอยู่ในชุดฝึก', r['rows'],
-          f'{r["mae_thb"]:,.2f}', f'{r["within_20pct"]*100:.2f}%']
-         for r in s['groups'] if r['group'] == 'model_coverage'])
-    drift_text = ''
-    if drift := s.get('data_drift'):
-        drift_text = (f"Apple ในชุดฝึก {drift['training_brands'].get('Apple',0)/s['evaluation_fit_rows']*100:.2f}% "
-                      f"เทียบกับ {drift['evaluation_brands'].get('Apple',0)/s['retrospective_rows']*100:.2f}% ในชุดประเมิน "
-                      f"มี {drift['unseen_model_rows']} แถวที่เป็นรุ่นไม่เคยอยู่ในชุดฝึก แสดงว่าข้อมูลต่างช่วงมีส่วนผสมต่างกัน")
-    tuning_text = '''\n\n## 11. ประวัติการพัฒนาโมเดล
-
-โครงการมีโมเดล 2 เวอร์ชันเท่านั้น การทดลองฟีเจอร์ พารามิเตอร์ และสัดส่วน ensemble เป็นขั้นพัฒนาภายใน V2 ไม่ใช่โมเดลเวอร์ชันเพิ่มเติม
-
-| เวอร์ชัน | บทบาท | หลักฐาน |
-|---|---|---|
-| Model Version 1 | โมเดลพื้นฐานสำหรับเปรียบเทียบ | รายงานใน history.zip ส่วน asking_price_v1 |
-| Model Version 2 | โมเดลใช้งานปัจจุบัน: มือสอง, source-free, 13 ฟีเจอร์, HGB/CatBoost | รายงานนี้และ artifacts ใน models/asking_price_v2 |
-
-คะแนน V1 reference ในตารางหลักเป็นการฝึกวิธี baseline ใหม่บนขอบเขตมือสองและ cutoff เดียวกับ V2 เพื่อเทียบอย่างเป็นธรรม ไม่ใช่นำคะแนนชุดเก่าที่จำนวนแถวต่างกันมาเทียบตรง ๆ ประวัติการคัดข้อมูลและข้อจำกัดชุดประเมินยังคงเปิดเผยตามจริง
-'''
-    eligibility = {item['name']: item.get('eligible_for_selection', True) for item in config['candidates']}
-    compare = table(['ตัวเลือก', 'Validation MAE (บาท)', 'RMSE (บาท)', 'fit (วินาที)', 'บทบาท'],
-                    [[r['name'], f'{r["mae_thb"]:,.2f}', f'{r["rmse_thb"]:,.2f}', r['fit_seconds'],
-                      'เลือกน้ำหนักโมเดล' if eligibility[r['name']] else 'เปรียบเทียบประกอบ']
-                     for r in sorted(comparisons, key=lambda r: r['mae_thb'])])
-    fold_table = table(['Fold', 'Train n', 'Train ถึง', 'Validation n', 'Validation เริ่ม', 'Validation ถึง'],
-                       [[r['fold'], r['train_rows'], r['train_max'], r['validation_rows'],
-                         r['validation_min'], r['validation_max']] for r in folds])
-    metric_rows = [
-        ('MAE', 'เฉลี่ย abs(ŷ−y); ยิ่งต่ำยิ่งดี', 'mae_thb', 'บาท'),
-        ('RMSE', 'รากของเฉลี่ย (ŷ−y)²; ไวต่อ error ก้อนใหญ่', 'rmse_thb', 'บาท'),
-        ('Median absolute error', 'มัธยฐานของ abs(ŷ−y); ครึ่งหนึ่งมี error ไม่เกินค่านี้', 'median_absolute_error_thb', 'บาท'),
-        ('R²', '1−SSE/SST; เทียบกับการทำนายด้วยค่าเฉลี่ยของชุดประเมิน', 'r2', ''),
-        ('MAPE', 'เฉลี่ย abs(ŷ−y)/y ×100; ราคาต่ำทำให้เปอร์เซ็นต์สูงง่าย', 'mape_pct', '%'),
-        ('ภายใน ±20%', 'สัดส่วนแถวที่ abs(ŷ−y)/y ≤0.20; ยิ่งสูงยิ่งดี', 'within_20pct', '%'),
-        ('Bias', 'เฉลี่ย (ŷ−y); ลบหมายถึงทำนายต่ำโดยเฉลี่ย', 'bias_thb', 'บาท'),
-    ]
-    def value(row, key, unit):
-        number = row[key] * (100 if key == 'within_20pct' else 1)
-        return f'{number:,.4f}' if key == 'r2' else f'{number:,.2f} {unit}'
-    metrics_table = table(['ตัววัด', 'ความหมาย', 'V1', 'V2'],
-                          [[name, meaning, value(b, key, unit), value(e, key, unit)]
-                           for name, meaning, key, unit in metric_rows])
+    e, b = s['retrospective'], s['v1_same_cutoff']
     from script.modeling.model_v2.features_v2 import CATEGORICAL, NUMERIC
     dropped = set(selected.get('drop_features', []))
     categorical = [field for field in CATEGORICAL if field not in dropped and
                    (field != 'source' or not selected.get('source_free'))]
     numeric = [field for field in NUMERIC if field not in dropped]
-    feature_review_text = ''
-    if selected.get('source_free'):
-        used = next(row for row in s['groups'] if row['group'] == 'condition' and row['value'] == 'used')
-        feature_review_text = f'''\n\n## 12. การเลือกฟีเจอร์ของ Model Version 2
+    fold_table = table(['ช่วง', 'Train', 'Train ถึง', 'Validation', 'เริ่ม', 'ถึง'],
+        [[r['fold'], f"{r['train_rows']:,}", r['train_max'], f"{r['validation_rows']:,}",
+          r['validation_min'], r['validation_max']] for r in folds])
+    eligibility = {item['name']: item.get('eligible_for_selection', True) for item in config['candidates']}
+    compare = table(['สัดส่วน HGB : CatBoost', 'Validation MAE (บาท)', 'RMSE (บาท)'],
+        [[f"{(1-candidate['blend_weights'][1])*100:.0f} : {candidate['blend_weights'][1]*100:.0f}",
+          f"{row['mae_thb']:,.2f}", f"{row['rmse_thb']:,.2f}"]
+         for row in sorted(comparisons, key=lambda row: row['mae_thb'])
+         if eligibility[row['name']]
+         for candidate in config['candidates'] if candidate['name'] == row['name']])
+    metric_specs = [('MAE (บาท)', 'mae_thb'), ('RMSE (บาท)', 'rmse_thb'),
+                    ('R²', 'r2'), ('ภายใน ±20%', 'within_20pct')]
+    def value(row, key):
+        return (f"{row[key]*100:.2f}%" if key == 'within_20pct' else
+                f"{row[key]:.4f}" if key == 'r2' else f"{row[key]:,.2f}")
+    metrics_table = table(['ตัวชี้วัด', 'V1 reference', 'V2'],
+        [[label, value(b, key), value(e, key)] for label, key in metric_specs])
+    source_table = table(['เว็บไซต์', 'จำนวน', 'MAE (บาท)', 'ภายใน ±20%'],
+        [[r['value'], r['rows'], value(r, 'mae_thb'), value(r, 'within_20pct')]
+         for r in s['groups'] if r['group'] == 'source'])
+    coverage_table = table(['รุ่นในชุดประเมิน', 'จำนวน', 'MAE (บาท)', 'ภายใน ±20%'],
+        [['เคยอยู่ในชุดฝึก' if r['value'] == 'seen' else 'ไม่เคยอยู่ในชุดฝึก', r['rows'],
+          value(r, 'mae_thb'), value(r, 'within_20pct')]
+         for r in s['groups'] if r['group'] == 'model_coverage'])
+    platform = s['platform_evaluation']
+    platform_table = table(['กลุ่ม', 'จำนวน', 'MAE (บาท)', 'RMSE (บาท)', 'R²', 'ภายใน ±20%'],
+        [[label, platform['groups'][name]['rows'],
+          *[value(platform['groups'][name], key) for _, key in metric_specs]]
+         for name, label in [('iOS', 'iOS (iPhone)'), ('Android', 'Android (อนุมาน)'),
+                             ('unconfirmed', 'ยังไม่ยืนยัน OS')]
+         if name in platform['groups']])
+    drift = s['data_drift']
+    apple = drift['training_brands'].get('Apple', 0)
+    detailed = f'''# โมเดลประเมินราคาตั้งขายมือถือมือสอง — V2
 
-เป้าหมายคือช่วยเสนอราคาตั้งขายมือถือมือสองที่ทำงานปกติ โดยไม่ระบุแพลตฟอร์มขาย ใช้โมเดล source-free และคงเว็บไซต์ไว้เป็นที่มา/ตัวแบ่งรายงานเท่านั้น ไม่กำหนดผู้ใช้ทุกคนให้เป็น Mac2Hand อีกต่อไป
+ใช้กับเครื่องที่ทำงานปกติ เป้าหมายคือราคาประกาศขาย หน่วยบาท
 
-กำหนดขอบเขตและชุดฟีเจอร์จากความหมายก่อน scoring: มือสองที่ทำงานปกติ ไม่ใช้ source, ตัวแปรซ้ำ, เลขรุ่นที่ไม่มีหน่วยร่วม และข้อมูลประกันที่เบาบาง จากนั้นใช้ MAE validation ตามเวลา 2 ช่วงเลือกสัดส่วน HGB/CatBoost ในชุดที่ตรงแบบนี้เท่านั้น Baseline และชุดมีประกันเป็นตัวเปรียบเทียบประกอบ ไม่ได้แข่งเป็นโมเดลใช้งาน ตารางคะแนนทุกตัวเลือกอยู่หัวข้อ 4 ไม่ใช้คะแนนย้อนหลังตัดสินผู้ชนะ และไม่อ้างผลเชิงเหตุและผลของแต่ละฟีเจอร์
+**ผลประเมินย้อนหลัง {s['retrospective_rows']:,} ประกาศ:** MAE **{e['mae_thb']:,.2f} บาท** · R² **{e['r2']:.4f}** · คลาดเคลื่อนไม่เกิน ±20% **{e['within_20pct']*100:.2f}%**
 
-ชุดปัจจุบันมี {len(categorical)+len(numeric)} ฟีเจอร์ ไม่ใช้ source และตัด `{', '.join(selected.get('drop_features', []))}` ออกจากตัวประมาณที่ฝึกจริง `brand_model` ประกอบจาก brand/model; log_storage เป็นการแปลง storage; ปี/เดือนประกาศมีอยู่ในวันที่แล้ว; model_number เป็นตัวเลขจากชื่อที่เทียบข้ามยี่ห้อไม่ได้ตรง ๆ ส่วน condition เป็นค่าคงที่เมื่อฝึกเฉพาะ used จึงไม่ต้องเป็นฟีเจอร์
+ผลนี้ไม่ใช่ holdout ใหม่ ชุดประเมินเคยใช้ระหว่างพัฒนา โมเดลใช้งานที่ฝึกครบยังไม่มีคะแนนทดสอบอิสระ
 
-สุขภาพแบตเตอรี่และกล่องถอดเฉพาะข้อความชัดเจน ไม่ทราบคง missing พร้อมตัวบ่งชี้ ไม่ใช้เปอร์เซ็นต์สภาพทั่วไปแทน battery health ประกันมีค่าเพียง 158 แถวใน core จึงเลือกไม่ใช้ในโมเดล V2 เพื่อไม่พึ่งข้อมูลที่เบาบาง พร้อมทดลองชุดมีประกันประกอบการตรวจสอบ การตัดสินไม่ขึ้นกับคะแนนเพียงอย่างเดียว ข้อมูลประกันเดิมยังเก็บไว้ ไม่สรุปว่าประกันไม่มีผลต่อราคาจริง ดู [EDA ข้อมูลฝึกปัจจุบัน](eda.md) สำหรับจำนวนค่าขาดและสัดส่วนรุ่น/ปี
+## 1. ข้อมูลที่ใช้
 
-`condition` หมายถึง new/used ตามผู้ขาย ไม่ใช่เกรดสภาพ ข้อมูลเผยแพร่ยังคง new 110 แถว แต่โมเดลรอบนี้กรองเฉพาะ used {s['deployment_fit_rows']:,} แถวก่อนแบ่งตามเวลาให้ตรงขอบเขต ไม่มีการลบแถวตามราคาเพิ่มเติม หน้าเว็บส่ง used เพื่อยืนยันขอบเขต ไม่รับเครื่องเสีย/ล็อก ไม่ประเมินค่ารอยตำหนิหรือประวัติซ่อมที่ไม่มีฟีเจอร์ผ่านการตรวจ
+ใช้ข้อมูลมือถือมือสอง **{s['deployment_fit_rows']:,} ประกาศ** จาก ENNXO และ Mac2Hand หลังทำความสะอาดและคัดเลือก
 
-ผลย้อนหลังเฉพาะมือสอง {used['rows']:,} ประกาศ: MAE {used['mae_thb']:,.2f} บาท, R² {used['r2']:.4f}, ภายใน ±20% {used['within_20pct']*100:.2f}% เป็นผลของ evaluation artifact ไม่ใช่คะแนนอิสระของโมเดลใช้งานที่ฝึกครบ
+สภาพเป็นข้อมูลที่ผู้ขายระบุในตลาดมือสอง ไม่ใช่ผลตรวจเครื่องจริง รายละเอียดการเตรียมข้อมูลอยู่ใน [รายงานข้อมูล](data.md#stage-model_input)
 
-หน้าเว็บแสดงจำนวนประกาศมือสองรุ่น/ความจุเดียวกันและวันที่ล่าสุด เตือนเมื่อข้อมูลน้อยกว่า 10 แถวหรือไม่มีตรงกัน จำนวนนี้ใช้บอกความครอบคลุม ไม่ใช่ confidence interval และไม่ใช่จำนวนแถวที่โมเดลใช้เพียงกลุ่มเดียว โมเดลเรียนรู้จากข้อมูลทั้งชุด
+## 2. ฟีเจอร์และการเตรียมข้อมูล
 
-'''
-    detailed = f'''# รายงานโมเดลราคาตั้งขายมือถือ — V2
+ใช้ **{len(categorical)+len(numeric)} ฟีเจอร์**
 
-รายงานหลักเรื่องโมเดล: อ่านวิธีเลือกข้อมูล วิธีเทรน กราฟ ตัววัด ผลแยกกลุ่ม และหลักฐานประกอบได้ในไฟล์นี้ เอกสาร HTML เป็นเนื้อหาเดียวกันสำหรับเปิดใน browser; JSON/CSV เป็นหลักฐานตัวเลข ไม่ใช่คู่มืออีกชุด
+| กลุ่ม | ฟีเจอร์ |
+|---|---|
+| หมวดหมู่ | `{', '.join(categorical)}` |
+| ความจุและวันประกาศ | `storage_gb, publication_days` |
+| ปีเปิดตัวและอายุรุ่น | `release_year, model_age_years, release_known` |
+| แบตเตอรี่และกล่อง | `battery_health_pct, battery_missing, box_mentioned, box_missing` |
 
-## สรุปผลการประเมิน
+อายุรุ่นคำนวณจากปีเปิดตัว ไม่ใช่อายุเครื่องจริง บัญชีปีเปิดตัวครอบคลุม iPhone; รุ่นที่ไม่มีข้อมูลคงค่าขาดหาย
 
-เปรียบเทียบ {len(comparisons)} ตัวเลือก โดย {sum(eligibility.values())} ตัวเลือกตรงชุดฟีเจอร์ที่กำหนดสำหรับใช้งาน เลือก **{method}** (`{s['selected_model']}`) ด้วย validation ตามเวลา 2 ช่วง MAE validation **{v['mae_thb']:,.2f} บาท**
+แบตเตอรี่และกล่องใช้เฉพาะข้อความที่ระบุชัด ค่าที่ไม่ทราบแยกจากศูนย์ HGB ใช้ one-hot encoding และเติมค่าตัวเลขด้วยมัธยฐานจาก train แต่ละช่วง ส่วน CatBoost จัดการหมวดหมู่และค่าตัวเลขขาดหายภายในโมเดล
 
-เปรียบเทียบย้อนหลังบน **{s['retrospective_rows']} ประกาศเดิม**: MAE ลดจาก **{b['mae_thb']:,.2f}** เป็น **{e['mae_thb']:,.2f} บาท** หรือ **{s['retrospective_mae_improvement_pct']:.2f}%**; R² **{e['r2']:.4f}**; ทำนายใน ±20% ของราคาประกาศได้ **{e['within_20pct']*100:.2f}%**{previous_text}
-
-**ผลนี้เป็นการประเมินย้อนหลังบนชุดเดิมที่เคยเปิดดูระหว่างพัฒนา ไม่ใช่ holdout ใหม่** โมเดลสำหรับใช้งานฝึกครบ {s['deployment_fit_rows']:,} แถวและยังไม่มีคะแนนทดสอบอิสระของตัวที่ฝึกครบ
-
-อ่าน [ผลประเมินแยก Android และ iOS](#7-ผลการประเมินแยก-android-และ-ios) จาก **ประกาศย้อนหลัง {s['retrospective_rows']} ประกาศ** ในหัวข้อ 7
-
-## 1. ข้อมูลที่เลือกใช้และข้อมูลที่ตัดออก
-
-หนึ่งแถวคือหนึ่งประกาศ ราคาเป้าหมายคือ **ราคาตั้งขาย หน่วยบาท** ไม่ใช่ราคาปิดการขาย ใช้ทุกวันที่ใน snapshot ไม่มีการจำกัด 12 เดือน
-
-| ขั้น | ENNXO | Mac2Hand | รวม |
-|---|---:|---:|---:|
-| ประกาศดิบใน snapshot | 1,381 | 10,220 | 11,601 |
-| ผ่าน clean ก่อนคัด EDA | 1,279 | 8,753 | 10,032 |
-| ชุดเผยแพร่หลังคัด EDA | 1,202 | 8,008 | 9,210 |
-| ชุดฝึกเฉพาะมือสองรอบนี้ | 1,092 | 8,008 | 9,100 |
-
-Clean ตรวจรุ่น ความจุ ราคา วันที่และขอบเขตสินค้า อิงรายละเอียดที่มีหลักฐาน เก็บ source/product_id/url/lineage ค่าที่ไม่ระบุหรือขัดกันไม่เดา แยกเครื่องเสีย/ล็อกและแถวที่ไม่ผ่านก่อนรวม ชุดเผยแพร่ยังเก็บ new ตามนโยบายเดิม แต่ขอบเขตโมเดลรอบนี้ฝึกเฉพาะ used
-
-EDA ระบุคิวจาก IQR, ข้อความ candidate ซ้ำ และรายการราคาสูงสุด ผู้ใช้เลือกตัดสมาชิกคิวทั้งหมด **822 รหัส** โดยนับ union ของเหตุผลที่ซ้อนกัน ไม่ใช่ยืนยันว่าทั้ง 822 แถวผิดทั้งหมด คัดด้วย `script/preparation/shared/select_model_input.py` ตาม `config/shared/model_input_policy.json` คง raw และเหตุผลไว้
-
-`data/final/dataset.csv` มี 13 คอลัมน์ / 9,210 แถว ข้อมูลส่วนใหญ่เป็น Apple และ Mac2Hand; กลุ่มย่อยไม่สมดุล การคัดใช้ EDA ทั้ง snapshot ก่อน split จึงมี selection bias คะแนนอธิบายชุดหลังคัดนี้ ไม่ใช่ประกาศทุกประเภทบนเว็บ
-
-## 2. ตัวแปรที่ใช้และการจัดการค่าขาดหาย
-
-ใช้ **{len(categorical)+len(numeric)} features**:
-
-- หมวดหมู่ {len(categorical)} ตัว: `{', '.join(categorical)}`
-- ตัวเลข/ตัวบ่งชี้ {len(numeric)} ตัว: `{', '.join(numeric)}`
-
-Features หลักคือยี่ห้อ รุ่น ความจุและวันประกาศ เพิ่ม family/tier ของรุ่น ปีเปิดตัว iPhone จาก Apple และอายุรุ่น ณ เดือนประกาศโดยประมาณ ไม่ใช่อายุเครื่องจริง Android ที่ไม่มี catalog คงปีเปิดตัว missing เว็บไซต์ต้นทางและ condition ที่คงที่ไม่ใช้เป็นฟีเจอร์รอบปัจจุบัน
-
-Battery health % และกล่องถอดจากข้อความด้วยกฎ เฉพาะคำระบุชัดและค่าเดียว ตรวจ listing_id/source/price ตรง lineage ค่าขัดกันหรือไม่ระบุคง missing; กล่องมี/ไม่มีใช้ 1/0 และไม่ทราบเป็น missing แยกจากศูนย์ ประกันเก็บใน sidecar แต่ไม่ใช้ในโมเดลรอบนี้ ไม่ป้อน title/description ทั้งหมดหรือราคาในข้อความให้โมเดล
-
-ฝั่ง HGB ใช้ one-hot encoding ที่รับ unknown category ได้ ตัวเลขเติม median และ scale จาก train ของ fold เท่านั้น ส่วน CatBoost ใช้ categorical features และ numeric missing ตาม native behavior ไม่ใช้ target encoding จาก validation ไม่เขียนค่าที่เติมกลับลง dataset เก็บ optional values ใน `data/final/condition_features.csv` จับคู่ด้วย listing_id ส่วนราคาเป้าหมาย ID และ URL ไม่ใช้เป็น features
+| ไม่ใช้ | เหตุผล |
+|---|---|
+| `source` | เว็บไซต์ไม่ใช่คุณสมบัติเครื่อง เก็บไว้ตรวจที่มาและรายงานแยกกลุ่ม |
+| `condition` | คงที่ในชุดฝึกรอบนี้ |
+| ประกัน | มีค่าเพียง 157 จาก 9,100 แถว |
+| ตัวแปรซ้ำและเลขจากชื่อรุ่น | ซ้ำกับข้อมูลเดิมหรือเปรียบเทียบข้ามยี่ห้อไม่ได้ |
+| ราคาเป้าหมาย รหัส URL และข้อความเต็ม | ไม่ใช้เป็นตัวแปรทำนาย |
 
 ## 3. การแบ่งข้อมูลตามเวลา
 
-เรียงตามวันประกาศและรหัส ไม่สุ่มประกาศเก่ากับใหม่ปนกัน วันเดียวกันอยู่ฝั่งเดียว ป้องกันเรียนรู้ข้อมูลอนาคตใน preprocessing และน้ำหนักข้อมูล
+เรียงตามวันประกาศ โดยวันเดียวกันอยู่ฝั่งเดียวกัน ใช้ expanding-window validation ให้ train มาก่อน validation
 
 {fold_table}
 
-Validation สองช่วงรวม **{sum(fold['validation_rows'] for fold in folds):,} แถว** จำนวน train ที่ทับกันระหว่าง folds ไม่ใช่ข้อมูลเพิ่ม เกณฑ์เลือกคือ MAE ของ prediction validation ทั้งสองช่วงรวมตามจำนวนแถวจริง
+Validation รวม **{sum(fold['validation_rows'] for fold in folds):,} แถว** เลือกน้ำหนักด้วย MAE ของผลทำนายรวมทุกแถว ไม่เฉลี่ยคะแนนแต่ละช่วงเท่ากัน
 
-หลังเลือกวิธีแล้ว ฝึก evaluation artifact **{s['evaluation_fit_rows']:,} แถวก่อน {config['retrospective_test_start']}** ประเมินบน **{s['retrospective_rows']:,} แถววันที่ {config['retrospective_test_start']} ถึง {s['deployment_date_max']}** cutoff เดียวกับ V1 รอบนี้ไม่ใช้ชุด {s['retrospective_rows']:,} แถวเลือกพารามิเตอร์ แต่เคยเห็นชุดนี้ในการพัฒนาเดิม จึงเรียกการเปรียบเทียบย้อนหลัง
+| ขั้นตอนหลังเลือกน้ำหนัก | ข้อมูล |
+|---|---|
+| ฝึกโมเดลประเมินย้อนหลัง | **{s['evaluation_fit_rows']:,} แถวก่อน {config['retrospective_test_start']}** รวม train และ validation |
+| ประเมินย้อนหลัง | **{s['retrospective_rows']:,} แถววันที่ {config['retrospective_test_start']} ถึง {s['deployment_date_max']}** |
+| ฝึกโมเดลใช้งาน | **{s['deployment_fit_rows']:,} แถว** ครอบคลุม {s['deployment_models']} รุ่น |
 
-สุดท้ายฝึก operational artifact แยกด้วย **{s['deployment_fit_rows']:,} แถวมือสอง** เพื่อเรียนรู้ {s['deployment_models']} รุ่นจนถึง {s['deployment_date_max']} การฝึกครบทำให้คะแนนย้อนหลังของ evaluation artifact ไม่ใช่คะแนนอิสระของ operational artifact
+การฝึกใหม่ใช้ข้อมูลก่อนวันตัดครบหลังเลือกน้ำหนักแล้ว ส่วนโมเดลใช้งานรวมข้อมูลล่าสุดด้วย คะแนนย้อนหลังจึงเป็นของโมเดลประเมิน ไม่ใช่คะแนนทดสอบโมเดลที่ฝึกครบ
 
-## 4. กระบวนการฝึกและการเลือกโมเดล
+## 4. วิธีฝึกและเลือกน้ำหนัก
 
-ทดลอง {len(comparisons)} ตัวเลือกตาม frozen config มี V1 reference และตัวเปรียบเทียบที่ใช้ source/ประกัน ส่วนตัวเลือกใช้งานคงชุดฟีเจอร์ 13 ตัวตามเหตุผลด้านโจทย์แล้วเลือกเฉพาะสัดส่วน ensemble ไม่ได้ทำ exhaustive search ทุกพารามิเตอร์ ทุกตัวใช้ folds และแถวมือสองเดียวกัน
+ใช้ gradient boosting สองแบบ: HGB แบ่งค่าตัวเลขเป็นช่วงเพื่อสร้างต้นไม้ และ CatBoost รองรับตัวแปรหมวดหมู่โดยตรง ทั้งสองเรียนรู้จาก log ราคา แล้วแปลงกลับเป็นบาทก่อนเฉลี่ย
 
-วิธีชนะ: **{method}**; seed **{config['seed']}**, threads **{config['threads']}** พารามิเตอร์ตัวเลือกที่ชนะ:
+| การตั้งค่า | HGB | CatBoost |
+|---|---|---|
+| จำนวนรอบ | 400 | 800 |
+| Learning rate | 0.07 | 0.045 |
+| ความซับซ้อนต้นไม้ | สูงสุด 31 ใบ | depth 6 |
+| การตั้งค่าเพิ่มเติม | L2 = 8; ไม่ใช้ early stopping | `has_time=True` |
 
-```json
-{json.dumps(selected, ensure_ascii=False, indent=2)}
-```
+ให้น้ำหนักข้อมูลล่าสุดมากกว่า โดยน้ำหนักลดครึ่งหนึ่งทุก 2 ปี อ้างอิงวันล่าสุดใน train ของแต่ละช่วง; seed = {config['seed']}
 
-ตัวเลือก log target แปลงกลับด้วย exp ก่อนวัด error เป็นบาท ราคาทำนาย floor ที่ 1 บาทตาม inference เดิม HGB ไม่ใช้ early stopping ส่วน CatBoost ใช้ fixed iterations และ `has_time=True`
-
-Recency half-life ของวิธีชนะ **{selected.get("half_life", 0)} ปี**: ถ้าเป็นศูนย์ให้น้ำหนักเท่ากัน ถ้ามากกว่าศูนย์ใช้ max(0.01, 2^(−อายุข้อมูลปี/half-life)) อายุข้อมูลนับจากวันล่าสุดใน train ของ fold แล้ว normalize ให้เฉลี่ย 1 ไม่ลบข้อมูลเก่า
-
-Ensemble ฝึกสมาชิกแยกกันบน log ราคา แล้วเฉลี่ยราคาที่แปลงกลับเป็นบาทด้วยสัดส่วนที่กำหนดไว้ก่อน scoring; HGB default: 400 iterations, 31 leaves, learning rate 0.07, l2=8; CatBoost default: 800 iterations, depth 6, learning rate 0.045, RMSE บน log target สมาชิกได้รับ sample weights ชุดเดียวกัน ไม่มี stacking ที่เรียนจาก test
-
-ตัวเลือก trend ใช้ Ridge บน log ราคา เพิ่ม interaction รุ่น/ระดับเครื่องกับอายุ และยี่ห้อกับปีประกาศ เติม missing/encode/scale จาก train เท่านั้น แล้วทดลอง HGB เรียนรู้ residual โดยไม่อ่านราคา validation เป็น feature
+กำหนดฟีเจอร์และพารามิเตอร์หลักก่อนประเมิน ใช้ validation เลือกเฉพาะสัดส่วนผสม 3 แบบ ไม่ได้ค้นหาพารามิเตอร์ทุกค่า ตัวเปรียบเทียบ V1, source และประกันอยู่ใน [ผลทดลองทั้งหมด](assets/modeling/tables/validation_comparison.csv)
 
 {compare}
 
-![เปรียบเทียบ validation MAE](figures/validation_comparison.png)
+เลือก **HGB 50% + CatBoost 50%** ใช้ validation 2 ช่วงเป็นแผนหลัก ผลทดลอง 5 ช่วงเป็นหลักฐานประกอบใน [รายงานเปรียบเทียบ](../.local/experiments/v2_fold_comparison/comparison.md) โดยทั้งสองแผนเลือกน้ำหนักเดียวกัน การใช้ 5 ช่วงลด MAE รวมเพียง 0.89% แต่ RMSE สูงขึ้น จึงคงแผน 2 ช่วง
 
-**อ่านกราฟ:** แท่งสั้นคือ MAE ต่ำกว่า ใช้กราฟนี้และตัวเลข validation เลือกวิธี ไม่เลือกด้วยคะแนนชุดย้อนหลัง ตาราง [fold_metrics.csv](tables/fold_metrics.csv) เก็บผลแต่ละ fold เพื่อดูความเปลี่ยนแปลงตามเวลา
+![MAE ของตัวเลือกบน validation](figures/validation_comparison.png)
 
-## 5. ตัวชี้วัดและผลการประเมิน
+## 5. ผลประเมินย้อนหลัง
 
-กำหนด y = ราคาประกาศจริง, ŷ = ราคาที่ทำนาย ตัววัดทั้งหมดคำนวณหลังแปลงกลับเป็นบาท บน {s['retrospective_rows']} แถวมือสองเดียวกันสำหรับ V1 reference/V2 ไม่เทียบตัวเลขกับรายงานเก่าที่มี new ปนโดยตรง
+เปรียบเทียบ V1 reference ที่ฝึกใหม่กับ V2 บนข้อมูลและวันตัดเดียวกัน จำนวน {s['retrospective_rows']:,} ประกาศ
 
 {metrics_table}
 
-MAE คือจำนวนบาทที่คลาดเคลื่อนเฉลี่ย RMSE สูงกว่า MAE เพราะให้น้ำหนัก error ใหญ่ Median absolute error บอกผลทั่วไปที่ไม่ถูกบางแถวลากมาก Bias ติดลบหมายถึงมีแนวโน้มทำนายต่ำ R² ไม่ใช่เปอร์เซ็นต์ accuracy และ MAPE ไม่ใช่อัตราผ่าน ±20%
+MAE ลดลง **{s['retrospective_mae_improvement_pct']:.2f}%**; R² ไม่ใช่ร้อยละความแม่นยำ ไม่มีการทดสอบนัยสำคัญทางสถิติ
 
-**มี hypothesis test หรือ p-value หรือไม่:** งานนี้ยังไม่ได้ทำ t-test, ANOVA, Wilcoxon หรือทดสอบนัยสำคัญของความต่างโมเดล จึงไม่มี test statistic/p-value และไม่สรุปว่าดีขึ้นอย่างมีนัยสำคัญทางสถิติ MAE/RMSE/R² เป็น evaluation metrics ไม่ใช่ hypothesis tests การมีเพียง 2 folds และการใช้ test เดิมซ้ำไม่เพียงพอให้ตีความเปอร์เซ็นต์การปรับปรุงว่าเป็นหลักฐานอิสระของประสิทธิภาพในอนาคต
+![ราคาประกาศกับราคาทำนาย](figures/retrospective_actual_vs_predicted.png)
 
-## 6. ผลการประเมินแยกเว็บไซต์และยี่ห้อ
+![ความคลาดเคลื่อน: ราคาทำนาย − ราคาประกาศ](figures/retrospective_residuals.png)
+
+## 6. ผลแยกเว็บไซต์และความครอบคลุมรุ่น
 
 {source_table}
 
 {coverage_table}
 
-{drift_text}
+เว็บไซต์และรุ่นมีส่วนผสมข้อมูลต่างกัน จึงไม่ตีความความต่างของคะแนนเป็นผลจากเว็บไซต์โดยตรง ดู [ผลแยก Android และ iOS](#7-ผลการประเมินแยก-android-และ-ios)
 
-จำนวนและส่วนผสมรุ่นต่างกัน จึงไม่ถือว่าคะแนนเว็บหนึ่งดีกว่าเพราะชื่อเว็บอย่างเดียว กลุ่มเล็กไม่ใช้รับรองความแม่นยำ
+![MAE แยกยี่ห้อที่มีอย่างน้อย 10 ประกาศ](figures/retrospective_brand_mae.png)
 
-![MAE ตามยี่ห้อ](figures/retrospective_brand_mae.png)
+## 7. ผลการประเมินแยก Android และ iOS
 
-**อ่านกราฟ:** แสดงเฉพาะยี่ห้อที่มีอย่างน้อย 10 แถว พร้อม n; แท่งสั้นคือ error น้อย ดู [retrospective_by_group.csv](tables/retrospective_by_group.csv) สำหรับทุกยี่ห้อ ปี สภาพ และรุ่นเคยเห็น/ไม่เคยเห็น กลุ่มน้อยกว่า 10 ยังคงอยู่ในตาราง ไม่ถูกลบจากผลประเมิน
+{platform_table}
 
-{platform_text}
-## 8. กราฟวิเคราะห์ความคลาดเคลื่อน
+อนุมานกลุ่มจากยี่ห้อและรุ่น เนื่องจากไม่มีข้อมูล OS ที่ตรวจยืนยัน กลุ่มยังไม่ยืนยัน OS ได้แก่ {', '.join(platform['unconfirmed_brands'])}
 
-![ราคาจริงและราคาทำนาย](figures/retrospective_actual_vs_predicted.png)
+ชุดฝึกโมเดลประเมินมี Apple {apple:,}/{s['evaluation_fit_rows']:,} แถว ({apple/s['evaluation_fit_rows']:.2%}) และข้อมูลปีเปิดตัวมีเฉพาะ iPhone ผล Android ต่ำกว่าจึงอาจเกี่ยวข้องกับข้อมูลที่น้อยและความครอบคลุมรุ่นที่ต่างกัน ยังไม่พิสูจน์สาเหตุ ควรเพิ่มข้อมูล Android โดยเฉพาะรุ่นใหม่และประเมินช่วงเวลาใหม่
 
-**อ่านกราฟ:** จุดใกล้เส้นประคือทำนายใกล้ราคาประกาศ จุดใต้เส้นคือทำนายต่ำ จุดเหนือเส้นคือสูง ไม่ได้เทียบกับราคาขายสำเร็จ
+## 8. ข้อจำกัด
 
-![Residual กับราคาประกาศ](figures/retrospective_residuals.png)
+- การคัด 822 แถวอาศัย EDA ก่อนแบ่งข้อมูล จึงมีความเอนเอียงจากการคัดเลือก และไม่ยืนยันว่าทุกแถวที่ตัดเป็นข้อมูลผิด
+- ชุดประเมินย้อนหลังเคยใช้ระหว่างพัฒนา จึงยังสรุปว่าไม่มี overfitting หรือรับรองผลในอนาคตไม่ได้ ต้องประเมินข้อมูลใหม่ที่ไม่เคยใช้พัฒนา
+- ข้อมูลเก่าและ Apple มีสัดส่วนสูง รุ่นที่ไม่เคยพบให้ความคลาดเคลื่อนมากกว่า ผลรวมไม่รับรองทุกรุ่น
+- ไม่มีราคาปิดขาย สภาพที่ตรวจจริง ประวัติซ่อม หรืออายุเครื่องจริง โมเดลไม่รองรับเครื่องเสียหรือล็อก
 
-**อ่านกราฟ:** residual = ŷ−y เส้นศูนย์คือถูกพอดี จุดต่ำกว่าศูนย์คือทำนายต่ำ ใช้ดูว่าราคาสูงมี error ทางเดียวมากหรือไม่ ไม่ได้ทดสอบว่าข้อสมมติ residual ผ่านทางสถิติ
+## 9. สคริปต์และหลักฐาน
 
-![การกระจาย absolute error](figures/retrospective_error_distribution.png)
-
-**อ่านกราฟ:** แกนนอนคือ error เป็นบาท แกนตั้งคือจำนวนประกาศ หางด้านขวาคือกลุ่มที่คลาดเคลื่อนสูง ไม่ใช่ confidence interval ของราคาทำนาย
-
-## 9. ข้อจำกัดและขอบเขตการสรุปผล
-
-V2 ให้ MAE ต่ำกว่า V1 ในการเปรียบเทียบย้อนหลังเดียวกัน แต่มีอคติจากการคัดข้อมูลก่อน split ข้อมูลเว็บ/รุ่น/สภาพไม่สมดุล รุ่นใหม่/Android มีข้อจำกัดและสภาพจากผู้ขายอาจไม่ครบ ไม่มีการยืนยันว่าเป็นเครื่องคนละเครื่องทางกายภาพ
-
-Catalog Apple รวบรวมภายหลัง ใช้ปีเปิดตัวที่ทราบ ณ วันประกาศ ไม่อ้างว่าระบบรู้ข้อมูลรุ่นที่ยังไม่เปิดตัวได้ในอดีต อายุมีความละเอียดระดับปี วันนอกช่วงฝึกหรือค่าที่ไม่ทราบมี coverage flags ซึ่งไม่ใช่ค่าความเชื่อมั่นทางสถิติ
-
-โมเดลพร้อมทดลองประเมิน **ราคาตั้งขายของเครื่องปกติ** ก่อนรับรองประสิทธิภาพจริงควรประเมินชุดใหม่หลัง 2026-10-06 ที่ไม่เคยใช้พัฒนา ไม่อ้างราคาปิดขายหรือความแม่นยำ 100%
-
-## 10. เครื่องมือ ข้อมูลเข้า และผลลัพธ์
-
-| สคริปต์ใน script/modeling/ | หน้าที่ / input | output |
-|---|---|---|
-| `model_v2/prepare_features_v2.py` | อ่าน core/lineage/full-text และตรวจหลักฐาน ถอด optional claims | enrichment dataset/audit ใน intermediate (ต้องมีหลักฐาน private) |
-| `model_v2/rebuild_features_v2.py` | core + public condition sidecar ตรวจ hashes | enriched CSV byte ตรงรอบจริง ไม่ต้องใช้ raw |
-| `model_v2/features_v2.py` | สร้าง features ตามสัญญาเวอร์ชันโมเดล จากข้อมูลและ frozen catalog | โมดูลประกอบ ไม่รันแยก |
-| `trend.py` | Ridge/residual, age normalization และ fixed-weight ensemble | โมดูล estimator สำหรับทดลอง ไม่รันแยก |
-| `model_v2/train_improved.py` | 2 temporal folds เลือก → evaluation → fit ครบ | artifacts, reports และ predictions รายแถว |
-| `model_v2/report_improved.py` | อ่านผลจริง/ตัวเลขสร้างรายงานนี้และกราฟ | docs/modeling.md, HTML และ figures |
-| `predict.py` | ตรวจ checksum โหลด artifact และทำนาย | ราคาทำนายที่ส่งให้หน้าเว็บ |
-
-| ไฟล์/โฟลเดอร์ | เก็บอะไร |
+| รายการ | หน้าที่ |
 |---|---|
-| `data/final/dataset.csv`, `condition_features.csv` | core 9,210 แถวและ optional values รวม Git |
-| `config/modeling/current.json`, `iphone_release_years.json` | candidates, folds, weights, seed, input hashes และ catalog 54 รุ่นจาก Apple |
-| `models/asking_price_v2/evaluation.joblib` | fit ก่อน cutoff สำหรับคะแนนย้อนหลัง |
-| `models/asking_price_v2/model.joblib`, `metadata.json` | fit ครบสำหรับใช้งาน พร้อม checksum/version/บทบาท |
-| `data/intermediate/modeling/asking_price_v2/evaluation/` | actual/prediction/error รายแถวในเครื่อง |
-| `docs/modeling.md` | รายงานโมเดลหลักไฟล์เดียว |
-| `docs/assets/modeling/` | metadata.json รวม summary/config/folds/selection/provenance/validation/hashes; figures, tables, HTML ของ V2; history.zip เก็บหลักฐาน V1 |
+| `script/modeling/model_v2/rebuild_features_v2.py` | สร้างข้อมูลฟีเจอร์จากข้อมูลต้นทางและ sidecar |
+| `script/modeling/model_v2/train_improved.py` | แบ่งเวลา เลือกน้ำหนัก ฝึกโมเดลประเมินและโมเดลใช้งาน |
+| `config/modeling/current.json` | พารามิเตอร์ วันตัด และตัวเลือกที่ทดลอง |
+| `models/asking_price_v2/evaluation.joblib` | โมเดลสำหรับผลประเมินย้อนหลัง |
+| `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ |
 
+หลักฐาน: [ผลแต่ละช่วง](assets/modeling/tables/fold_metrics.csv) · [ผลแยกกลุ่ม](assets/modeling/tables/retrospective_by_group.csv) · [ข้อมูลกำกับ](assets/modeling/metadata.json) · [โครงสร้างโครงการ](project.md)
 
-เวลา pipeline ที่บันทึกล่าสุด {s['duration_seconds']:.1f} วินาที (resume ไม่รวมเวลาก่อนหยุด) เวลา fit ตัวเลือกที่บันทึกรวม {sum(r['fit_seconds'] for r in comparisons):.1f} วินาที ไม่รวมเขียนโค้ด/เตรียม feature
+## 10. ประวัติการพัฒนาโมเดล
 
-แหล่งนิยาม: [scikit-learn regression metrics](https://scikit-learn.org/stable/modules/model_evaluation.html#regression-metrics), [HGB](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html), [Apple iPhone release years](https://support.apple.com/en-us/108044)
-{tuning_text}
-{feature_review_text}
-หน้าที่ไฟล์ทั้งหมดดู [ตารางไฟล์ในโครงการ](project.md)
+| เวอร์ชัน | บทบาท |
+|---|---|
+| V1 | โมเดลพื้นฐาน; หลักฐานใน `docs/assets/modeling/history.zip` |
+| V2 | โมเดลใช้งานปัจจุบัน HGB + CatBoost จำนวน 13 ฟีเจอร์ |
+
+การทดลองฟีเจอร์และจำนวนช่วง validation เป็นการพัฒนาภายใน V2
 '''
     detailed = detailed.rstrip() + '\n'
     if report.resolve() == (ROOT / 'docs/assets/modeling').resolve():

@@ -1,13 +1,4 @@
 scope,source,feature,total,known,missing,known_pct,minimum,median,maximum
-published_core,combined,battery_health_pct,9210,2903,6307,31.520086862106407,5.0,94.0,100.0
-published_core,combined,warranty_days,9210,158,9052,1.715526601520087,7.0,30.0,350.0
-published_core,combined,box_mentioned,9210,5395,3815,58.57763300760043,0.0,1.0,1.0
-published_core,ennxo,battery_health_pct,1202,309,893,25.707154742096506,50.0,94.0,100.0
-published_core,ennxo,warranty_days,1202,137,1065,11.397670549084859,7.0,30.0,90.0
-published_core,ennxo,box_mentioned,1202,283,919,23.544093178036604,0.0,1.0,1.0
-published_core,mac2hand,battery_health_pct,8008,2594,5414,32.392607392607395,5.0,94.0,100.0
-published_core,mac2hand,warranty_days,8008,21,7987,0.26223776223776224,30.0,30.0,350.0
-published_core,mac2hand,box_mentioned,8008,5112,2896,63.836163836163834,0.0,1.0,1.0
 used_training,combined,battery_health_pct,9100,2898,6202,31.846153846153847,5.0,94.0,100.0
 used_training,combined,warranty_days,9100,157,8943,1.7252747252747254,7.0,30.0,350.0
 used_training,combined,box_mentioned,9100,5391,3709,59.24175824175824,0.0,1.0,1.0

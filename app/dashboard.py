@@ -69,7 +69,7 @@ def read_dataset(path, stamp):
     frame['published_at'] = pd.to_datetime(frame['published_at'], errors='raise')
     frame['year'] = frame['published_at'].dt.year
     frame['price_thb'] = pd.to_numeric(frame['price_thb'], errors='raise')
-    return frame
+    return frame[frame['condition'].eq('used')].copy()
 
 
 def render_explorer():
@@ -84,28 +84,26 @@ def render_explorer():
         logging.getLogger(__name__).exception('Unable to read public dataset')
         st.error('ยังเปิดชุดข้อมูลไม่ได้ กรุณาให้ผู้ดูแลตรวจไฟล์ข้อมูล')
         return
-    st.caption(f"ชุดเต็ม {len(frame):,} ประกาศ · {frame['published_at'].min():%Y-%m-%d} ถึง {frame['published_at'].max():%Y-%m-%d} · ไม่ใช่ประกาศสดจากเว็บ")
-    st.caption('หน้านี้สำรวจชุดเผยแพร่ที่เก็บทั้งใหม่และมือสอง ส่วนโมเดลประเมินราคาฝึกเฉพาะมือสอง')
+    if frame.empty:
+        st.info('ไม่มีข้อมูลในขอบเขตชุดฝึกโมเดล')
+        return
+    st.caption(f"ชุดฝึก {len(frame):,} ประกาศ · {frame['published_at'].min():%Y-%m-%d} ถึง {frame['published_at'].max():%Y-%m-%d} · ไม่ใช่ประกาศสดจากเว็บ")
+    st.caption('สถิติและรายการประกาศแสดงเฉพาะข้อมูลในขอบเขตชุดฝึกโมเดลปัจจุบัน')
     with st.container(border=True):
         st.subheader('ค้นหาประกาศ')
-        left, middle, right = st.columns(3)
+        left, middle = st.columns(2)
         with left:
             sources = st.multiselect('เว็บต้นทาง', sorted(frame['source'].unique()),
                                      default=sorted(frame['source'].unique()), key='filter_sources',
                                      format_func=lambda value: SOURCE_LABELS.get(value, value))
         with middle:
             brands = st.multiselect('ยี่ห้อ (เว้นว่าง = ทั้งหมด)', sorted(frame['brand'].unique()), key='filter_brands')
-        with right:
-            condition = st.selectbox('สภาพ', ['all', 'used', 'new'], key='filter_condition',
-                                    format_func=lambda value: {'all': 'ทั้งหมด', 'used': 'มือสอง', 'new': 'ของใหม่ตามผู้ขาย'}[value])
         query = st.text_input('ค้นหาชื่อรุ่น', placeholder='เช่น iphone13 หรือ Galaxy', key='filter_query',
                               on_change=clear_model_selection)
         search = normalize_model_search(query)
         candidates = frame[frame['source'].isin(sources)]
         if brands:
             candidates = candidates[candidates['brand'].isin(brands)]
-        if condition != 'all':
-            candidates = candidates[candidates['condition'].eq(condition)]
         if search:
             candidates = candidates[candidates['model'].map(normalize_model_search).str.contains(search, regex=False)]
         matches = sorted(set(zip(candidates['brand'], candidates['model'])))
@@ -122,8 +120,6 @@ def render_explorer():
     filtered = frame[frame['source'].isin(sources) & frame['year'].between(*years)]
     if brands:
         filtered = filtered[filtered['brand'].isin(brands)]
-    if condition != 'all':
-        filtered = filtered[filtered['condition'].eq(condition)]
     if search:
         filtered = filtered[filtered['model'].map(normalize_model_search).str.contains(search, regex=False)]
     if selected_model is not None:

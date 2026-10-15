@@ -6,8 +6,7 @@
 .aws/
 .streamlit/secrets.toml
 
-# Personal notes and presentation preparation stay local.
-/.local/
+# Presentation notes are published under .local/; avoid a duplicate legacy copy.
 /docs/presentation.md
 
 # Python and editor caches
@@ -36,11 +35,16 @@ Thumbs.db
 /config/ennxo/manual_review.json
 /config/mac2hand/manual_reviews.json
 
-# Ship only the verified operational artifact needed by Streamlit deployment.
+# Publish V1 and both checked V2 artifacts with their metadata.
 /models/*
+!/models/asking_price_v1/
+/models/asking_price_v1/*
+!/models/asking_price_v1/model.joblib
+!/models/asking_price_v1/metadata.json
 !/models/asking_price_v2/
 /models/asking_price_v2/*
 !/models/asking_price_v2/model.joblib
+!/models/asking_price_v2/evaluation.joblib
 !/models/asking_price_v2/metadata.json
 
 # Audited numerical condition claims used to rebuild V2 features after clone.

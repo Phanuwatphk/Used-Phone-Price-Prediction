@@ -1,8 +1,8 @@
 {
   "report_refresh": {
-    "refreshed_at": "2026-10-15T14:40:07.236808+00:00",
+    "refreshed_at": "2026-10-15T16:39:59.957687+00:00",
     "training_repeated": false,
-    "renderer_sha256": "9168bd219e22bc6aa9a5da2731042631defd67304c8fdbe6dd82313814ea0d82",
+    "renderer_sha256": "dc2638496746675f62e9e4d07f5fd65266046b66803a61f55e63e52cd4459348",
     "predictions_sha256": "8c52f65365b3c961e5a7b4515a9c683e5fd539d544126b40b5d574bb273cacca",
     "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
   },
@@ -522,13 +522,13 @@
     "figures/validation_comparison.png": "b00877bc4c4b313cb25f268dc2e408c0ccb2890f5b64d7deb276101347de2657",
     "figures/validation_comparison.svg": "094ddb98df72ded4b414faea31ee1990ca40ef059435956e23911591a0512315",
     "history.zip": "245ec8bad101c2378d6d09ef2ec8a90f0adc44bcda1a6236289e5208c0e62c14",
-    "report.html": "b76b576034fc4b5665493217696a7d6292ae8b86b6dcc68307e363b9d7346bb8",
+    "report.html": "a2a597a4be7eda092987576d985b5267c9fe42d77d859cc5944869f9b44d666c",
     "tables/fold_metrics.csv": "56f70e614a7aba1523cd881585ddd911b6df2baa166b39f15d8eab2c20961d26",
     "tables/retrospective_by_group.csv": "9efc84ddf19f9f84531686cbf727f20c61d4262643d0cfeac58c7433eee1bdc4",
     "tables/retrospective_metrics.csv": "c00467414b59c5324009e163afe82fd7ef36396d185dc9d6c996076c9b19676a",
     "tables/storage_reference_audit.csv": "53f3d3fe16186d006eb1851cf7541c5bc1e0a86c476572a403ec54a02e21cce9",
     "tables/validation_comparison.csv": "1b8d093b018b1918cc180c421a0dcbad16c078facf76993ff785dfcf566fe5e7",
-    "metadata.json#report_refresh": "a6670b6ee0ded393c7c02e51a0437a48c2efd6106a2869e4fcbac834e78ce308",
+    "metadata.json#report_refresh": "3092b548976bfb02d2c9366e68b4215f0028f338ab771bfd7bc92939d352a3e0",
     "metadata.json#summary": "25e9f2677f36d33ed4d3a1928d712b445f7320f85ad923d4dc6081131209583c",
     "metadata.json#selection": "6c57626865f3d43347998902cf7be70e5e6b5c9e2db789ef01d12eb2e576bc0b",
     "metadata.json#provenance": "3d00eff0b1b78e9a8ffde32e300e07ed1b88d449ac897632d34190d421fa9eae",
@@ -536,7 +536,7 @@
     "metadata.json#folds": "93260d23a228570970fb9579dcbe7791d4061c910d2264ab05f22ac9f9c15e0f",
     "metadata.json#validation": "0783e5ba12f6c00bbead1260de5d152efa629a819abf43708ee1dda924435979",
     "metadata.json#workflow_validation": "af0e087c83a34fe932b5e3365bff68729db25ddad5d79f5e978f3e635a429873",
-    "../../modeling.md": "2195b379d1b02ca97662851b45132bbbab68043808bc76e3db058fd9dbac94db"
+    "../../modeling.md": "0ac9803026a453aec67c4da8fc54682def4dab98d5dfa666aec532b692bdc409"
   },
   "config": {
     "run": "asking_price_v2",

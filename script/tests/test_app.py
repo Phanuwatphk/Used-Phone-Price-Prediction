@@ -171,6 +171,15 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertTrue(any('ยังไม่รองรับ' in warning.value for warning in app.warning))
 
     def test_explorer_filters_and_empty_state_preserve_input(self):
+        # The explorer must report only the training scope without changing its input.
+        with self.dataset.open(newline='') as handle:
+            reader = csv.DictReader(handle)
+            fields, rows = reader.fieldnames, list(reader)
+        extra = dict(rows[0], condition='new', price_thb='1000000', source='ennxo')
+        with self.dataset.open('w', newline='') as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows([*rows, extra])
         before = self.dataset.read_bytes()
         app = AppTest.from_file(str(APP), default_timeout=20).run()
         app.radio(key='navigation').set_value('สำรวจข้อมูล').run()
@@ -216,13 +225,13 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertEqual(len(app.metric), 3)
             self.assertIn('ผลย้อนหลัง', app.info[0].value)
             self.assertEqual(set(app.dataframe[0].value['เว็บ']), {'ENNXO', 'Mac2Hand'})
-            self.assertTrue(any('ตัวชี้วัดและผลการประเมิน' in item.label for item in app.expander))
+            self.assertTrue(any('ผลประเมินย้อนหลัง' in item.label for item in app.expander))
             rendered = '\n'.join(item.value for item in app.markdown)
             self.assertIn('https://github.com/Phanuwatphk/Used-Phone-Price-Prediction/blob/main/docs/modeling.md#7-', rendered)
             self.assertIn('https://github.com/Phanuwatphk/Used-Phone-Price-Prediction/blob/main/docs/project.md', rendered)
-            self.assertIn('Median absolute error', rendered)
-            self.assertIn('ยังไม่ได้ทำ t-test', rendered)
-            self.assertEqual(len(app.get('image')), 5)
+            self.assertIn('RMSE (บาท)', rendered)
+            self.assertIn('ไม่มีการทดสอบนัยสำคัญทางสถิติ', rendered)
+            self.assertEqual(len(app.get('image')), 4)
 
     def test_explorer_axes_start_at_zero_for_full_and_filtered_data(self):
         import pandas as pd

@@ -33,7 +33,7 @@
 |---|---|
 | `data/raw/` | HTML บัญชีประกาศ checkpoint/log ต้นฉบับ |
 | `data/intermediate/` | extraction, clean, review, lineage, ชุดก่อนคัด, split และ predictions |
-| `data/final/dataset.csv` | ชุดหลัก 13 คอลัมน์ 9,210 แถว รวมสองเว็บ |
+| `data/final/dataset.csv` | แฟ้มต้นทาง 13 คอลัมน์ รวมสองเว็บ สำหรับเตรียมชุดฝึก |
 | `data/final/condition_features.csv` | listing_id + แบตเตอรี่/ประกันวัน/กล่อง; ว่างคือไม่ทราบ |
 | `config/` | schema กฎ alias นโยบาย catalog และแผนทดลอง |
 | `models/asking_price_v2/` | operational/evaluation artifacts และ metadata/checksums |
@@ -46,7 +46,7 @@ Path/hash ใน metadata และ `docs/history/` บันทึกตำแ�
 
 CI ตรวจ dependencies, syntax, การสร้าง features จากข้อมูลที่เผยแพร่ และ tests แบบ offline รวมฟอร์มเว็บ ความตรงกันของ dataset/โมเดล ลิงก์เอกสาร และ checksum รายงาน การตรวจนี้ไม่เก็บข้อมูลจากเว็บหรือฝึกโมเดลจริง
 
-ข้อมูลดิบ ผลระหว่างทาง และหลักฐานรายแถวเก็บแยกจากข้อมูลสุดท้าย ชุดเผยแพร่มี dataset 9,210 แถว ข้อมูลแบตเตอรี่/ประกัน/กล่อง และ metadata ส่วนโมเดลใช้งานมี binary กับ metadata ที่ตรวจ checksum คู่กัน
+ข้อมูลดิบ ผลระหว่างทาง และหลักฐานรายแถวเก็บแยกจากข้อมูลสุดท้าย ชุดฝึกปัจจุบันมี 9,100 ประกาศ พร้อมข้อมูลแบตเตอรี่และกล่องที่ทราบ ส่วนโมเดลใช้งานมี binary กับ metadata ที่ตรวจ checksum คู่กัน
 
 <a id="model-artifacts"></a>
 
@@ -54,13 +54,15 @@ CI ตรวจ dependencies, syntax, การสร้าง features จา�
 
 | ไฟล์ใน models/asking_price_v2/ | เก็บอะไร |
 |---|---|
-| `model.joblib` | โมเดลใช้งาน ฝึกครบ 9,100 แถวมือสอง / 281 รุ่น ถึง 2026-10-06 ไม่มีคะแนนทดสอบอิสระ |
-| `evaluation.joblib` | fit 8,418 แถวมือสองก่อน cutoff สำหรับผลย้อนหลังบนมือสอง 682 แถว |
+| `model.joblib` | โมเดลใช้งาน ฝึกครบ 9,100 แถวในชุดฝึกปัจจุบัน / 281 รุ่น ถึง 2026-10-06 ไม่มีคะแนนทดสอบอิสระ |
+| `evaluation.joblib` | fit 8,418 แถวก่อน cutoff สำหรับผลย้อนหลังบนชุดประเมิน 682 แถว |
 | `metadata.json` | input/code/catalog/model hashes, versions และบทบาทของแต่ละ artifact |
 
 V1 และ evaluation.joblib เป็นหลักฐานย้อนหลังแยกจากโมเดลใช้งาน V2; metadata เก็บ checksum และ feature contract ของแต่ละโมเดล ผลและข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
 
-โครงการมี Model Version 1 เป็น baseline และ Model Version 2 เป็นโมเดลใช้งานปัจจุบัน การปรับฟีเจอร์/น้ำหนักโมเดลทั้งหมดนับเป็นการพัฒนาภายใน V2 โดยใช้ `model_v2/train_improved.py` และ `models/asking_price_v2/` โมเดล V2 ใช้ 13 ฟีเจอร์แบบ source-free ฝึกเฉพาะ used และใช้ condition ตรวจขอบเขตเท่านั้น:
+เผยแพร่ `models/asking_price_v1/model.joblib` พร้อม metadata ของ V1 และ `models/asking_price_v2/evaluation.joblib` พร้อมโมเดลใช้งาน V2 เพื่อให้โหลดตรวจสอบซ้ำได้ เอกสารทบทวนและผลทดลอง 2/5 ช่วงอยู่ใน [โฟลเดอร์ .local](../.local/)
+
+โครงการมี Model Version 1 เป็น baseline และ Model Version 2 เป็นโมเดลใช้งานปัจจุบัน การปรับฟีเจอร์และน้ำหนักโมเดลนับเป็นการพัฒนาภายใน V2 โดยใช้ `model_v2/train_improved.py` และ `models/asking_price_v2/` โมเดล V2 ใช้ข้อมูล 9,100 ประกาศและ 13 ฟีเจอร์ ไม่ใช้ source หรือ condition เป็นฟีเจอร์:
 
 | ไฟล์ | หน้าที่ |
 |---|---|
@@ -69,7 +71,7 @@ V1 และ evaluation.joblib เป็นหลักฐานย้อนห�
 | `script/modeling/trend.py` | estimator สำหรับ trend, age normalization และ ensemble; ไม่รันแยก |
 | `docs/assets/modeling/history.zip` | รายงาน กราฟ ตาราง และ config ของ Model Version 1 |
 
-ผลเปรียบเทียบภายใน V2 อยู่ใน `docs/assets/modeling/tables/validation_comparison.csv` ส่วน [ประวัติโมเดล](modeling.md#11-ประวัติการพัฒนาโมเดล) แสดงเพียง V1 และ V2 การฝึกหลักเลือกสัดส่วน ensemble ด้วย validation แล้ว refit evaluation/operational ไม่ใช้ราคา test เป็น feature
+ผลเปรียบเทียบภายใน V2 อยู่ใน `docs/assets/modeling/tables/validation_comparison.csv` ส่วน [ประวัติโมเดล](modeling.md#10-ประวัติการพัฒนาโมเดล) แสดงเพียง V1 และ V2 การฝึกหลักเลือกสัดส่วน ensemble ด้วย validation แล้ว refit evaluation/operational ไม่ใช้ราคา test เป็น feature
 
 <a id="archive"></a>
 
@@ -118,7 +120,7 @@ V1 และ evaluation.joblib เป็นหลักฐานย้อนห�
 
 ฟอร์มรับยี่ห้อ รุ่น ความจุ วันที่ประกาศ และข้อมูลเพิ่มเติมที่ทราบ ได้แก่แบตเตอรี่และกล่อง ความจุเปลี่ยนตามรุ่น iPhone ใช้สเปกจาก Apple ส่วนรุ่นอื่นใช้ค่าที่พบใน dataset โมเดลคำนวณกลุ่มรุ่นและอายุรุ่นให้เอง ไม่ถามประกันในโมเดลปัจจุบันเพราะข้อมูลที่มีชัดเจนน้อย
 
-หน้าเว็บไม่ส่ง source ให้โมเดลปัจจุบัน ส่วน condition=used ใช้ยืนยันขอบเขตและไม่เป็นฟีเจอร์ โมเดลยังไม่มี feature ความเสียหาย รอยตำหนิ หรือประวัติซ่อม ฟอร์มจึงไม่ประเมินเมื่อเลือกเครื่องจอแตก/เสีย/ล็อก แสดงจำนวนประกาศมือสองรุ่น/ความจุเดียวกันพร้อมวันที่ล่าสุด และเตือนเมื่อข้อมูลน้อย กราฟสำรวจราคา/จำนวนเริ่มที่ศูนย์ ส่วนกราฟความคลาดเคลื่อนแสดงค่าบวกและลบตามจริง
+หน้าเว็บไม่ส่ง source ให้โมเดลปัจจุบัน ส่วน condition=used เป็นค่าที่ส่งภายในตามชุดฝึกปัจจุบันและไม่เป็นฟีเจอร์ ไม่ใช้ค่านี้รับรองว่าเป็นมือหนึ่งหรือมือสอง โมเดลยังไม่มี feature ความเสียหาย รอยตำหนิ หรือประวัติซ่อม ฟอร์มจึงไม่ประเมินเมื่อเลือกเครื่องจอแตก/เสีย/ล็อก แสดงจำนวนประกาศมือสองรุ่น/ความจุเดียวกันพร้อมวันที่ล่าสุด และเตือนเมื่อข้อมูลน้อย กราฟสำรวจราคา/จำนวนเริ่มที่ศูนย์ ส่วนกราฟความคลาดเคลื่อนแสดงค่าบวกและลบตามจริง
 
 ลิงก์รายงานในหน้าเว็บชี้ไปยังไฟล์และหัวข้อที่ตรงกันใน GitHub ส่วน HTML ที่ดาวน์โหลดใช้ anchor ภายในสำหรับข้ามหัวข้อ และลิงก์ GitHub สำหรับไฟล์ประกอบ
 
@@ -170,7 +172,7 @@ Sidebar อยู่กับที่และไม่มีการเลื
 
 โมดูลประกอบ: ENNXO `cleaning_rules.py` เก็บกฎตรวจฟิลด์, `description_sections.py` แยกส่วนรายละเอียด; Mac2Hand `resolution_rules.py` เก็บกฎตรวจหลักฐานขั้นส่งมอบ โมดูลเหล่านี้ไม่รันแยก
 
-ขั้นคัดชุดโมเดลใช้ `shared/select_model_input.py` อ่าน [วิธีทำและหน้าที่ไฟล์](data.md#stage-model_input) ได้ชุด 9,210 แถว ก่อน [ขั้นโมเดล](#scripts-modeling)
+ขั้นคัดชุดโมเดลใช้ `shared/select_model_input.py` อ่าน [วิธีทำและหน้าที่ไฟล์](data.md#stage-model_input) ได้แฟ้มต้นทางหลังคัด EDA ก่อน [ขั้นโมเดล](#scripts-modeling)
 
 <a id="scripts-analysis"></a>
 
@@ -185,7 +187,7 @@ Sidebar อยู่กับที่และไม่มีการเลื
 | `eda/run_eda.py` | ชุดรวมทั้งสองเว็บ ตรวจ CSV/JSONL/lineage แล้วสร้างรายงานและคิวตรวจ |
 | `eda/eda_statistics.py` | สถิติ IQR รายกลุ่ม candidate ซ้ำ Spearman และ sensitivity; ไม่รันแยก |
 | `eda/eda_plots.py` | สร้างกราฟ PNG/SVG แบบ offline; ไม่รันแยก |
-| `eda/refresh_model_input_eda.py` | สรุปชุดเผยแพร่/ชุดฝึกมือสอง ความครอบคลุมข้อมูลเพิ่มเติม และช่วงปีจากข้อมูล public โดยไม่ใช้ raw |
+| `eda/refresh_model_input_eda.py` | สรุปชุดฝึกปัจจุบัน ความครอบคลุมข้อมูลเพิ่มเติม และช่วงปีจากข้อมูล public โดยไม่ใช้ raw |
 
 อ่าน dataset จาก `data/intermediate/combined/<รอบ>/before_selection/`, lineage/audit จาก `data/intermediate/combined/<รอบ>/audit/` และข้อความเต็มจาก `data/intermediate/mac2hand/<รอบ>/finalization/mac2hand_final.jsonl` ตรวจข้อความให้ตรงค่าต้นทางก่อนใช้ กฎอยู่ที่ `config/shared/eda_rules.json`
 
@@ -320,10 +322,10 @@ Schema ไม่เปลี่ยนคำตัดสิน source cleaner ร
 
 | ไฟล์ใน modeling/ | หน้าที่ |
 |---|---|
-| `current.json` | Model V2: 2 forward folds, 3 สัดส่วน ensemble ที่เลือกได้ และ 3 ตัวเปรียบเทียบประกอบ, ขอบเขต used, เหตุผลฟีเจอร์, recency weights, catalog/sidecar hashes และการประเมินย้อนหลัง |
+| `current.json` | Model V2: 2 forward folds, 3 สัดส่วน ensemble ที่เลือกได้ และ 3 ตัวเปรียบเทียบประกอบ, ชุดฝึกปัจจุบัน, เหตุผลฟีเจอร์, recency weights, catalog/sidecar hashes และการประเมินย้อนหลัง |
 | `experiments.json` (revision/age_transfer/ensemble) | กลุ่มทดลองแยก loss/trend, age normalization และ ensemble; outputs แยก run |
 | `iphone_release_years.json` | ปีเปิดตัวจาก Apple ไม่ใช้ target ใน dataset เป็นที่มา |
-| `experiments.json` (baseline) | รอบ V1: SHA-256 ชุด 9,210 แถว, split ตามเวลา, seed, threads และพารามิเตอร์ 15 ตัวเลือก |
+| `experiments.json` (baseline) | รอบ V1: SHA-256 ข้อมูลต้นทาง, split ตามเวลา, seed, threads และพารามิเตอร์ 15 ตัวเลือก |
 
 เลือกจาก validation MAE แล้ว refit ก่อนประเมิน รอบ V1 ไม่ปรับโมเดลตาม test; V2 ใช้ test เดิมที่ดูแล้ว จึงเป็นผลย้อนหลัง สำหรับทดลองใหม่เปลี่ยน run และปลายทาง เก็บผลแต่ละรอบแยกกัน อ่าน [วิธีและผลโมเดล](modeling.md)
 

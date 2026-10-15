@@ -1,0 +1,237 @@
+{
+  "model_version": 2,
+  "designs": {
+    "two_windows": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-21"
+      },
+      {
+        "start": "2024-05-22",
+        "end": "2025-01-07"
+      }
+    ],
+    "five_windows": [
+      {
+        "start": "2024-01-01",
+        "end": "2024-05-14"
+      },
+      {
+        "start": "2024-05-15",
+        "end": "2024-05-30"
+      },
+      {
+        "start": "2024-05-31",
+        "end": "2024-08-06"
+      },
+      {
+        "start": "2024-08-07",
+        "end": "2024-11-26"
+      },
+      {
+        "start": "2024-11-27",
+        "end": "2025-01-08"
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "name": "used_core_blend_cat_share_0.25",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.25_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.25_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.75,
+        0.25
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
+    },
+    {
+      "name": "used_core_blend_cat_share_0.5",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.5_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.5_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.5,
+        0.5
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
+    },
+    {
+      "name": "used_core_blend_cat_share_0.75",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.75_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.75_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.25,
+        0.75
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
+    }
+  ],
+  "validation_rows": 955,
+  "test_cutoff": "2025-01-09",
+  "five_window_policy": "Date-only row quantiles; all listings on a day stay together; same validation IDs and horizon as two windows.",
+  "selection": "Pooled validation MAE; test not used for selecting either weight.",
+  "input_hashes": {
+    "config/modeling/current.json": "49b9d5d9670edd33643fb2ccf19cd3633c49a368cf21f8cf57c552385ee341cb",
+    "data/final/dataset.csv": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
+    "data/final/condition_features.csv": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66",
+    "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "models/asking_price_v2/model.joblib": "ebb745860d4e6c95036069f358f8dfa7229689cf2ab1ed38b76bb12d3712e9e0",
+    "models/asking_price_v2/evaluation.joblib": "77d04d482a673d5e9e6bdb786243d37d7fcb60bddc459d2c1f51d2efcdd6dc8a",
+    "models/asking_price_v2/metadata.json": "3d00eff0b1b78e9a8ffde32e300e07ed1b88d449ac897632d34190d421fa9eae",
+    "docs/assets/modeling/metadata.json": "a3bab2b5735b2651ebe98f4c5eb2b8dadf8c4f9e34dc1adbc13a171c5d2b6b07"
+  },
+  "script_sha256": "e738884dc80cf6f884c70fbaba9c65d906cffca3a557faf28054221e780e7311"
+}

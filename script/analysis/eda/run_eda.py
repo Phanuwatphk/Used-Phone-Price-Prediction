@@ -197,7 +197,7 @@ def make_reports(summary, figures, report):
             registry = json.loads(registry_path.read_text(encoding='utf-8'))
             current = registry.get('model_input_dataset')
             if current:
-                status = (f"รายงานนี้สำรวจ {total:,} แถวก่อนคัด ชุดใช้งานปัจจุบันมี {current['records']:,} แถว "
+                status = (f"รายงานนี้สำรวจ {total:,} แถวก่อนคัด ข้อมูลต้นทางปัจจุบันอยู่ใน data/final/ "
                           "อ่าน [ขั้นตอนคัดข้อมูล](data.md#stage-model_input) และ [ผลโมเดล](modeling.md) "
                           "คิว EDA เดิมปิดแล้ว ข้อเสนอในรายงานเป็นบันทึก ณ รอบสำรวจ ไม่ใช่คิวที่ต้องทำต่อ")
                 title, body = markdown.split('\n', 1)

@@ -83,20 +83,20 @@ class ModelReportTests(unittest.TestCase):
         report = ROOT / 'docs/assets/modeling'
         summary = read_metadata(report, 'summary')
         content = (ROOT / 'docs/modeling.md').read_text()
-        for key in ['mae_thb', 'rmse_thb', 'median_absolute_error_thb', 'mape_pct', 'bias_thb']:
+        for key in ['mae_thb', 'rmse_thb']:
             self.assertIn(f"{summary['retrospective'][key]:,.2f}", content)
-        self.assertIn('ไม่มี test statistic/p-value', content)
+        self.assertIn('ไม่มีการทดสอบนัยสำคัญทางสถิติ', content)
         self.assertIn('ไม่ใช่ holdout ใหม่', content)
         self.assertFalse(has_metadata(report, 'summary_text'))
         parser = ReportParser()
         parser.feed((report / 'report.html').read_text())
-        self.assertEqual(len(parser.images), 5)
+        self.assertEqual(len(parser.images), 4)
         self.assertTrue(all(src.startswith('data:image/png;base64,') for src in parser.images))
         self.assertGreaterEqual(parser.headings, 9)
         self.assertGreaterEqual(parser.tables, 5)
-        # Formula cells must not accidentally introduce extra Markdown table columns.
-        rows = [line for line in content.splitlines() if line.startswith('| MAE |')]
-        self.assertEqual(rows[0].count('|'), 5)
+        # The main comparison keeps one column per model and metric.
+        rows = [line for line in content.splitlines() if line.startswith('| MAE (บาท) |')]
+        self.assertEqual(rows[0].count('|'), 4)
 
 
 if __name__ == '__main__':

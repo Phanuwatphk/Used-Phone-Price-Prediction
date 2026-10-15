@@ -125,7 +125,8 @@
     "feature_version": 2,
     "feature_count": 13,
     "model_version": 2,
-    "source_free": true
+    "source_free": true,
+    "evaluation_model_included_in_git": true
   },
   "modeling_history": {
     "asking_price_v1": {
@@ -140,7 +141,7 @@
       "report": "docs/assets/modeling/history.zip#asking_price_v1/report.md",
       "config": "config/modeling/experiments.json#baseline",
       "status": "trained_evaluated",
-      "model_included_in_git": false
+      "model_included_in_git": true
     }
   },
   "layout_version": 2,

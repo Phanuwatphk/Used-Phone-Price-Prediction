@@ -108,7 +108,7 @@ class EDAWorkflowTests(unittest.TestCase):
                 first = document.read_text()
                 run_eda.make_reports(summary, [], report)
             self.assertIn(appendix, first)
-            self.assertIn('ชุดใช้งานปัจจุบันมี 1 แถว', first)
+            self.assertIn('ข้อมูลต้นทางปัจจุบันอยู่ใน data/final/', first)
             self.assertEqual(first, document.read_text())
             self.assertFalse(has_metadata(report, 'report_text'))
             self.assertFalse(has_metadata(report, 'summary_text'))

@@ -2,11 +2,11 @@
 
 <a id="current-dataset"></a>
 
-**ชุดใช้ต่อคือ [data/final/dataset.csv](../data/final/dataset.csv) จำนวน 9,210 แถว**: ENNXO 1,202 และ Mac2Hand 8,008 มี source ทุกแถวและ schema กลาง 13 คอลัมน์ เป็นชุดก่อน split ที่ใช้ฝึกแล้ว ส่วนชุดรวม 10,032 แถวเป็นข้อมูลก่อนคัด เก็บเป็นประวัติใน intermediate
+**โมเดล V2 ใช้ข้อมูลมือถือมือสอง 9,100 ประกาศ**: ENNXO 1,092 และ Mac2Hand 8,008 อ่านข้อมูลต้นทางจาก [data/final/dataset.csv](../data/final/dataset.csv) ตามขอบเขตที่กำหนดในแผนฝึก มี source ทุกแถวและ schema กลาง 13 คอลัมน์ ส่วนชุดรวมก่อนคัดเก็บเป็นประวัติใน intermediate
 
 [datasets.json](../data/datasets.json) ระบุ path/จำนวนและ `default_dataset: model_input_dataset` ไฟล์หลักพร้อมไฟล์กำกับใน final รวมใน Git; raw, intermediate และ final เฉพาะเว็บเก็บในเครื่อง ตารางอธิบายทุกไฟล์อยู่ในหัวข้อด้านล่าง
 
-`data/final/condition_features.csv` เป็น sidecar 9,210 แถว: listing_id + battery_health_pct/warranty_days/box_mentioned ไม่มีข้อความหรือข้อมูลติดต่อ ใช้ rebuild V2 หลัง clone โดยคง schema ชุดหลักเดิม ค่าว่างคือไม่ทราบ อ่าน [การใช้ features และโมเดล](modeling.md)
+`data/final/condition_features.csv` เป็น sidecar จับคู่ด้วย listing_id มี battery_health_pct/warranty_days/box_mentioned ไม่มีข้อความหรือข้อมูลติดต่อ ใช้สร้างฟีเจอร์ V2 โดยคง schema ชุดหลักเดิม ค่าว่างคือไม่ทราบ อ่าน [การใช้ features และโมเดล](modeling.md)
 
 ข้อจำกัดที่ตรวจเพิ่ม: พบ 15 แถวที่ความจุประกาศไม่อยู่ในสเปก iPhone ของรุ่นที่ normalize ไว้ ยังไม่ยืนยันว่ารุ่นหรือความจุผิด จึงคงข้อมูลเดิมและบันทึกไว้ใน [ผลตรวจความจุ](assets/modeling/tables/storage_reference_audit.csv) หน้าเว็บใช้ตัวเลือกความจุจากผู้ผลิตแล้ว การผ่าน clean หมายถึงผ่านกฎและหลักฐานของ snapshot ไม่ใช่การยืนยันสภาพเครื่องหรือทุกสเปกจากผู้ผลิต
 
@@ -17,9 +17,10 @@
 | หัวข้อ | เนื้อหา |
 |---|---|
 | [ภาพรวมวิธีดำเนินงาน](#workflow) | ลำดับตั้งแต่เก็บข้อมูลจนฝึกโมเดล |
+| [ขั้นตอนการ scrape](#workflow-1-เก็บข้อมูลและรักษาต้นฉบับ) | วิธีเก็บข้อมูลแต่ละเว็บและผลลัพธ์ |
 | [ENNXO](#ennxo) | เก็บ raw, audit, extraction, clean และ review พร้อมหลักฐาน |
 | [Mac2Hand](#mac2hand) | เก็บรายละเอียด, clean, review และส่งมอบ |
-| [รวมและคัดข้อมูล](#stage-combined_dataset) | schema กลาง ตรวจรายเว็บ และคัดชุด 9,210 แถว |
+| [รวมและคัดข้อมูล](#stage-combined_dataset) | schema กลาง ตรวจรายเว็บ และคัดชุดก่อนฝึก |
 | [รายการไฟล์ตามขั้น](#stage-data_guide) | แต่ละไฟล์เก็บอะไร อยู่ raw/intermediate/final ไหน |
 
 รายละเอียดรายเว็บอยู่ในหัวข้อที่กดเปิดได้ด้านล่าง ตัวเลขระหว่างทางเป็นบันทึกย้อนหลัง ไม่ใช่คิวที่ต้องทำต่อ หน้าที่เครื่องมือและ config อ่านใน [ภาพรวมโครงการ](project.md)
@@ -34,14 +35,21 @@
 
 ### 1. เก็บข้อมูลและรักษาต้นฉบับ
 
-เก็บหน้าหมวดทุกหน้าเพื่ออ่านการ์ดและ URL แล้วอ่านรายละเอียดรายสินค้า ENNXO ใช้ข้อมูลที่ฝังในหน้าและ HTML; Mac2Hand อ่าน Product JSON-LD ที่รหัสตรงกับประกาศร่วมกับข้อความรายละเอียด
+ใช้ Python โดย `requests` ดาวน์โหลด HTML และ `BeautifulSoup` อ่านโครงสร้างหน้าเว็บร่วมกับข้อมูล JSON ที่ฝังในหน้า โดยไม่รัน JavaScript
 
-| เว็บ | หน้าหมวด / ประกาศ | สคริปต์หลักใน script/scraper/ |
-|---|---|---|
-| ENNXO | 58 หน้า / 1,381 ประกาศ | `ennxo/collect_ennxo.py` |
-| Mac2Hand | 171 หน้า / 10,220 ประกาศ | `mac2hand/run_mac2hand_collection.py` |
+1. **รวบรวมประกาศจากหน้าหมวด** ไล่ตาม pagination จนถึงหน้าสุดท้าย เก็บรหัสประกาศและ URL เพื่อจับคู่ข้อมูลแต่ละรายการ
+2. **อ่านรายละเอียดสินค้า** ENNXO จับคู่การ์ดกับข้อมูล JSON ที่ฝังใน HTML หน้าหมวด ส่วน Mac2Hand เปิดหน้ารายสินค้าและเลือก Product JSON-LD ที่ `sku` ตรงกับรหัสประกาศ ร่วมกับข้อความรายละเอียดผู้ขาย
+3. **บันทึกข้อมูลต้นทาง** เก็บชื่อสินค้า ราคา วันประกาศ สภาพ รายละเอียด และยี่ห้อ/รุ่น/ความจุตามที่เว็บไซต์ระบุ พร้อม URL ประกาศ ลิงก์รูปภาพ แหล่งที่มา และเวลาเก็บในเขตเวลา Asia/Bangkok
+4. **รักษาหลักฐานและความคืบหน้า** เก็บ HTML ใน `data/raw/<รอบ>/` และบัญชีประกาศใน `listings.jsonl` พร้อม checkpoint สำหรับรันต่อและบันทึกข้อผิดพลาด ใช้ไฟล์ที่เก็บแล้วเมื่อรันต่อ และหน่วงคำขอใหม่ประมาณ 2 วินาที
+5. **ส่งต่อไปตรวจและทำความสะอาด** อ่านไฟล์ดิบแบบ offline ตรวจความครบถ้วนและรหัสประกาศ ก่อนปรับรูปแบบและคัดข้อมูลตามกฎ โดยไม่แก้ไขต้นฉบับ
 
-HTML อยู่ `data/raw/<รอบ>/{pages,details}/`; `listings.jsonl` เก็บบัญชีประกาศ พร้อม manifest/checkpoint สำหรับ cache และรันต่อ Mac2Hand เว้นอย่างน้อย 2 วินาทีระหว่าง request ใหม่ สำเร็จ 10,137 รายละเอียดและล้มเหลว 83 ตาม snapshot ไม่อ้างว่าเป็นข้อมูลทุกประกาศบนเว็บตลอดเวลา
+| เว็บไซต์และหมวด | หน้าหมวด | ประกาศดิบ | สคริปต์หลักใน `script/scraper/` |
+|---|---:|---:|---|
+| ENNXO — มือถือหลายยี่ห้อ | 58 | 1,381 | `ennxo/collect_ennxo.py` |
+| Mac2Hand — iPhone | 171 | 10,220 | `mac2hand/run_mac2hand_collection.py` |
+| **รวม** | **229** | **11,601** | |
+
+จำนวนดังกล่าวเป็นประกาศที่พบในรอบเก็บวันที่ 5–6 ตุลาคม 2026 ไม่ใช่ทุกประกาศที่เคยมีบนเว็บไซต์ ENNXO มีรายละเอียดฝังในหน้าหมวดครบ 1,381 ประกาศ ส่วน Mac2Hand เก็บหน้ารายละเอียดสำเร็จ 10,137 รายการ และล้มเหลว 83 รายการ จำนวนประกาศดิบจึงไม่ใช่จำนวนข้อมูลที่ผ่านเกณฑ์พร้อมฝึกโมเดล
 
 <a id="workflow-2-ตรวจ-ถอดข้อมูล-และ-clean-แยกเว็บ"></a>
 
@@ -67,7 +75,7 @@ HTML อยู่ `data/raw/<รอบ>/{pages,details}/`; `listings.jsonl` เ�
 
 ### 4. คัดชุดสำหรับโมเดล
 
-ตามนโยบายโครงการ ตัดสมาชิกคิว EDA **822 แถว** รวมเหตุผลที่ซ้อนกันก่อนนับ ใช้ `script/preparation/shared/select_model_input.py` และ `config/shared/model_input_policy.json` เหลือ **9,210 แถว** (ENNXO 1,202 / Mac2Hand 8,008) ที่ `data/final/dataset.csv` บันทึกเหตุผลของทุกแถวและคงต้นฉบับไว้
+ตามนโยบายโครงการ ตัดสมาชิกคิว EDA **822 แถว** รวมเหตุผลที่ซ้อนกันก่อนนับ ใช้ `script/preparation/shared/select_model_input.py` และ `config/shared/model_input_policy.json` ได้แฟ้มต้นทางหลังคัด EDA ที่ `data/final/dataset.csv` บันทึกเหตุผลของทุกแถวและคงต้นฉบับไว้
 
 การคัดใช้ EDA ทั้ง snapshot ก่อน split คะแนนจึงอธิบายประชากรหลังคัดนี้ ไม่ใช่ประกาศทุกชนิดบนเว็บ
 
@@ -812,7 +820,7 @@ CSV ทุกกลุ่มมี `hold_reasons`, `exclusion_reasons`, `notes`,
 | `product_id`, `url` | string เก็บรหัส/URL เดิม ไม่ใช้รหัสเป็นตัวเลขฟีเจอร์ |
 | `brand`, `model` | string ชื่อยี่ห้อและรุ่นหลังปรับรูปแบบ |
 | `storage_gb` | integer ความจุ GB ที่ source cleaner อ่านได้ |
-| `condition` | used/new ตามช่องผู้ขาย ไม่ใช่ผลตรวจเครื่องจริง |
+| `condition` | ป้ายสภาพ used/new ตามผู้ขายในตลาดมือสอง ไม่ใช่ผลตรวจเครื่องจริงหรือการยืนยันมือหนึ่ง/มือสอง |
 | `price_thb` | number ราคาตั้งขายเต็มเป็นบาท ไม่ใช่ราคาปิดการขาย |
 | `published_at` | วัน `YYYY-MM-DD` มาตรฐาน Asia/Bangkok |
 | `published_at_raw` | วันที่/เวลาเดิมก่อนแปลง |
@@ -850,13 +858,13 @@ dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provena
 | `normalization_changes.json` | ค่าที่เปลี่ยนก่อน/หลัง เช่นรูปแบบชื่อรุ่น ราคา และวัน |
 | `metadata.json` | schema: สำเนา schema/alias ที่ใช้กับรอบนี้; summary/report_text: จำนวนรวม สัดส่วนและสรุปข้อจำกัด; validation: ผลตรวจจำนวน source key ฟิลด์ และข้อมูลเข้าไม่เปลี่ยน; provenance: เวลา โค้ด/schema/input hashes บัญชี input และ hash dataset |
 
-ผ่าน 110 tests รวม source ที่ขาด/ขัดกัน URLไม่ตรง ตัวเลข/วันไม่ถูกต้อง namespace รหัส การไม่เปลี่ยน input การเก็บ lineage และทำซ้ำผล CSV รัน workflow จริงจาก `/tmp` ได้
+ตรวจด้วย tests ครอบคลุม source ที่ขาด/ขัดกัน URLไม่ตรง ตัวเลข/วันไม่ถูกต้อง namespace รหัส การไม่เปลี่ยน input การเก็บ lineage และทำซ้ำผล CSV รัน workflow จริงจาก `/tmp` ได้
 
 <a id="stage-model_input"></a>
 
 ## คัดชุดข้อมูลก่อนเทรน
 
-ผู้ใช้เลือกตัดคิว EDA ทั้งหมดและหยุดตรวจต่อ เมื่อ 2026-10-11 สร้างชุด 9,210 แถวจากชุดรวม 10,032 แถว ไม่เปลี่ยน source dataset หรือผล EDA เดิม ราคาคือราคาตั้งขาย สภาพคือช่องที่ผู้ขายระบุ
+ผู้ใช้เลือกตัดคิว EDA ทั้งหมดและหยุดตรวจต่อ เมื่อ 2026-10-11 คัดแฟ้มต้นทางจากชุดรวม 10,032 แถว ไม่เปลี่ยน source dataset หรือผล EDA เดิม ราคาคือราคาตั้งขาย สภาพคือช่องที่ผู้ขายระบุ
 
 ### หลักฐานและผลลัพธ์
 
@@ -871,7 +879,7 @@ dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provena
 | `.../price_extremes.csv` | ราคาสูงสุด 5 รายการต่อเว็บ รวม 10 แถว |
 | `config/shared/model_input_policy.json` | นโยบายที่ผู้ใช้เลือก expected counts และ hash ของข้อมูลเข้าทุกไฟล์ |
 
-สร้าง set ของ listing_id จากทั้ง 3 คิว แล้วตัด union822 รหัส มี 10memberships ที่ซ้อนคิว จึงไม่บวก 205+617+10 เป็นจำนวนแถวที่ตัด ราคา extremes มี 6 แถวเพิ่มจาก union ของ IQR กับข้อความ ตัดสมาชิกทุกแถวของกลุ่มข้อความ ไม่เลือกตัวแทน ไม่ยืนยันว่าเครื่องเดียวกันหรือราคาผิดจริง คงลำดับและค่าของแถวที่เก็บทั้ง 9,210 แถว
+สร้าง set ของ listing_id จากทั้ง 3 คิว แล้วตัด union822 รหัส มี 10memberships ที่ซ้อนคิว จึงไม่บวก 205+617+10 เป็นจำนวนแถวที่ตัด ราคา extremes มี 6 แถวเพิ่มจาก union ของ IQR กับข้อความ ตัดสมาชิกทุกแถวของกลุ่มข้อความ ไม่เลือกตัวแทน ไม่ยืนยันว่าเครื่องเดียวกันหรือราคาผิดจริง คงลำดับและค่าของแถวที่เก็บหลังคัด
 
 ### ผลลัพธ์และแต่ละไฟล์
 
@@ -879,7 +887,7 @@ dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provena
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
-| `dataset.csv` | 9,210 แถว 13 คอลัมน์ พร้อม source ENNXO1,202 / Mac2Hand8,008 |
+| `dataset.csv` | แฟ้มต้นทางหลังคัด EDA มี 13 คอลัมน์พร้อม source |
 | `condition_features.csv` | listing_id และแบตเตอรี่/ประกันวัน/กล่อง; ไม่ทราบเป็นค่าว่าง |
 | `metadata.json` | schema กลาง, policy ที่ใช้คัด, summary ก่อน/หลัง, report_text, validation และ provenance (เวลา code/policy/input/dataset hashes) |
 
@@ -887,10 +895,10 @@ dataset CSV/JSONL, schema, metadata.json (summary/report_text/validation/provena
 
 | ไฟล์ | เก็บอะไร |
 |---|---|
-| `dataset.jsonl` | ชุดเลือก 9,210 แถวพร้อมชนิด JSON ชัดเจน เก็บสำหรับตรวจย้อนหลัง |
+| `dataset.jsonl` | ชุดหลังคัด EDAพร้อมชนิด JSON ชัดเจน เก็บสำหรับตรวจย้อนหลัง |
 | `excluded_rows.csv` | 822 แถวที่ตัด พร้อม selection_reasons; เก็บเป็นประวัติ ไม่ใช่คิวงานต่อ |
 | `selection_decisions.csv` | ผล selected และเหตุผลของทุก 10,032 รหัส บอกหลายเหตุผลในแถวเดียวได้ |
-| `lineage.jsonl` | ที่มาต้นฉบับของ 9,210 แถวที่ใช้ต่อ |
+| `lineage.jsonl` | ที่มาต้นฉบับของแถวหลังคัด EDA |
 
 ### การใช้และขอบเขต
 
@@ -898,7 +906,7 @@ raw, final เฉพาะเว็บ, ชุดรวม 10,032 แถวแ�
 
 ณ ขั้นคัด ชุดใหม่เป็นผลเลือกก่อน split; ปัจจุบันแบ่งและฝึกแล้วตาม [รายงานโมเดล](modeling.md) การคัดราคาใช้ EDA ทั้ง snapshot ตามนโยบายผู้ใช้ ไม่ใช่ outlierthreshold ที่เรียนรู้จาก train คะแนนที่จะรายงานจึงประเมินประชากรหลังคัดตามนโยบายนี้ ไม่ใช่ประกาศทุกชนิด ฟิต preprocessing จาก train และเก็บ split/seed/feature list ให้ทำซ้ำได้ หลีกเลี่ยงใช้รหัสหรือ URL เป็น feature โดยตรง
 
-Model Version 2 คงชุดเผยแพร่ 9,210 แถวและ sidecar เดิมทุกค่า แต่เลือกเฉพาะ condition=used 9,100 แถวก่อนสร้าง temporal folds เพื่อให้ตรงโจทย์มือถือมือสอง ไม่ลบ new 110 แถวจากต้นฉบับ และไม่คัดเพิ่มตามราคา โมเดลไม่ใช้ source หรือ condition เป็นฟีเจอร์ และไม่ใช้ประกันที่มีคำกล่าวอ้างชัดเจนเพียง 157 แถวในกลุ่มมือสอง ดู [EDA ชุดฝึกปัจจุบัน](eda.md) และ [เหตุผลการเลือกฟีเจอร์](modeling.md#12-การเลือกฟีเจอร์ของ-model-version-2)
+Model Version 2 ใช้ฝึก 9,100 ประกาศ โดยคงข้อมูลต้นทางและ sidecar เดิม สภาพเป็นข้อมูลที่ผู้ขายระบุ ไม่ใช่ผลตรวจเครื่องจริง โมเดลไม่ใช้ source หรือ condition เป็นฟีเจอร์ และไม่ใช้ประกันที่มีค่าเพียง 157 แถวในชุดฝึก ดู [EDA ชุดฝึกปัจจุบัน](eda.md) และ [เหตุผลการเลือกฟีเจอร์](modeling.md#2-ฟีเจอร์และการเตรียมข้อมูล)
 
 <a id="stage-data_schema"></a>
 
@@ -1039,7 +1047,7 @@ CSV เฉพาะเว็บมีฟิลด์ประกอบต่า�
 
 `archive/` คือการทดลองและงานเก่าที่ไม่ใช่ผลปัจจุบัน ไม่ย้ายกลับมาใช้แทน final metadata เก่าคง path เดิม ให้ตาม [บัญชีย้ายรอบล่าสุด](history/stage_reorganization_20261011.json) และบัญชีรอบก่อนในโฟลเดอร์เดียวกันเพื่อหาตำแหน่งปัจจุบัน สำรอง raw/intermediate/ผลผ่านเฉพาะเว็บและ ledger จริงแยกจาก Git ชุดหลัก data/final/dataset.csv และไฟล์กำกับรวมในGit
 
-ชุดใช้ต่อสำหรับโมเดล9,210แถวอยู่ data/final/ หลักฐานคัดและexcluded_rows/selection_decisions/lineage อยู่ data/intermediate/model_input/<รอบ>/ อ่าน [หน้าที่ทุกไฟล์](#stage-model_input)
+ข้อมูลต้นทางสำหรับเตรียมชุดฝึกอยู่ใน data/final/ หลักฐานคัดและexcluded_rows/selection_decisions/lineage อยู่ data/intermediate/model_input/<รอบ>/ อ่าน [หน้าที่ทุกไฟล์](#stage-model_input)
 
 ขั้นโมเดลอ่าน [วิธี ผล และหน้าที่ทุกไฟล์](modeling.md) split/assignments และ predictions อยู่ใน `data/intermediate/modeling/<รอบ>/`; V1 เก็บเป็นประวัติ โมเดลล่าสุดเป็น V2
 
