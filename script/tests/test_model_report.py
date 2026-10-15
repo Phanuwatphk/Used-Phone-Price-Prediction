@@ -36,6 +36,20 @@ class ReportParser(HTMLParser):
 
 
 class ModelReportTests(unittest.TestCase):
+    def test_current_scope_counts_are_consistent_in_report_and_folds(self):
+        report = ROOT / 'docs/assets/modeling'
+        summary = read_metadata(report, 'summary')
+        config = read_metadata(report, 'config')
+        folds = read_metadata(report, 'folds')
+        content = (ROOT / 'docs/modeling.md').read_text()
+        split_section = content.split('## 3.', 1)[1].split('## 4.', 1)[0]
+        validation_rows = sum(fold['validation_rows'] for fold in folds)
+        self.assertIn(f'**{validation_rows:,} แถว**', split_section)
+        self.assertIn(f"**{summary['evaluation_fit_rows']:,} แถวก่อน", split_section)
+        self.assertIn(f"**{summary['retrospective_rows']:,} แถววันที่", split_section)
+        self.assertEqual(summary['deployment_fit_rows'], config['expected_training_rows'])
+        self.assertEqual(summary['training_conditions'], ['used'])
+
     def test_html_report_links_have_targets_and_website_links_use_github(self):
         from script.report_links import REPOSITORY, website_report_links
         parser = ReportParser()

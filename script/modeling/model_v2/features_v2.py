@@ -11,6 +11,8 @@ NUMERIC = ['storage_gb','log_storage','model_number','publication_days','publica
            'release_year','model_age_years','release_known','battery_health_pct','battery_missing',
            'warranty_days','warranty_missing','box_mentioned','box_missing']
 FEATURES = CATEGORICAL + NUMERIC
+SOURCE_FREE_CATEGORICAL = [field for field in CATEGORICAL if field != 'source']
+SOURCE_FREE_FEATURES = SOURCE_FREE_CATEGORICAL + NUMERIC
 TRANSFER_DROP = ['model','brand_model','model_number']
 
 
@@ -18,9 +20,9 @@ def load_catalog():
     return json.loads((ROOT/'config/modeling/iphone_release_years.json').read_text())['release_years']
 
 
-def features(rows,catalog=None):
+def features(rows,catalog=None,include_source=True):
     catalog = load_catalog() if catalog is None else catalog
-    frame = base_features(rows)
+    frame = base_features(rows, include_source=include_source)
     tiers=[]; years=[]; ages=[]
     for row in rows:
         model=row['model'].lower()
@@ -40,4 +42,4 @@ def features(rows,catalog=None):
             values.append(value)
         frame[field]=values
         frame[{'battery_health_pct':'battery_missing','warranty_days':'warranty_missing','box_mentioned':'box_missing'}[field]]=(~np.isfinite(values)).astype(int)
-    return frame[FEATURES]
+    return frame[FEATURES if include_source else SOURCE_FREE_FEATURES]

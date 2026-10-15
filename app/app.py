@@ -132,6 +132,21 @@ def storage_catalog(path, stamp, reference_path, reference_stamp):
     return result
 
 
+@st.cache_data
+def listing_support(path, stamp):
+    """Counts and latest dates describe observed used listings, not confidence levels."""
+    result = {}
+    with Path(path).open(encoding='utf-8-sig', newline='') as handle:
+        for row in csv.DictReader(handle):
+            if row['condition'] != 'used':
+                continue
+            key = (row['brand'], row['model'], int(float(row['storage_gb'])))
+            item = result.setdefault(key, {'count': 0, 'latest': row['published_at']})
+            item['count'] += 1
+            item['latest'] = max(item['latest'], row['published_at'])
+    return result
+
+
 def render_estimator():
     st.title('ประเมินราคามือถือ')
     st.write('เลือกรุ่นและข้อมูลเครื่อง แล้วกดประเมินเพื่อดูราคาตั้งขายโดยประมาณ')
@@ -147,6 +162,8 @@ def render_estimator():
         logging.getLogger(__name__).exception('Unable to load price model')
         st.error('ยังประเมินราคาไม่ได้ กรุณาให้ผู้ดูแลตรวจไฟล์โมเดล สามารถเปิดเมนูสำรวจข้อมูลและผลโมเดลได้ก่อน')
         st.stop()
+
+    st.caption(f"Model Version {artifact.get('model_version', artifact.get('feature_version', 1))} · ข้อมูลฝึกถึง {artifact['fit_date_max']}")
 
     brands = sorted(artifact['fitted_brands'])
     left, right = st.columns(2)
@@ -176,11 +193,17 @@ def render_estimator():
     if st.session_state.get('storage') not in capacities:
         st.session_state['storage'] = 128 if 128 in capacities else capacities[0]
 
+    uses_warranty = 'warranty_days' in artifact['feature_names']
+    warranty = None
     with st.form('estimate'):
         storage = st.selectbox('ความจุ (GB)', capacities, key='storage',
                                format_func=lambda value: f'{value:,} GB',
                                help='เลือกความจุของเครื่อง รุ่นที่มีข้อมูลสเปกใช้ตัวเลือกจากผู้ผลิต ส่วนรุ่นอื่นใช้ค่าที่พบในชุดข้อมูล')
-        with st.expander('ข้อมูลเพิ่มเติม (ไม่ทราบให้เว้นว่าง)'):
+        device_status = st.selectbox('สภาพการใช้งาน', ['normal', 'unsupported'], key='device_status',
+                                    format_func=lambda value: {'normal': 'ใช้งานปกติ ไม่เสียหรือถูกล็อก',
+                                                              'unsupported': 'จอแตก มีอาการเสีย หรือถูกล็อก'}[value])
+        st.caption('ยังไม่แยกราคาตามรอยขีดข่วนหรือประวัติซ่อม ช่องสภาพใช้ตรวจขอบเขตการประเมิน')
+        with st.expander('ข้อมูลเพิ่มเติม (ไม่ทราบให้เว้นว่าง)', expanded=True):
             left, right = st.columns(2)
             with left:
                 battery = st.number_input('สุขภาพแบตเตอรี่ (%)', min_value=0, max_value=100,
@@ -188,18 +211,26 @@ def render_estimator():
                 box = st.selectbox('มีกล่องหรือไม่', [None, 1, 0], key='box',
                                   format_func=lambda v: {None: 'ไม่ทราบ', 1: 'มีกล่อง', 0: 'ไม่มีกล่อง'}[v])
             with right:
-                warranty = st.number_input('ประกันเหลือ (วัน)', min_value=0, max_value=999, value=None,
-                                           step=1, key='warranty', placeholder='ไม่ทราบ',
-                                           help='กรอก 0 เมื่อทราบว่าไม่มีประกัน')
+                if uses_warranty:
+                    warranty = st.number_input('ประกันเหลือ (วัน)', min_value=0, max_value=999, value=None,
+                                               step=1, key='warranty', placeholder='ไม่ทราบ',
+                                               help='กรอก 0 เมื่อทราบว่าไม่มีประกัน')
                 day = st.date_input('วันที่ตั้งประกาศ', key='day',
                                     value=datetime.now(ZoneInfo('Asia/Bangkok')).date())
         submitted = st.form_submit_button('ประเมินราคา', type='primary', width='stretch')
 
+    if submitted and device_status != 'normal':
+        st.warning('โมเดลนี้ยังไม่รองรับเครื่องจอแตก เสีย หรือถูกล็อก จึงไม่แสดงราคาประเมินสำหรับสภาพนี้')
+        submitted = False
     if submitted:
-        # These training features remain required by the existing artifact.
-        row = {'source': 'mac2hand', 'brand': brand, 'model': model, 'storage_gb': storage,
+        row = {'brand': brand, 'model': model, 'storage_gb': storage,
                'condition': 'used', 'published_at': day.isoformat(),
-               'battery_health_pct': battery, 'warranty_days': warranty, 'box_mentioned': box}
+               'battery_health_pct': battery, 'box_mentioned': box}
+        if uses_warranty:
+            row['warranty_days'] = warranty
+        # Keep older checked artifacts usable; the current source-free model needs no source.
+        if not artifact.get('source_free'):
+            row['source'] = 'mac2hand'
         try:
             result = predict_rows(artifact, [row])[0]
         except Exception:
@@ -208,19 +239,32 @@ def render_estimator():
         else:
             st.metric('ราคาตั้งขายโดยประมาณ', f"{result['predicted_price_thb']:,.0f} บาท")
             st.caption(f"{brand} {model} · {storage:,} GB · {day.isoformat()}")
+            if brand != 'Apple':
+                st.warning('ข้อมูลฝึกส่วนใหญ่เป็น iPhone ผลย้อนหลังของยี่ห้ออื่นคลาดเคลื่อนมากกว่า ควรดูผลแยกกลุ่มในเมนูผลโมเดลและเทียบประกาศปัจจุบันเพิ่มเติม')
+            support = listing_support(str(dataset), dataset.stat().st_mtime_ns).get((brand, model, storage))
+            if support:
+                st.caption(f"ข้อมูลมือสองรุ่นและความจุนี้ {support['count']:,} ประกาศ · ประกาศล่าสุด {support['latest']}")
+                if support['count'] < 10:
+                    st.warning('รุ่นและความจุนี้มีข้อมูลมือสองน้อยกว่า 10 ประกาศ ควรเทียบประกาศปัจจุบันเพิ่มเติมก่อนตั้งราคา')
+            else:
+                st.warning('ไม่มีประกาศมือสองรุ่นและความจุนี้ตรงกันในชุดข้อมูล ผลนี้เป็นการประมาณจากข้อมูลอื่นที่โมเดลเรียนรู้')
             if 'date_outside_training_range' in result['coverage_flags']:
                 st.info(f"วันที่เลือกอยู่นอกช่วงข้อมูลที่ใช้ฝึก (ถึง {artifact['fit_date_max']}) ราคาตลาดปัจจุบันอาจต่างจากผลนี้")
             if any(flag.endswith('_unknown') for flag in result['coverage_flags']):
-                st.caption('ข้อมูลแบตเตอรี่ ประกัน หรือกล่องที่เว้นว่างจะถือว่าไม่ทราบ ไม่ได้ถือว่าเป็นศูนย์')
+                optional_label = 'แบตเตอรี่ ประกัน หรือกล่อง' if uses_warranty else 'แบตเตอรี่หรือกล่อง'
+                st.caption(f'ข้อมูล{optional_label}ที่เว้นว่างจะถือว่าไม่ทราบ ไม่ได้ถือว่าเป็นศูนย์')
 
     st.divider()
     st.caption('ผลเป็นการประมาณราคาประกาศ ไม่ใช่ราคาปิดการขาย ควรเทียบประกาศรุ่นและสภาพใกล้เคียงก่อนตั้งราคา')
     with st.expander('ข้อมูลที่โมเดลใช้และข้อจำกัด'):
-        st.write('ข้อมูลที่กรอก: ยี่ห้อ รุ่น ความจุ วันที่ประกาศ สุขภาพแบตเตอรี่ ประกันเหลือ และการมีกล่อง โมเดลคำนวณอายุรุ่น กลุ่มรุ่น และค่าที่บอกว่าไม่ทราบจากข้อมูลเหล่านี้')
+        optional_label = 'สุขภาพแบตเตอรี่ ประกันเหลือ และการมีกล่อง' if uses_warranty else 'สุขภาพแบตเตอรี่และการมีกล่อง'
+        st.write(f'ข้อมูลที่กรอก: ยี่ห้อ รุ่น ความจุ วันที่ประกาศ {optional_label} โมเดลคำนวณอายุรุ่น กลุ่มรุ่น และค่าที่บอกว่าไม่ทราบจากข้อมูลเหล่านี้')
+        if artifact.get('source_free'):
+            st.write('โมเดลรวมข้อมูลทั้งสองเว็บไซต์โดยไม่ใช้เว็บไซต์ต้นทางเป็นฟีเจอร์ ประเมินโดยกำหนดประเภทเครื่องเป็นมือสอง')
         st.write('โมเดลรอบนี้ใช้เครื่องปกติ ไม่รองรับเครื่องเสีย จอแตก ล็อก หรือขายเป็นอะไหล่ และไม่ได้เรียนรู้ผลของรอยตำหนิ/ประวัติซ่อม จึงไม่หักราคาแทนความเสียหายโดยอัตโนมัติ')
         st.write(f"ข้อมูลฝึกถึง {artifact['fit_date_max']} ผลสำหรับรุ่นหรือสภาพที่มีข้อมูลน้อยอาจคลาดเคลื่อนมาก")
         if artifact.get('dataset_sha256') == 'a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6' and artifact.get('role') == 'deployment_full_data':
-            st.write('ข้อมูล 9,210 ประกาศ ส่วนใหญ่เป็น iPhone อ่านผลประเมินย้อนหลังและข้อจำกัดในเมนูผลโมเดล โมเดลใช้งานที่ฝึกครบยังไม่มีผลทดสอบอิสระ')
+            st.write('ชุดเผยแพร่มี 9,210 ประกาศ โมเดลปัจจุบันฝึกเฉพาะมือสอง 9,100 ประกาศ ส่วนใหญ่เป็น iPhone อ่านผลประเมินย้อนหลังและข้อจำกัดในเมนูผลโมเดล โมเดลใช้งานที่ฝึกครบยังไม่มีผลทดสอบอิสระ')
 
 
 def main():

@@ -292,6 +292,9 @@ def run(input_dir, report, private, rules_path=DEFAULT_RULES, details=None, evid
         'code_hashes': {p.name: sha(p) for p in (Path(__file__), Path(__file__).with_name('eda_statistics.py'), Path(__file__).with_name('eda_plots.py'))},
         'dependencies': {name: importlib.metadata.version(name) for name in ('matplotlib', 'numpy')},
         'rows': len(rows), 'figures': figures, 'input_files_unchanged': True})
+    if report == DEFAULT_REPORT.resolve() and (ROOT / 'data/final/condition_features.csv').exists():
+        from script.analysis.eda.refresh_model_input_eda import refresh
+        refresh()
     write_metadata(report, 'hashes', collect_output_hashes(report))
     if report == DEFAULT_REPORT.resolve():
         hashes = read_metadata(report, 'hashes')

@@ -13,6 +13,40 @@ from script.modeling.predict import predict_rows
 
 
 class ImprovedModelingTests(unittest.TestCase):
+    def test_source_free_features_ignore_source_and_preserve_required_validation(self):
+        from script.modeling.model_v2.features_v2 import SOURCE_FREE_FEATURES
+        row = listing(1)
+        without_source = {key: value for key, value in row.items() if key != 'source'}
+        frame = features([without_source], {}, include_source=False)
+        self.assertEqual(list(frame.columns), SOURCE_FREE_FEATURES)
+        self.assertNotIn('source', frame.columns)
+        self.assertTrue(frame.equals(features([{**row, 'source': 'another_market'}], {}, include_source=False)))
+        with self.assertRaises(ValueError):
+            features([{**without_source, 'storage_gb': 0}], {}, include_source=False)
+        with self.assertRaises(ValueError):
+            features([{**without_source, 'condition': 'broken'}], {}, include_source=False)
+
+    def test_compact_source_free_model_roundtrip_and_inference_without_source(self):
+        import json
+        from script.modeling.model_v2.train_improved import fit, artifact
+        from script.modeling.predict import load_model
+        from script.modeling.split_dataset import sha
+        rows = [listing(i) for i in range(40)]
+        spec = {'name': 'compact_fixture', 'kind': 'hist', 'feature_version': 2, 'source_free': True,
+                'drop_features': ['brand_model', 'log_storage', 'model_number', 'publication_year', 'publication_month'],
+                'max_iter': 5, 'half_life': 2}
+        model = fit(spec, rows, {}, {'seed': 42, 'threads': 1})
+        saved = artifact(model, spec, rows, {}, 'fixture')
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'model.joblib'
+            joblib.dump(saved, path)
+            path.with_name('metadata.json').write_text(json.dumps({'model_hashes': {path.name: sha(path)}}))
+            loaded = load_model(path)
+            query = {key: value for key, value in rows[0].items() if key != 'source'}
+            result = predict_rows(loaded, [query, {**query, 'source': 'ennxo'}])
+            self.assertEqual(result[0]['predicted_price_thb'], result[1]['predicted_price_thb'])
+            self.assertEqual(len(saved['feature_names']), 16)
+
     def test_description_claims_are_explicit_and_ambiguities_stay_missing(self):
         a=extract_description('ราคา 25000 แบตเตอรี่ 87% รับประกัน 30 วัน เครื่อง+กล่อง')
         self.assertEqual(a,{'battery_health_pct':87,'warranty_days':30,'box_mentioned':1})

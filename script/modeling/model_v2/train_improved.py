@@ -43,8 +43,9 @@ def build(spec,seed=42,threads=4):
         return Pipeline([('regressor',FixedBlendRegressor(
             estimators=tuple(build(component,seed,threads) for component in spec['components']),
             blend_weights=tuple(spec['blend_weights'])))])
-    categorical=[c for c in features_v2.CATEGORICAL if not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP]
-    numeric=[c for c in features_v2.NUMERIC if not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP]
+    dropped=set(spec.get('drop_features',[]))
+    categorical=[c for c in features_v2.CATEGORICAL if c not in dropped and (not spec.get('source_free') or c!='source') and (not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP)]
+    numeric=[c for c in features_v2.NUMERIC if c not in dropped and (not spec.get('transfer_only') or c not in features_v2.TRANSFER_DROP)]
     if spec['kind']=='trend':
         from script.modeling.trend import TrendResidualRegressor
         return Pipeline([('regressor',TrendResidualRegressor(alpha=spec.get('alpha',10.),
@@ -71,7 +72,8 @@ def build(spec,seed=42,threads=4):
 
 
 def get_frame(spec,rows,catalog):
-    return original_features(rows) if spec['kind']=='v1' else features_v2.features(rows,catalog)
+    frame=original_features(rows) if spec['kind']=='v1' else features_v2.features(rows,catalog,include_source=not spec.get('source_free',False))
+    return frame.drop(columns=spec.get('drop_features',[]))
 
 
 def fit(spec,rows,catalog,config):
@@ -88,10 +90,12 @@ def forecast(model,spec,rows,catalog,threads=4):
 
 
 def artifact(model,spec,rows,catalog,dataset_hash):
-    return {'model':model,'feature_version':1 if spec['kind']=='v1' else 2,
-            'feature_names':list(get_frame(spec,rows[:1],catalog).columns),'reference_catalog':catalog,
+    version=1 if spec['kind']=='v1' else 2
+    return {'model':model,'model_version':version,'feature_version':version,'source_free':spec.get('source_free',False),
+            'feature_names':list(get_frame(spec,rows[:1],catalog).columns),'dropped_features':spec.get('drop_features',[]),'reference_catalog':catalog,
             'fitted_models':sorted({r['brand']+':'+r['model'] for r in rows}),
             'fitted_brands':sorted({r['brand'] for r in rows}),'fit_date_min':min(r['published_at'] for r in rows),
+            'training_conditions':sorted({r['condition'] for r in rows}),
             'fit_date_max':max(r['published_at'] for r in rows),'dataset_sha256':dataset_hash,'candidate_name':spec['name']}
 
 
@@ -109,6 +113,11 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         rebuild(config)
     rows=sorted(read_dataset(dataset,config['dataset_sha256']),key=lambda r:(r['published_at'],r['listing_id']))
     if len(rows)!=config['expected_rows']:raise ValueError('Enriched row count mismatch')
+    core_rows=len(rows)
+    if conditions:=config.get('training_conditions'):
+        if not set(conditions)<= {'used','new'}:raise ValueError('Invalid training condition scope')
+        rows=[row for row in rows if row['condition'] in conditions]
+        if len(rows)!=config['expected_training_rows']:raise ValueError('Training scope row count mismatch')
     catalog=json.loads(catalog_path.read_text())['release_years']
     if sha(catalog_path)!=config['catalog_sha256']:raise ValueError('Catalog checksum mismatch')
     core=ROOT/'data/final/dataset.csv';core_hash=sha(core)
@@ -121,8 +130,8 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         folds.append((training,validation))
     previous_config = read_metadata(report, 'config') if resume and has_metadata(report, 'config') else None
     if previous_config:
-        for key in ['dataset_sha256','core_dataset_sha256','catalog_sha256','seed','threads','folds','candidates']:
-            if previous_config[key] != config[key]:
+        for key in ['dataset_sha256','core_dataset_sha256','catalog_sha256','seed','threads','folds','candidates','training_conditions','expected_training_rows']:
+            if previous_config.get(key) != config.get(key):
                 raise ValueError('Cannot resume after changing learning configuration: ' + key)
     write_metadata(report, 'config', config)
     write_metadata(report, 'folds', [{'fold':i+1,'train_rows':len(a),'validation_rows':len(b),'train_max':a[-1]['published_at'],
@@ -139,7 +148,7 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         for index,score in enumerate(comparisons):
             spec=config['candidates'][index]
             if score['name']!=spec['name']: raise ValueError('Cached candidate order differs')
-            if best is None or (score['mae_thb'],spec['name'])<(best[1]['mae_thb'],best[0]['name']):best=(spec,score)
+            if spec.get('eligible_for_selection',True) and (best is None or (score['mae_thb'],spec['name'])<(best[1]['mae_thb'],best[0]['name'])):best=(spec,score)
         print('RESUME',len(comparisons),'completed candidates verified',flush=True)
     completed_candidates = len(comparisons)
     for i,spec in enumerate(config['candidates'],1):
@@ -154,7 +163,8 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
         comparisons.append(score);write_csv(report/'tables/validation_comparison.csv',comparisons);write_csv(report/'tables/fold_metrics.csv',fold_results)
         write_metadata(report, 'progress', {'phase':'temporal_validation','completed':i,'total':len(config['candidates']),'last':score})
         print(f'POOLED VALIDATION MAE {score["mae_thb"]:.2f} ({score["fit_seconds"]:.1f}s)',flush=True)
-        if best is None or (score['mae_thb'],spec['name'])<(best[1]['mae_thb'],best[0]['name']):best=(spec,score)
+        if spec.get('eligible_for_selection',True) and (best is None or (score['mae_thb'],spec['name'])<(best[1]['mae_thb'],best[0]['name'])):best=(spec,score)
+    if best is None:raise ValueError('No eligible model candidate')
     spec,validation=best
     # The former v1 test is already inspected. Freeze selection first and label reuse explicitly.
     write_metadata(report, 'selection', {'candidate':spec,'validation_metrics':validation,'old_test_used_for_selection':False,
@@ -185,11 +195,12 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
     if sha(core)!=core_hash:raise ValueError('Core dataset changed during training')
     summary={'run':run_name,'selected_model':spec['name'],'validation':validation,'retrospective':evaluation,'v1_same_cutoff':reference,
              'retrospective_mae_improvement_pct':100*(1-evaluation['mae_thb']/reference['mae_thb']),
+             'core_dataset_rows':core_rows,'training_conditions':config.get('training_conditions',['used','new']),
              'evaluation_fit_rows':len(training),'retrospective_rows':len(test),'deployment_fit_rows':len(rows),
              'deployment_models':len(deployment_artifact['fitted_models']),'deployment_date_max':deployment_artifact['fit_date_max'],
              'fresh_independent_holdout':False,'deployment_independent_test_metrics':None,
              'groups':[r for r in groups if r['group']!='brand_model'],'duration_seconds':round(time.monotonic()-start,2),
-             'policy':'Keep all 9,210 rows. Recency weights do not remove old data. No tuning from old test in this run; it was examined in v1 and informed general diagnosis.'}
+             'policy':'Core dataset retained unchanged. Training condition scope is explicit in config; no price-based row removal in this run. Recency weights retain all dates. Selection uses eligible candidates on forward validation; old test is retrospective.'}
     summary['data_drift']={'training_brands':dict(Counter(r['brand'] for r in training)),
                            'evaluation_brands':dict(Counter(r['brand'] for r in test)),
                            'unseen_model_rows':sum(r['brand']+':'+r['model'] not in evaluation_artifact['fitted_models'] for r in test)}

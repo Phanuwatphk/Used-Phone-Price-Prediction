@@ -1,26 +1,29 @@
 {
   "run": "asking_price_v2",
-  "generated_at_utc": "2026-10-12T08:46:22.012109+00:00",
-  "config_sha256": "663e6803528813688aaa2c615c9f1cc62d10ce25b2e900410f0c788d1b3115f5",
+  "generated_at_utc": "2026-10-15T13:55:38.565905+00:00",
+  "config_sha256": "49b9d5d9670edd33643fb2ccf19cd3633c49a368cf21f8cf57c552385ee341cb",
   "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
   "enriched_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
   "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
   "model_hashes": {
-    "evaluation.joblib": "b2959843863ec4c96f3f10f28eff95c4ea4e2dad7d6b5817723a93133c6cfc5a",
-    "model.joblib": "1615100241bbe12f0edb45a26eb47cbe88b92e5bd14bc26a8de1c46062553734"
+    "evaluation.joblib": "77d04d482a673d5e9e6bdb786243d37d7fcb60bddc459d2c1f51d2efcdd6dc8a",
+    "model.joblib": "ebb745860d4e6c95036069f358f8dfa7229689cf2ab1ed38b76bb12d3712e9e0"
   },
   "code_sha256": {
     "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
-    "script/modeling/features.py": "dece45bfcc28f2d8997cacd95707fb627d9bd3ccf70a8a6dd4dcdc6f99c73d38",
-    "script/modeling/features_v2.py": "6bde67941edf905a636f2f0431cff14608f44c5a8b1c414a23388f0f59ef50d1",
-    "script/modeling/predict.py": "9422164bead69f61172ff4254b40d6c51657919063176587b781fc097daf51fa",
-    "script/modeling/prepare_features_v2.py": "4425e3a78ea905a43ccd1409e5b0346866e4a53649ef8b99847416ae4178594d",
-    "script/modeling/rebuild_features_v2.py": "ceb28759df357cbfcf596b523e03d8f9abf0b6b12195846725f922e33920576c",
-    "script/modeling/report.py": "3f0acf88b156eb62c312a35a4f71f7284886c6eb55279e7ae91f09d57da6741a",
-    "script/modeling/report_improved.py": "e54e39ba31d214e71585d51f0534c65cc5b0e0efc71051a3ce70e23785fab6dd",
-    "script/modeling/split_dataset.py": "9f891b7f6a8f5018afc7e13d100a0fd5e15ba49ad5ed98f31f6b20133c0ad352",
-    "script/modeling/train_improved.py": "1afa22049a9e76cf6b898ce9854e54fe916657a39e118ae9bc404325e6f2c066",
-    "script/modeling/train_models.py": "8454be08f19dc59b3ebc77ba9e038fd9c821c33a732f3b486e43a60321ff47ed",
+    "script/modeling/common.py": "a3fad6bcb9d09aa3835acda314fdfeb8df6d219633e1caf54cd696744331d784",
+    "script/modeling/features.py": "ea025f60fb26bf25ad612ae050095797d50cd9e469a2deed4e4deb6e4f7398e2",
+    "script/modeling/model_v1/__init__.py": "f562aac16a5d0e418272b512343739f75b3386f4d76f1d6dbe22775eebdf2055",
+    "script/modeling/model_v1/report.py": "cf020cb20e0a902dab771484e0d0372c61cd4c77204239b88b2c1350b5bbdb9a",
+    "script/modeling/model_v1/train_models.py": "bb48100c07eb7915ee8c69053f095096f0fa32286e31c8b7d7950d8ed53801cc",
+    "script/modeling/model_v2/__init__.py": "cdc502c70f1dd7fc0dbca6668f165687871edad01c280ce4355e805321b6af86",
+    "script/modeling/model_v2/features_v2.py": "da15937280b3c9992bed6099144331a98e0720d30e13630c679afb0a61738c5d",
+    "script/modeling/model_v2/prepare_features_v2.py": "9544bfb64802a1c6ca0cb2311ad1efe549856d4335b62a92bb5382c8221929b7",
+    "script/modeling/model_v2/rebuild_features_v2.py": "94d35cb99ac25508eab91fd519dd9533429263487d2efff5b55170aebf01029e",
+    "script/modeling/model_v2/report_improved.py": "b7a548f77b65bae0de17849f05f8d5b8fac83e16f67fe32c17295445e774602b",
+    "script/modeling/model_v2/train_improved.py": "a30addb1fa79807c9ea86bd8a40cb560d7676b779c07d37629f5d7b330315095",
+    "script/modeling/predict.py": "1e131bf466b536de423b472e04cf85eb455086771b5e8355f4f5def2d779f11f",
+    "script/modeling/split_dataset.py": "e339c1056d4174552a236bbb31e300a49b5fb11576870c49c18310bbab5423b1",
     "script/modeling/trend.py": "444c2964017ccaefb84e876968d4c224d492a0f4249d5d1fca50ebed85ef606b"
   },
   "versions": {
@@ -32,38 +35,38 @@
   },
   "fit_roles": {
     "evaluation.joblib": {
-      "rows": 8517,
+      "rows": 8418,
       "test_excluded": true
     },
     "model.joblib": {
-      "rows": 9210,
+      "rows": 9100,
       "includes_old_test": true,
       "independent_test_score": null
     }
   },
-  "selected_model": "blend_cat_share_0.5",
+  "selected_model": "used_core_blend_cat_share_0.5",
   "feature_contract": [
-    "source",
     "brand",
     "model",
-    "brand_model",
     "model_family",
-    "condition",
     "device_tier",
     "storage_gb",
-    "log_storage",
-    "model_number",
     "publication_days",
-    "publication_year",
-    "publication_month",
     "release_year",
     "model_age_years",
     "release_known",
     "battery_health_pct",
     "battery_missing",
-    "warranty_days",
-    "warranty_missing",
     "box_mentioned",
     "box_missing"
-  ]
+  ],
+  "model_version": 2,
+  "feature_version": 2,
+  "source_free": true,
+  "artifact_contract_update": {
+    "model_version": 2,
+    "estimator_refitted": false,
+    "predictions_identical_on_observed_used_variants": 468,
+    "note": "Unified Model Version 2 naming and source-free contract; fitted estimators and numeric features unchanged."
+  }
 }

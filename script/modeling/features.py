@@ -10,10 +10,11 @@ FEATURES = CATEGORICAL + NUMERIC
 REQUIRED = ['source', 'brand', 'model', 'storage_gb', 'condition', 'published_at']
 
 
-def validate_listing(row):
-    if any(row.get(k) is None or str(row[k]).strip() == '' for k in REQUIRED):
-        raise ValueError('Required listing fields: ' + ', '.join(REQUIRED))
-    if row['source'] not in ('ennxo', 'mac2hand') or row['condition'] not in ('used', 'new'):
+def validate_listing(row, require_source=True):
+    required = REQUIRED if require_source else [field for field in REQUIRED if field != 'source']
+    if any(row.get(k) is None or str(row[k]).strip() == '' for k in required):
+        raise ValueError('Required listing fields: ' + ', '.join(required))
+    if (require_source and row['source'] not in ('ennxo', 'mac2hand')) or row['condition'] not in ('used', 'new'):
         raise ValueError('Invalid source or condition')
     storage = float(row['storage_gb'])
     if not np.isfinite(storage) or storage <= 0 or not storage.is_integer():
@@ -24,13 +25,13 @@ def validate_listing(row):
     return int(storage), day
 
 
-def features(rows):
+def features(rows, include_source=True):
     records = []
     for row in rows:
-        storage, day = validate_listing(row)
+        storage, day = validate_listing(row, require_source=include_source)
         number = re.search(r'\d+(?:\.\d+)?', row['model'])
         records.append({
-            'source': row['source'], 'brand': row['brand'], 'model': row['model'],
+            **({'source': row['source']} if include_source else {}), 'brand': row['brand'], 'model': row['model'],
             'brand_model': row['brand'] + ':' + row['model'],
             'model_family': re.sub(r'\s+', ' ', re.sub(r'\d+(?:\.\d+)?', '#', row['model'])).strip(),
             'condition': row['condition'], 'storage_gb': storage, 'log_storage': np.log2(storage),
@@ -38,7 +39,8 @@ def features(rows):
             'publication_days': (day - date(2010, 1, 1)).days,
             'publication_year': day.year, 'publication_month': day.month,
         })
-    return pd.DataFrame(records, columns=FEATURES)
+    columns = FEATURES if include_source else [field for field in FEATURES if field != 'source']
+    return pd.DataFrame(records, columns=columns)
 
 
 def prices(model, frame):

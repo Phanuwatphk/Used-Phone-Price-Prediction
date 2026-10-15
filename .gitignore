@@ -6,6 +6,10 @@
 .aws/
 .streamlit/secrets.toml
 
+# Personal notes and presentation preparation stay local.
+/.local/
+/docs/presentation.md
+
 # Python and editor caches
 __pycache__/
 *.py[cod]

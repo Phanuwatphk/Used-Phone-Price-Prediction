@@ -85,6 +85,7 @@ def render_explorer():
         st.error('ยังเปิดชุดข้อมูลไม่ได้ กรุณาให้ผู้ดูแลตรวจไฟล์ข้อมูล')
         return
     st.caption(f"ชุดเต็ม {len(frame):,} ประกาศ · {frame['published_at'].min():%Y-%m-%d} ถึง {frame['published_at'].max():%Y-%m-%d} · ไม่ใช่ประกาศสดจากเว็บ")
+    st.caption('หน้านี้สำรวจชุดเผยแพร่ที่เก็บทั้งใหม่และมือสอง ส่วนโมเดลประเมินราคาฝึกเฉพาะมือสอง')
     with st.container(border=True):
         st.subheader('ค้นหาประกาศ')
         left, middle, right = st.columns(3)
@@ -166,7 +167,7 @@ def render_model_results():
     except (OSError, ValueError):
         st.info('ยังไม่มีรายงานผลโมเดลสำหรับแสดง')
         return
-    st.write('เลือกวิธีจาก validation ตามเวลา 2 ช่วง ผลด้านล่างเป็นการเปรียบเทียบย้อนหลังบนชุดเดิม 693 ประกาศ')
+    st.write(f"เลือกสัดส่วนโมเดลจาก validation ตามเวลา 2 ช่วง ภายใต้ขอบเขตและฟีเจอร์ที่กำหนดไว้ ผลด้านล่างเป็นการเปรียบเทียบย้อนหลังบนมือสอง {summary['retrospective_rows']:,} ประกาศเดิม")
     first, second, third = st.columns(3)
     first.metric('คลาดเคลื่อนเฉลี่ย (MAE)', f"{summary['retrospective']['mae_thb']:,.0f} บาท")
     second.metric('RMSE', f"{summary['retrospective']['rmse_thb']:,.0f} บาท")

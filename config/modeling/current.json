@@ -19,84 +19,17 @@
     }
   ],
   "retrospective_test_start": "2025-01-09",
-  "selection": "Pooled validation MAE from both forward folds; original v1 test excluded from tuning.",
+  "selection": "Design scope fixed before scoring: used working phones; source-free 13-feature contract without sparse warranty claims. Choose blend weight among eligible candidates by pooled MAE on the same used-only forward-validation rows. Other candidates are diagnostics, not eligible.",
   "evaluation_notice": "All data already examined in previous project work; reused v1 test is retrospective, not an independent new holdout. Deployment artifact fits all rows after selection and has no independent score.",
   "candidates": [
     {
       "name": "v1_reference",
       "kind": "v1",
-      "half_life": 0
+      "half_life": 0,
+      "eligible_for_selection": false
     },
     {
-      "name": "age_hist_log_half_2",
-      "kind": "hist",
-      "log_target": true,
-      "loss": "squared_error",
-      "half_life": 2
-    },
-    {
-      "name": "cat_log_depth_4_half_1",
-      "kind": "catboost",
-      "log_target": true,
-      "depth": 4,
-      "half_life": 1,
-      "iterations": 1400,
-      "learning_rate": 0.03
-    },
-    {
-      "name": "cat_log_depth_4_half_2",
-      "kind": "catboost",
-      "log_target": true,
-      "depth": 4,
-      "half_life": 2,
-      "iterations": 1400,
-      "learning_rate": 0.03
-    },
-    {
-      "name": "cat_log_depth_6_half_1",
-      "kind": "catboost",
-      "log_target": true,
-      "depth": 6,
-      "half_life": 1,
-      "iterations": 1400,
-      "learning_rate": 0.03
-    },
-    {
-      "name": "cat_log_depth_6_half_2",
-      "kind": "catboost",
-      "log_target": true,
-      "depth": 6,
-      "half_life": 2,
-      "iterations": 1400,
-      "learning_rate": 0.03
-    },
-    {
-      "name": "blend_cat_share_0.25",
-      "kind": "blend",
-      "components": [
-        {
-          "name": "age_hist_log_half_2",
-          "kind": "hist",
-          "log_target": true,
-          "loss": "squared_error",
-          "half_life": 2
-        },
-        {
-          "name": "age_catboost_log_depth_6",
-          "kind": "catboost",
-          "depth": 6,
-          "log_target": true,
-          "half_life": 2
-        }
-      ],
-      "blend_weights": [
-        0.75,
-        0.25
-      ],
-      "half_life": 2
-    },
-    {
-      "name": "blend_cat_share_0.5",
+      "name": "used_source_reference",
       "kind": "blend",
       "components": [
         {
@@ -118,59 +51,265 @@
         0.5,
         0.5
       ],
-      "half_life": 2
+      "half_life": 2,
+      "eligible_for_selection": false
     },
     {
-      "name": "blend_cat_share_0.75",
+      "name": "used_compact_with_warranty",
       "kind": "blend",
       "components": [
         {
-          "name": "age_hist_log_half_2",
+          "name": "used_compact_with_warranty_component_0",
           "kind": "hist",
           "log_target": true,
           "loss": "squared_error",
-          "half_life": 2
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition"
+          ],
+          "source_free": true
         },
         {
-          "name": "age_catboost_log_depth_6",
+          "name": "used_compact_with_warranty_component_1",
           "kind": "catboost",
           "depth": 6,
           "log_target": true,
-          "half_life": 2
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.5,
+        0.5
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition"
+      ],
+      "eligible_for_selection": false,
+      "source_free": true
+    },
+    {
+      "name": "used_core_blend_cat_share_0.25",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.25_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.25_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.75,
+        0.25
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
+    },
+    {
+      "name": "used_core_blend_cat_share_0.5",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.5_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.5_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        }
+      ],
+      "blend_weights": [
+        0.5,
+        0.5
+      ],
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
+    },
+    {
+      "name": "used_core_blend_cat_share_0.75",
+      "kind": "blend",
+      "components": [
+        {
+          "name": "used_core_blend_cat_share_0.75_component_0",
+          "kind": "hist",
+          "log_target": true,
+          "loss": "squared_error",
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
+        },
+        {
+          "name": "used_core_blend_cat_share_0.75_component_1",
+          "kind": "catboost",
+          "depth": 6,
+          "log_target": true,
+          "half_life": 2,
+          "feature_version": 2,
+          "drop_features": [
+            "brand_model",
+            "log_storage",
+            "model_number",
+            "publication_year",
+            "publication_month",
+            "condition",
+            "warranty_days",
+            "warranty_missing"
+          ],
+          "source_free": true
         }
       ],
       "blend_weights": [
         0.25,
         0.75
       ],
-      "half_life": 2
+      "half_life": 2,
+      "feature_version": 2,
+      "drop_features": [
+        "brand_model",
+        "log_storage",
+        "model_number",
+        "publication_year",
+        "publication_month",
+        "condition",
+        "warranty_days",
+        "warranty_missing"
+      ],
+      "source_free": true
     }
   ],
   "condition_features": "data/final/condition_features.csv",
   "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66",
-  "previous_round": {
-    "selected_model": "age_hist_log_half_2",
-    "validation": {
-      "name": "age_hist_log_half_2",
-      "rows": 1054.0,
-      "mae_thb": 4339.414781578945,
-      "rmse_thb": 6518.779959170459,
-      "median_absolute_error_thb": 2633.0734901523283,
-      "r2": 0.7765901647843589,
-      "mape_pct": 99.71512943752239,
-      "within_20pct": 0.45351043643263755,
-      "bias_thb": 522.3862377620286,
-      "fit_seconds": 18.11
-    },
-    "retrospective": {
-      "rows": 693,
-      "mae_thb": 5339.299044795779,
-      "rmse_thb": 7867.293415345483,
-      "median_absolute_error_thb": 2909.0125118707238,
-      "r2": 0.6191660852587184,
-      "mape_pct": 33.42156621353688,
-      "within_20pct": 0.4054834054834055,
-      "bias_thb": -3830.005181217784
-    }
-  }
+  "expected_training_rows": 9100,
+  "training_conditions": [
+    "used"
+  ],
+  "feature_design": {
+    "source": "Not a device attribute; unknown destination platform at inference.",
+    "condition": "Used-only scope; constant after filtering, retained only for validation/provenance.",
+    "brand_model": "Deterministic concatenation of retained brand and model.",
+    "log_storage": "Deterministic monotone transform of retained storage; unnecessary second representation for tree models.",
+    "model_number": "Number parsed from names has no shared physical unit or consistent ordering across product families.",
+    "publication_year_month": "Calendar information retained as publication_days; avoids repeated representations.",
+    "warranty": "Only 158 known claims in core data, mostly missing; current V2 model excludes this weakly supported input. Diagnostic comparison retains it.",
+    "retained": "Brand/model/family/tier, storage, listing date, iPhone release year/model age, explicit battery and box claims plus missing indicators.",
+    "unavailable": "No audited cosmetic grades, repair history, actual device age, or realized sale prices. No invented adjustments."
+  },
+  "model_version": 2
 }

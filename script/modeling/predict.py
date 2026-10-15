@@ -28,18 +28,27 @@ def load_model(path=DEFAULT_MODEL):
     version = artifact.get('feature_version', 1)
     if version not in (1, 2):
         raise ValueError('Unsupported model feature version')
-    from script.modeling.model_v2.features_v2 import FEATURES as V2_FEATURES
-    if artifact['feature_names'] != (V2_FEATURES if version == 2 else FEATURES):
+    from script.modeling.model_v2.features_v2 import FEATURES as V2_FEATURES, SOURCE_FREE_FEATURES
+    expected = SOURCE_FREE_FEATURES if artifact.get('source_free') else {1: FEATURES, 2: V2_FEATURES}[version]
+    dropped = artifact.get('dropped_features', [])
+    if len(dropped) != len(set(dropped)) or set(dropped) - set(expected):
+        raise ValueError('Invalid dropped feature contract')
+    expected = [field for field in expected if field not in dropped]
+    if artifact['feature_names'] != expected:
         raise ValueError('Model feature contract differs from inference code')
     return artifact
 
 
 def predict_rows(artifact, rows):
+    conditions = artifact.get('training_conditions')
+    if conditions and any(row.get('condition') not in conditions for row in rows):
+        raise ValueError('Device condition is outside the trained model scope')
     if artifact.get('feature_version', 1) == 2:
         from script.modeling.model_v2.features_v2 import features as improved_features
-        frame = improved_features(rows, artifact['reference_catalog'])
+        frame = improved_features(rows, artifact['reference_catalog'], include_source=not artifact.get('source_free',False))
     else:
         frame = features(rows)
+    frame = frame.drop(columns=artifact.get('dropped_features', []))
     from threadpoolctl import threadpool_limits
     with threadpool_limits(limits=4):
         predicted = prices(artifact['model'], frame)
@@ -49,7 +58,7 @@ def predict_rows(artifact, rows):
         flags = []
         if artifact.get('feature_version', 1) == 2:
             for field in ['battery_health_pct', 'warranty_days', 'box_mentioned']:
-                if row.get(field) in (None, ''):
+                if field in frame.columns and row.get(field) in (None, ''):
                     flags.append(field + '_unknown')
         if key not in artifact['fitted_models']:
             flags.append('model_unseen_in_training')
@@ -72,16 +81,18 @@ def main():
     for field in REQUIRED:
         parser.add_argument('--' + field.replace('_', '-'))
     args = parser.parse_args()
+    artifact = load_model(args.model_file)
     if args.input_csv:
         with args.input_csv.open(encoding='utf-8-sig', newline='') as handle:
             rows = list(csv.DictReader(handle))
     else:
         row = {field: getattr(args, field) for field in REQUIRED}
-        if any(value is None for value in row.values()):
-            parser.error('Provide --input-csv or all six listing fields')
+        required = [field for field in REQUIRED if field != 'source'] if artifact.get('source_free') else REQUIRED
+        if any(row[field] is None for field in required):
+            parser.error('Provide --input-csv or all required listing fields: ' + ', '.join(required))
         row.update({field: getattr(args, field) for field in ['battery_health_pct', 'warranty_days', 'box_mentioned']})
         rows = [row]
-    result = predict_rows(load_model(args.model_file), rows)
+    result = predict_rows(artifact, rows)
     encoded = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
     if args.output:
         destination = args.output.resolve()

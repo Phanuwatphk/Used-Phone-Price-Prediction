@@ -16,7 +16,7 @@ import joblib
 from sklearn.dummy import DummyRegressor
 from streamlit.testing.v1 import AppTest
 
-from script.modeling.model_v2.features_v2 import FEATURES, features
+from script.modeling.model_v2.features_v2 import SOURCE_FREE_FEATURES, features
 from script.modeling.predict import predict_rows
 from script.modeling.split_dataset import sha
 
@@ -48,8 +48,8 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
         rows = [{'source': 'mac2hand', 'brand': brand, 'model': model, 'storage_gb': 128,
                  'condition': 'used', 'published_at': '2026-10-06'}
                 for brand, model in [('Apple', 'iPhone 12'), ('Apple', 'iPhone 13'), ('Samsung', 'Galaxy S22')]]
-        model = DummyRegressor(strategy='median').fit(features(rows, {}), [10000, 12000, 14000])
-        artifact = {'model': model, 'feature_version': 2, 'feature_names': FEATURES,
+        model = DummyRegressor(strategy='median').fit(features(rows, {}, include_source=False), [10000, 12000, 14000])
+        artifact = {'model': model, 'feature_version': 2, 'source_free': True, 'feature_names': SOURCE_FREE_FEATURES,
                     'reference_catalog': {}, 'candidate_name': 'fixture',
                     'fitted_brands': ['Apple', 'Samsung'],
                     'fitted_models': [r['brand'] + ':' + r['model'] for r in rows],
@@ -92,7 +92,7 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertIsNone(row['warranty_days'])
             self.assertIsNone(row['box_mentioned'])
             self.assertEqual(row['model'], 'iPhone 13')
-            self.assertEqual(row['source'], 'mac2hand')
+            self.assertNotIn('source', row)
             self.assertEqual(row['condition'], 'used')
 
     def test_changing_brand_resets_model_and_removes_old_result(self):
@@ -146,7 +146,7 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertEqual(row['battery_health_pct'], 90)
             self.assertEqual(row['warranty_days'], 0)
             self.assertEqual(row['box_mentioned'], 0)
-            self.assertEqual(row['source'], 'mac2hand')
+            self.assertNotIn('source', row)
             self.assertEqual(row['condition'], 'used')
             self.assertEqual(row['published_at'], '2026-10-07')
             self.assertEqual(len(app.info), 1)
@@ -159,6 +159,16 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
         self.assertEqual(len(app.error), 1)
         self.assertIn('ผู้ดูแล', app.error[0].value)
         self.assertEqual(len(app.button), 0)
+
+    def test_damaged_device_is_not_sent_to_normal_device_model(self):
+        with patch('script.modeling.predict.predict_rows', wraps=predict_rows) as predict:
+            app = AppTest.from_file(str(APP), default_timeout=20).run()
+            app.selectbox(key='device_status').select('unsupported')
+            app.button[0].click().run()
+            self.assertFalse(app.exception)
+            predict.assert_not_called()
+            self.assertEqual(len(app.metric), 0)
+            self.assertTrue(any('ยังไม่รองรับ' in warning.value for warning in app.warning))
 
     def test_explorer_filters_and_empty_state_preserve_input(self):
         before = self.dataset.read_bytes()
@@ -233,6 +243,23 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_current_model_ignores_source_and_warranty_and_rejects_new_devices(self):
+        from script.modeling.predict import load_model
+        artifact = load_model()
+        self.assertEqual(artifact['model_version'], 2)
+        self.assertEqual(artifact['feature_version'], 2)
+        self.assertEqual(artifact['training_conditions'], ['used'])
+        self.assertEqual(len(artifact['feature_names']), 13)
+        self.assertTrue({'source', 'condition', 'warranty_days', 'warranty_missing'}.isdisjoint(artifact['feature_names']))
+        row = {'brand': 'Apple', 'model': 'iPhone 13', 'storage_gb': 128,
+               'condition': 'used', 'published_at': '2026-10-15'}
+        results = predict_rows(artifact, [row, {**row, 'source': 'ennxo', 'warranty_days': 365},
+                                        {**row, 'source': 'mac2hand', 'warranty_days': 0}])
+        self.assertEqual(len({result['predicted_price_thb'] for result in results}), 1)
+        self.assertNotIn('warranty_days_unknown', results[0]['coverage_flags'])
+        with self.assertRaisesRegex(ValueError, 'outside the trained model scope'):
+            predict_rows(artifact, [{**row, 'condition': 'new'}])
+
     def test_reference_preserves_shared_gb_units_and_converts_tb(self):
         reference=json.loads((ROOT/'config/app/storage_options.json').read_text())['capacities']
         self.assertEqual(reference['Apple:iPhone 12'],[64,128,256])

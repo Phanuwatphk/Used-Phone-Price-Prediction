@@ -174,7 +174,7 @@
     ]
   },
   "revision": {
-    "run": "asking_price_revision",
+    "run": "asking_price_v2/development/revision",
     "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
     "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
     "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
@@ -340,7 +340,7 @@
     "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
   },
   "age_transfer": {
-    "run": "asking_price_age_transfer",
+    "run": "asking_price_v2/development/age_transfer",
     "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
     "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
     "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
@@ -436,7 +436,7 @@
     "condition_features_sha256": "f9f72126ac89e5e3f342ca8e8d516043600313411d3568aa9fdc519cff4cdd66"
   },
   "ensemble": {
-    "run": "asking_price_ensemble",
+    "run": "asking_price_v2/development/ensemble",
     "dataset": "data/intermediate/modeling/asking_price_v2/enrichment/dataset.csv",
     "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
     "core_dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",

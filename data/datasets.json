@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_on": "2026-10-12",
+  "updated_on": "2026-10-15",
   "merged_dataset": {
     "snapshot": "ennxo_20261005_mac2hand_20261006",
     "usable_csv": "data/intermediate/combined/ennxo_20261005_mac2hand_20261006/before_selection/dataset.csv",
@@ -107,10 +107,10 @@
     "condition_features": "data/final/condition_features.csv",
     "config": "config/modeling/current.json",
     "deployment_model": "models/asking_price_v2/model.joblib",
-    "deployment_fit_rows": 9210,
+    "deployment_fit_rows": 9100,
     "evaluation_model": "models/asking_price_v2/evaluation.joblib",
-    "evaluation_fit_rows": 8517,
-    "retrospective_evaluation_rows": 693,
+    "evaluation_fit_rows": 8418,
+    "retrospective_evaluation_rows": 682,
     "fresh_independent_holdout": false,
     "deployment_independent_test_score": null,
     "report": "docs/modeling.md",
@@ -118,7 +118,14 @@
     "model_included_in_git": true,
     "summary": "docs/assets/modeling/metadata.json#summary",
     "metadata": "models/asking_price_v2/metadata.json",
-    "selected_model": "blend_cat_share_0.5"
+    "selected_model": "used_core_blend_cat_share_0.5",
+    "training_conditions": [
+      "used"
+    ],
+    "feature_version": 2,
+    "feature_count": 13,
+    "model_version": 2,
+    "source_free": true
   },
   "modeling_history": {
     "asking_price_v1": {
@@ -142,5 +149,15 @@
     "backup": "archive/structure_before_simplification_20261012.zip",
     "report_history": "docs/assets/modeling/history.zip",
     "metadata_format": "One metadata.json per output directory; sections retain original values and verifiable section hashes."
+  },
+  "model_versions": {
+    "1": {
+      "role": "baseline",
+      "run": "asking_price_v1"
+    },
+    "2": {
+      "role": "current",
+      "run": "asking_price_v2"
+    }
   }
 }
