@@ -60,7 +60,7 @@ CI ตรวจ dependencies, syntax, การสร้าง features จา�
 
 V1 และ evaluation.joblib เป็นหลักฐานย้อนหลังแยกจากโมเดลใช้งาน V2; metadata เก็บ checksum และ feature contract ของแต่ละโมเดล ผลและข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
 
-เผยแพร่ `models/asking_price_v1/model.joblib` พร้อม metadata ของ V1 และ `models/asking_price_v2/evaluation.joblib` พร้อมโมเดลใช้งาน V2 เพื่อให้โหลดตรวจสอบซ้ำได้ เอกสารทบทวนสำหรับนำเสนออยู่ใน [โฟลเดอร์ .local](../.local/)
+เผยแพร่ `models/asking_price_v1/model.joblib` พร้อม metadata ของ V1 และ `models/asking_price_v2/evaluation.joblib` พร้อมโมเดลใช้งาน V2 เพื่อให้โหลดตรวจสอบซ้ำได้
 
 โครงการมี Model Version 1 เป็น baseline และ Model Version 2 เป็นโมเดลใช้งานปัจจุบัน การปรับฟีเจอร์และน้ำหนักโมเดลนับเป็นการพัฒนาภายใน V2 โดยใช้ `model_v2/train_improved.py` และ `models/asking_price_v2/` โมเดล V2 ใช้ข้อมูล 9,100 ประกาศและ 13 ฟีเจอร์ ไม่ใช้ source หรือ condition เป็นฟีเจอร์:
 

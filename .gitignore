@@ -6,9 +6,6 @@
 .aws/
 .streamlit/secrets.toml
 
-# Presentation notes are published under .local/; avoid a duplicate legacy copy.
-/docs/presentation.md
-
 # Python and editor caches
 __pycache__/
 *.py[cod]
