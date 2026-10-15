@@ -155,9 +155,9 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
     categorical = [field for field in CATEGORICAL if field not in dropped and
                    (field != 'source' or not selected.get('source_free'))]
     numeric = [field for field in NUMERIC if field not in dropped]
-    fold_table = table(['ช่วง', 'Train', 'Train ถึง', 'Validation', 'เริ่ม', 'ถึง'],
+    fold_table = table(['ช่วง', 'Train', 'Train ถึง', 'Validation', 'เริ่ม', 'ถึง', 'วัน'],
         [[r['fold'], f"{r['train_rows']:,}", r['train_max'], f"{r['validation_rows']:,}",
-          r['validation_min'], r['validation_max']] for r in folds])
+          r['window_start'], r['window_end'], r['window_days']] for r in folds])
     eligibility = {item['name']: item.get('eligible_for_selection', True) for item in config['candidates']}
     compare = table(['สัดส่วน HGB : CatBoost', 'Validation MAE (บาท)', 'RMSE (บาท)'],
         [[f"{(1-candidate['blend_weights'][1])*100:.0f} : {candidate['blend_weights'][1]*100:.0f}",
@@ -227,11 +227,11 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
 
 ## 3. การแบ่งข้อมูลตามเวลา
 
-เรียงตามวันประกาศ โดยวันเดียวกันอยู่ฝั่งเดียวกัน ใช้ expanding-window validation ให้ train มาก่อน validation
+ใช้ expanding-window validation **{len(folds)} ช่วง ช่วงละ {config['validation_scheme']['window_days']} วันเท่ากัน** กำหนดช่วงต่อเนื่องย้อนจากวันเริ่มประเมินย้อนหลัง {config['retrospective_test_start']} รวม {len(folds)*config['validation_scheme']['window_days']} วัน โดยไม่ใช้ราคาเลือกขอบเขต Train ใช้ข้อมูลก่อนแต่ละช่วงและขยายตามเวลา ประกาศวันเดียวกันอยู่ฝั่งเดียวกัน
 
 {fold_table}
 
-Validation รวม **{sum(fold['validation_rows'] for fold in folds):,} แถว** เลือกน้ำหนักด้วย MAE ของผลทำนายรวมทุกแถว ไม่เฉลี่ยคะแนนแต่ละช่วงเท่ากัน
+จำนวนประกาศแต่ละช่วงต่างกันตามข้อมูลที่เกิดขึ้นจริง แม้ระยะเวลาเท่ากัน Validation รวม **{sum(fold['validation_rows'] for fold in folds):,} แถว** เลือกน้ำหนักด้วย MAE ของผลทำนายรวมทุกแถว ไม่เฉลี่ยคะแนนแต่ละช่วงเท่ากัน
 
 | ขั้นตอนหลังเลือกน้ำหนัก | ข้อมูล |
 |---|---|
@@ -258,7 +258,8 @@ Validation รวม **{sum(fold['validation_rows'] for fold in folds):,} แถ
 
 {compare}
 
-เลือก **HGB 50% + CatBoost 50%** ใช้ validation 2 ช่วงเป็นแผนหลัก ผลทดลอง 5 ช่วงเป็นหลักฐานประกอบใน [รายงานเปรียบเทียบ](../.local/experiments/v2_fold_comparison/comparison.md) โดยทั้งสองแผนเลือกน้ำหนักเดียวกัน การใช้ 5 ช่วงลด MAE รวมเพียง 0.89% แต่ RMSE สูงขึ้น จึงคงแผน 2 ช่วง
+เลือก **HGB {selected['blend_weights'][0]*100:.0f}% + CatBoost {selected['blend_weights'][1]*100:.0f}%** จาก MAE รวมบน validation {len(folds)} ช่วง
+
 
 ![MAE ของตัวเลือกบน validation](figures/validation_comparison.png)
 
@@ -318,7 +319,7 @@ MAE ลดลง **{s['retrospective_mae_improvement_pct']:.2f}%**; R² ไม�
 | V1 | โมเดลพื้นฐาน; หลักฐานใน `docs/assets/modeling/history.zip` |
 | V2 | โมเดลใช้งานปัจจุบัน HGB + CatBoost จำนวน 13 ฟีเจอร์ |
 
-การทดลองฟีเจอร์และจำนวนช่วง validation เป็นการพัฒนาภายใน V2
+การทดลองฟีเจอร์และน้ำหนักโมเดลเป็นการพัฒนาภายใน V2
 '''
     detailed = detailed.rstrip() + '\n'
     if report.resolve() == (ROOT / 'docs/assets/modeling').resolve():

@@ -1,7 +1,7 @@
 """V2 rolling temporal selection, retrospective comparison, and full-data deployment fit."""
 import argparse,csv
 from collections import Counter
-from datetime import datetime,timezone
+from datetime import date,datetime,timedelta,timezone
 import importlib.metadata
 import json
 from pathlib import Path
@@ -99,6 +99,27 @@ def artifact(model,spec,rows,catalog,dataset_hash):
             'fit_date_max':max(r['published_at'] for r in rows),'dataset_sha256':dataset_hash,'candidate_name':spec['name']}
 
 
+def validate_validation_scheme(config):
+    """Check the declared calendar horizon independently of row counts or prices."""
+    scheme = config.get('validation_scheme')
+    if scheme is None:
+        return
+    intervals = config['folds']
+    if scheme['kind'] != 'expanding_window_equal_duration' or len(intervals) != scheme['n_splits']:
+        raise ValueError('Validation scheme and fold count differ')
+    previous_end = None
+    for interval in intervals:
+        start, end = (date.fromisoformat(interval[key]) for key in ('start', 'end'))
+        if (end - start).days + 1 != scheme['window_days']:
+            raise ValueError('Validation windows must have equal declared duration')
+        if previous_end is not None and start != previous_end + timedelta(days=1):
+            raise ValueError('Validation windows must be consecutive and disjoint')
+        previous_end = end
+    anchor = date.fromisoformat(scheme['anchor_end_exclusive'])
+    if previous_end + timedelta(days=1) != anchor or str(anchor) != config['retrospective_test_start']:
+        raise ValueError('Validation must end immediately before the retrospective cutoff')
+
+
 def run(config_path=DEFAULT_CONFIG, resume=False):
     config_path=Path(config_path).resolve();config=reference_json(config_path)
     start=time.monotonic();run_name=config['run']
@@ -122,6 +143,7 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
     if sha(catalog_path)!=config['catalog_sha256']:raise ValueError('Catalog checksum mismatch')
     core=ROOT/'data/final/dataset.csv';core_hash=sha(core)
     if core_hash!=config['core_dataset_sha256']:raise ValueError('Canonical data changed')
+    validate_validation_scheme(config)
     folds=[]
     for interval in config['folds']:
         training=[r for r in rows if r['published_at']<interval['start']]
@@ -135,7 +157,10 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
                 raise ValueError('Cannot resume after changing learning configuration: ' + key)
     write_metadata(report, 'config', config)
     write_metadata(report, 'folds', [{'fold':i+1,'train_rows':len(a),'validation_rows':len(b),'train_max':a[-1]['published_at'],
-                             'validation_min':b[0]['published_at'],'validation_max':b[-1]['published_at']} for i,(a,b) in enumerate(folds)])
+                             'validation_min':b[0]['published_at'],'validation_max':b[-1]['published_at'],
+                             'window_start':config['folds'][i]['start'],'window_end':config['folds'][i]['end'],
+                             'window_days':(date.fromisoformat(config['folds'][i]['end'])-date.fromisoformat(config['folds'][i]['start'])).days+1}
+                             for i,(a,b) in enumerate(folds)])
     comparisons=[];fold_results=[];best=None
     if previous_config:
         def cached(path, text_fields):
@@ -211,7 +236,9 @@ def run(config_path=DEFAULT_CONFIG, resume=False):
           'code_sha256':{str(p.relative_to(ROOT)):sha(p) for p in sorted((ROOT/'script/modeling').rglob('*.py'))},
           'versions':{x:importlib.metadata.version(x) for x in ['scikit-learn','catboost','pandas','numpy','joblib']},
           'fit_roles':{'evaluation.joblib':{'rows':len(training),'test_excluded':True},'model.joblib':{'rows':len(rows),'includes_old_test':True,'independent_test_score':None}},
-          'selected_model':spec['name'],'feature_contract':deployment_artifact['feature_names']}
+          'selected_model':spec['name'],'feature_contract':deployment_artifact['feature_names'],
+          'model_version':deployment_artifact['model_version'],'feature_version':deployment_artifact['feature_version'],
+          'source_free':deployment_artifact['source_free']}
     dump(modeldir/'metadata.json',meta);write_metadata(report, 'summary', summary);write_metadata(report, 'provenance', meta)
     write_metadata(report, 'validation', {'core_unchanged':True,'strict_temporal_folds':True,'encoder_fit_on_fold_training_only':True,
              'unknown_optional_values_not_imputed_in_dataset':True,'winner_chosen_before_retrospective_scoring':True,

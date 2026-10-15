@@ -163,7 +163,8 @@ def render_model_results():
     except (OSError, ValueError):
         st.info('ยังไม่มีรายงานผลโมเดลสำหรับแสดง')
         return
-    st.write(f"เลือกสัดส่วนโมเดลจาก validation ตามเวลา 2 ช่วง ภายใต้ขอบเขตและฟีเจอร์ที่กำหนดไว้ ผลด้านล่างเป็นการเปรียบเทียบย้อนหลังบนมือสอง {summary['retrospective_rows']:,} ประกาศเดิม")
+    scheme = read_metadata(report, 'config')['validation_scheme']
+    st.write(f"เลือกสัดส่วนโมเดลจาก validation ตามเวลา {scheme['n_splits']} ช่วง ช่วงละ {scheme['window_days']} วันเท่ากัน ภายใต้ขอบเขตและฟีเจอร์ที่กำหนดไว้ ผลด้านล่างเป็นการเปรียบเทียบย้อนหลังบนมือสอง {summary['retrospective_rows']:,} ประกาศเดิม")
     first, second, third = st.columns(3)
     first.metric('คลาดเคลื่อนเฉลี่ย (MAE)', f"{summary['retrospective']['mae_thb']:,.0f} บาท")
     second.metric('RMSE', f"{summary['retrospective']['rmse_thb']:,.0f} บาท")

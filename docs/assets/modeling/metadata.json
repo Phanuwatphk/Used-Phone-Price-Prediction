@@ -1,25 +1,18 @@
 {
-  "report_refresh": {
-    "refreshed_at": "2026-10-15T16:39:59.957687+00:00",
-    "training_repeated": false,
-    "renderer_sha256": "dc2638496746675f62e9e4d07f5fd65266046b66803a61f55e63e52cd4459348",
-    "predictions_sha256": "8c52f65365b3c961e5a7b4515a9c683e5fd539d544126b40b5d574bb273cacca",
-    "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
-  },
   "summary": {
     "run": "asking_price_v2",
     "selected_model": "used_core_blend_cat_share_0.5",
     "validation": {
       "name": "used_core_blend_cat_share_0.5",
       "rows": 955,
-      "mae_thb": 3698.3379056310905,
-      "rmse_thb": 6034.698366521905,
-      "median_absolute_error_thb": 2025.5176496988033,
-      "r2": 0.8170789252368932,
-      "mape_pct": 89.17964134443716,
-      "within_20pct": 0.512041884816754,
-      "bias_thb": 71.4886017596579,
-      "fit_seconds": 24.81
+      "mae_thb": 3829.655539893527,
+      "rmse_thb": 5986.921741573789,
+      "median_absolute_error_thb": 2110.2120391276844,
+      "r2": 0.8199638273120318,
+      "mape_pct": 78.77896185425959,
+      "within_20pct": 0.4952879581151832,
+      "bias_thb": 225.7881689223496,
+      "fit_seconds": 66.22
     },
     "retrospective": {
       "rows": 682,
@@ -271,7 +264,7 @@
         "bias_thb": -1848.812906015482
       }
     ],
-    "duration_seconds": 213.17,
+    "duration_seconds": 449.39,
     "policy": "Core dataset retained unchanged. Training condition scope is explicit in config; no price-based row removal in this run. Recency weights retain all dates. Selection uses eligible candidates on forward validation; old test is retrospective.",
     "data_drift": {
       "training_brands": {
@@ -358,8 +351,7 @@
       "unconfirmed_brands": [
         "Huawei"
       ]
-    },
-    "model_version": 2
+    }
   },
   "selection": {
     "candidate": {
@@ -426,28 +418,28 @@
     "validation_metrics": {
       "name": "used_core_blend_cat_share_0.5",
       "rows": 955,
-      "mae_thb": 3698.3379056310905,
-      "rmse_thb": 6034.698366521905,
-      "median_absolute_error_thb": 2025.5176496988033,
-      "r2": 0.8170789252368932,
-      "mape_pct": 89.17964134443716,
-      "within_20pct": 0.512041884816754,
-      "bias_thb": 71.4886017596579,
-      "fit_seconds": 24.81
+      "mae_thb": 3829.655539893527,
+      "rmse_thb": 5986.921741573789,
+      "median_absolute_error_thb": 2110.2120391276844,
+      "r2": 0.8199638273120318,
+      "mape_pct": 78.77896185425959,
+      "within_20pct": 0.4952879581151832,
+      "bias_thb": 225.7881689223496,
+      "fit_seconds": 66.22
     },
     "old_test_used_for_selection": false,
     "evaluation_status": "retrospective reuse of previously inspected v1 test; not a fresh independent holdout"
   },
   "provenance": {
     "run": "asking_price_v2",
-    "generated_at_utc": "2026-10-15T13:55:38.565905+00:00",
-    "config_sha256": "49b9d5d9670edd33643fb2ccf19cd3633c49a368cf21f8cf57c552385ee341cb",
+    "generated_at_utc": "2026-10-15T17:13:31.252849+00:00",
+    "config_sha256": "ad19cc3cb234f5c3e001c32f1bbea0efa5663459ed5042abb843c47ed050df63",
     "dataset_sha256": "a630520c2f7efc8ed793591aaa01e780d1198fa630410da3c335c27c6bd0e5c6",
     "enriched_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
     "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
     "model_hashes": {
-      "evaluation.joblib": "77d04d482a673d5e9e6bdb786243d37d7fcb60bddc459d2c1f51d2efcdd6dc8a",
-      "model.joblib": "ebb745860d4e6c95036069f358f8dfa7229689cf2ab1ed38b76bb12d3712e9e0"
+      "evaluation.joblib": "df975b0de181f1c3fb32ad999a02dd199d68181485e624451f5651f05a7625b4",
+      "model.joblib": "a90cc3c844a4cc554eef57e90deaa96f03b527be2258020469435a08675a4845"
     },
     "code_sha256": {
       "script/modeling/__init__.py": "abbdf31e4196ce1e6e9f5a33d18796264c1c31292a2ce0ee3d7e4ff6b77ada82",
@@ -460,9 +452,9 @@
       "script/modeling/model_v2/features_v2.py": "da15937280b3c9992bed6099144331a98e0720d30e13630c679afb0a61738c5d",
       "script/modeling/model_v2/prepare_features_v2.py": "9544bfb64802a1c6ca0cb2311ad1efe549856d4335b62a92bb5382c8221929b7",
       "script/modeling/model_v2/rebuild_features_v2.py": "94d35cb99ac25508eab91fd519dd9533429263487d2efff5b55170aebf01029e",
-      "script/modeling/model_v2/report_improved.py": "b7a548f77b65bae0de17849f05f8d5b8fac83e16f67fe32c17295445e774602b",
-      "script/modeling/model_v2/train_improved.py": "a30addb1fa79807c9ea86bd8a40cb560d7676b779c07d37629f5d7b330315095",
-      "script/modeling/predict.py": "1e131bf466b536de423b472e04cf85eb455086771b5e8355f4f5def2d779f11f",
+      "script/modeling/model_v2/report_improved.py": "45f50cda0fa5f2738b582e580906fa69db2143a37b0d46920fd846787d186879",
+      "script/modeling/model_v2/train_improved.py": "4beda551289a7e1a426cc1f7bda142264701b30f58e8ab79e1736e9dc76fe849",
+      "script/modeling/predict.py": "18fa7a1718d1cae55e353ad8189de3d3265b92deee1da8b27f918ee8462c7174",
       "script/modeling/split_dataset.py": "e339c1056d4174552a236bbb31e300a49b5fb11576870c49c18310bbab5423b1",
       "script/modeling/trend.py": "444c2964017ccaefb84e876968d4c224d492a0f4249d5d1fca50ebed85ef606b"
     },
@@ -502,41 +494,34 @@
     ],
     "model_version": 2,
     "feature_version": 2,
-    "source_free": true,
-    "artifact_contract_update": {
-      "model_version": 2,
-      "estimator_refitted": false,
-      "predictions_identical_on_observed_used_variants": 468,
-      "note": "Unified Model Version 2 naming and source-free contract; fitted estimators and numeric features unchanged."
-    }
+    "source_free": true
   },
   "hashes": {
     "figures/retrospective_actual_vs_predicted.png": "f438137ea6c522f84d0952b7436cf0d38e31462e9235d41fd9ef1596b901554b",
-    "figures/retrospective_actual_vs_predicted.svg": "ec04fb8c9d636c03e4492a4a25e0622eccaae82f061c1b16324d955a5ed9ad9f",
+    "figures/retrospective_actual_vs_predicted.svg": "3ccd34c015d7703d4ec20c0c833d78cdcca5ec8517a0969998fd0bc5dc1f812b",
     "figures/retrospective_brand_mae.png": "1747e33f60402dce89fa4d5e8abd8167a15111d56531fcb0ddfe70be6aa6b940",
-    "figures/retrospective_brand_mae.svg": "7db8e7c1d69be63979e385ada29bc413ecdf1b91ba42b25fe9969f55d3dbde9d",
+    "figures/retrospective_brand_mae.svg": "ac3691ae21b8f050cec64d51ec1035601b2462276dc308bdbac3e54d47ef0871",
     "figures/retrospective_error_distribution.png": "2b90bd5491ac57f9acc92215e45906fc8933d13282be048f4e334f06efb49ae3",
-    "figures/retrospective_error_distribution.svg": "9d68ef9754ebc8b2883846eeaf111ffbf1ebe1186e1123f5067b71dde2b00a78",
+    "figures/retrospective_error_distribution.svg": "69934ba8eae2ea66e6403e5f67acefa51aa01bf9e2ee60211590b45d0837a7da",
     "figures/retrospective_residuals.png": "8b592159ee05c6276479018f921654e267e8fdc1598c31c9d6125499177e258b",
-    "figures/retrospective_residuals.svg": "b767ee63abe58f210ab012c5be7bb1afda8fbc1196efd584adde725f667494da",
-    "figures/validation_comparison.png": "b00877bc4c4b313cb25f268dc2e408c0ccb2890f5b64d7deb276101347de2657",
-    "figures/validation_comparison.svg": "094ddb98df72ded4b414faea31ee1990ca40ef059435956e23911591a0512315",
+    "figures/retrospective_residuals.svg": "f28c49661d6982a654416ce09a950b51baedc56ef62835f789d13fe8d91fe413",
+    "figures/validation_comparison.png": "4efe6ae0aed94a043d7da29d1e64585cc31f25d664c498bdd1daede5b005991b",
+    "figures/validation_comparison.svg": "ee33550c4f362062703d4f48dd37b9b07962e468bb9e93491d4c7e98719367da",
     "history.zip": "245ec8bad101c2378d6d09ef2ec8a90f0adc44bcda1a6236289e5208c0e62c14",
-    "report.html": "a2a597a4be7eda092987576d985b5267c9fe42d77d859cc5944869f9b44d666c",
-    "tables/fold_metrics.csv": "56f70e614a7aba1523cd881585ddd911b6df2baa166b39f15d8eab2c20961d26",
+    "report.html": "9d4c1d770d39f2cd459579ed1b660f368bf02d5d0da7b8dd82bd7298ef820da5",
+    "tables/fold_metrics.csv": "f11a913332f27bcaa1f76df1fc397885d745485c516c045c4655c43ddc759ae5",
     "tables/retrospective_by_group.csv": "9efc84ddf19f9f84531686cbf727f20c61d4262643d0cfeac58c7433eee1bdc4",
     "tables/retrospective_metrics.csv": "c00467414b59c5324009e163afe82fd7ef36396d185dc9d6c996076c9b19676a",
     "tables/storage_reference_audit.csv": "53f3d3fe16186d006eb1851cf7541c5bc1e0a86c476572a403ec54a02e21cce9",
-    "tables/validation_comparison.csv": "1b8d093b018b1918cc180c421a0dcbad16c078facf76993ff785dfcf566fe5e7",
-    "metadata.json#report_refresh": "3092b548976bfb02d2c9366e68b4215f0028f338ab771bfd7bc92939d352a3e0",
-    "metadata.json#summary": "25e9f2677f36d33ed4d3a1928d712b445f7320f85ad923d4dc6081131209583c",
-    "metadata.json#selection": "6c57626865f3d43347998902cf7be70e5e6b5c9e2db789ef01d12eb2e576bc0b",
-    "metadata.json#provenance": "3d00eff0b1b78e9a8ffde32e300e07ed1b88d449ac897632d34190d421fa9eae",
-    "metadata.json#config": "49b9d5d9670edd33643fb2ccf19cd3633c49a368cf21f8cf57c552385ee341cb",
-    "metadata.json#folds": "93260d23a228570970fb9579dcbe7791d4061c910d2264ab05f22ac9f9c15e0f",
+    "tables/validation_comparison.csv": "955e1c9092aabc61920948274cf74f2b125dff355f43e825cb513d9e55eacb22",
+    "metadata.json#summary": "be4bada2692491155a495fab50c3cc7a0f52764a984f907788013fb72cd61c23",
+    "metadata.json#selection": "bb28e0c66e4d1badc37bf77d3cb41db366f1a0753e8635d084cd84627649acfa",
+    "metadata.json#provenance": "18129b46387b20a803f0c05883eeca1967b0e474abfb472101ccea8ed1f0b8fa",
+    "metadata.json#config": "ad19cc3cb234f5c3e001c32f1bbea0efa5663459ed5042abb843c47ed050df63",
+    "metadata.json#folds": "24f0e87c38152642e925ac66136c2f3c9d6151e3e51e30015a1bca5eeba80e1e",
     "metadata.json#validation": "0783e5ba12f6c00bbead1260de5d152efa629a819abf43708ee1dda924435979",
     "metadata.json#workflow_validation": "af0e087c83a34fe932b5e3365bff68729db25ddad5d79f5e978f3e635a429873",
-    "../../modeling.md": "0ac9803026a453aec67c4da8fc54682def4dab98d5dfa666aec532b692bdc409"
+    "../../modeling.md": "c26ea82a28a44aeca6fdd9ec168cdd477683cb496570f0f38bad7566bfe6aea8"
   },
   "config": {
     "run": "asking_price_v2",
@@ -550,12 +535,24 @@
     "threads": 4,
     "folds": [
       {
-        "start": "2024-01-01",
-        "end": "2024-05-21"
+        "start": "2023-12-31",
+        "end": "2024-03-14"
       },
       {
-        "start": "2024-05-22",
-        "end": "2025-01-07"
+        "start": "2024-03-15",
+        "end": "2024-05-28"
+      },
+      {
+        "start": "2024-05-29",
+        "end": "2024-08-11"
+      },
+      {
+        "start": "2024-08-12",
+        "end": "2024-10-25"
+      },
+      {
+        "start": "2024-10-26",
+        "end": "2025-01-08"
       }
     ],
     "retrospective_test_start": "2025-01-09",
@@ -851,24 +848,70 @@
       "retained": "Brand/model/family/tier, storage, listing date, iPhone release year/model age, explicit battery and box claims plus missing indicators.",
       "unavailable": "No audited cosmetic grades, repair history, actual device age, or realized sale prices. No invented adjustments."
     },
-    "model_version": 2
+    "model_version": 2,
+    "validation_scheme": {
+      "kind": "expanding_window_equal_duration",
+      "n_splits": 5,
+      "window_days": 75,
+      "anchor_end_exclusive": "2025-01-09",
+      "boundary_basis": "Five consecutive 75-day calendar windows immediately before the fixed retrospective cutoff. No price values or validation scores determine boundaries. Training uses all earlier dates."
+    }
   },
   "folds": [
     {
       "fold": 1,
       "train_rows": 7463,
-      "validation_rows": 270,
+      "validation_rows": 91,
       "train_max": "2023-12-30",
       "validation_min": "2024-01-02",
-      "validation_max": "2024-05-21"
+      "validation_max": "2024-03-10",
+      "window_start": "2023-12-31",
+      "window_end": "2024-03-14",
+      "window_days": 75
     },
     {
       "fold": 2,
-      "train_rows": 7733,
-      "validation_rows": 685,
-      "train_max": "2024-05-21",
-      "validation_min": "2024-05-22",
-      "validation_max": "2025-01-07"
+      "train_rows": 7554,
+      "validation_rows": 275,
+      "train_max": "2024-03-10",
+      "validation_min": "2024-03-15",
+      "validation_max": "2024-05-28",
+      "window_start": "2024-03-15",
+      "window_end": "2024-05-28",
+      "window_days": 75
+    },
+    {
+      "fold": 3,
+      "train_rows": 7829,
+      "validation_rows": 216,
+      "train_max": "2024-05-28",
+      "validation_min": "2024-05-29",
+      "validation_max": "2024-08-08",
+      "window_start": "2024-05-29",
+      "window_end": "2024-08-11",
+      "window_days": 75
+    },
+    {
+      "fold": 4,
+      "train_rows": 8045,
+      "validation_rows": 76,
+      "train_max": "2024-08-08",
+      "validation_min": "2024-08-14",
+      "validation_max": "2024-10-24",
+      "window_start": "2024-08-12",
+      "window_end": "2024-10-25",
+      "window_days": 75
+    },
+    {
+      "fold": 5,
+      "train_rows": 8121,
+      "validation_rows": 297,
+      "train_max": "2024-10-24",
+      "validation_min": "2024-10-30",
+      "validation_max": "2025-01-07",
+      "window_start": "2024-10-26",
+      "window_end": "2025-01-08",
+      "window_days": 75
     }
   ],
   "validation": {

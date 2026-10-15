@@ -44,6 +44,18 @@ class ModelReportTests(unittest.TestCase):
         content = (ROOT / 'docs/modeling.md').read_text()
         split_section = content.split('## 3.', 1)[1].split('## 4.', 1)[0]
         validation_rows = sum(fold['validation_rows'] for fold in folds)
+        self.assertEqual(len(folds), 5)
+        self.assertEqual({fold['window_days'] for fold in folds}, {75})
+        from datetime import date, timedelta
+        for left, right in zip(folds, folds[1:]):
+            self.assertEqual(date.fromisoformat(left['window_end']) + timedelta(days=1),
+                             date.fromisoformat(right['window_start']))
+        for fold in folds:
+            self.assertLess(fold['train_max'], fold['window_start'])
+            self.assertLessEqual(fold['window_start'], fold['validation_min'])
+            self.assertLessEqual(fold['validation_max'], fold['window_end'])
+        self.assertLess(folds[-1]['window_end'], config['retrospective_test_start'])
+        self.assertIn('75 วันเท่ากัน', split_section)
         self.assertIn(f'**{validation_rows:,} แถว**', split_section)
         self.assertIn(f"**{summary['evaluation_fit_rows']:,} แถวก่อน", split_section)
         self.assertIn(f"**{summary['retrospective_rows']:,} แถววันที่", split_section)

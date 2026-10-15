@@ -60,7 +60,7 @@ CI ตรวจ dependencies, syntax, การสร้าง features จา�
 
 V1 และ evaluation.joblib เป็นหลักฐานย้อนหลังแยกจากโมเดลใช้งาน V2; metadata เก็บ checksum และ feature contract ของแต่ละโมเดล ผลและข้อจำกัดอ่าน [รายงานโมเดล](modeling.md)
 
-เผยแพร่ `models/asking_price_v1/model.joblib` พร้อม metadata ของ V1 และ `models/asking_price_v2/evaluation.joblib` พร้อมโมเดลใช้งาน V2 เพื่อให้โหลดตรวจสอบซ้ำได้ เอกสารทบทวนและผลทดลอง 2/5 ช่วงอยู่ใน [โฟลเดอร์ .local](../.local/)
+เผยแพร่ `models/asking_price_v1/model.joblib` พร้อม metadata ของ V1 และ `models/asking_price_v2/evaluation.joblib` พร้อมโมเดลใช้งาน V2 เพื่อให้โหลดตรวจสอบซ้ำได้ เอกสารทบทวนสำหรับนำเสนออยู่ใน [โฟลเดอร์ .local](../.local/)
 
 โครงการมี Model Version 1 เป็น baseline และ Model Version 2 เป็นโมเดลใช้งานปัจจุบัน การปรับฟีเจอร์และน้ำหนักโมเดลนับเป็นการพัฒนาภายใน V2 โดยใช้ `model_v2/train_improved.py` และ `models/asking_price_v2/` โมเดล V2 ใช้ข้อมูล 9,100 ประกาศและ 13 ฟีเจอร์ ไม่ใช้ source หรือ condition เป็นฟีเจอร์:
 
@@ -208,7 +208,7 @@ Sidebar อยู่กับที่และไม่มีการเลื
 | `model_v2/features_v2.py` | สร้าง features พร้อมรองรับสัญญาเดิมและ source-free; โมเดลปัจจุบันเลือกใช้ 13 ตัว |
 | `model_v2/prepare_features_v2.py` | ถอดข้อมูลเพิ่มเติมจากรายละเอียด พร้อมบันทึกหลักฐาน |
 | `model_v2/rebuild_features_v2.py` | สร้าง input ฝึกจาก dataset กับ condition_features.csv ตรวจ hashes |
-| `model_v2/train_improved.py` | เลือกด้วย temporal validation 2 ช่วง ประเมินย้อนหลัง และฝึกโมเดลใช้งาน |
+| `model_v2/train_improved.py` | เลือกด้วย temporal validation 5 ช่วง ช่วงละ 75 วันเท่ากัน ประเมินย้อนหลัง และฝึกโมเดลใช้งาน |
 | `model_v2/report_improved.py` | สร้างรายงาน V2, HTML, กราฟ และตารางจากผลที่บันทึกไว้ |
 | `features.py` | ตรวจ input และสร้าง features พื้นฐานที่ V1/V2 ใช้ร่วม |
 | `split_dataset.py` | อ่าน/ตรวจ dataset แบ่งข้อมูลตามวัน และฟังก์ชันไฟล์/hash ที่ทั้งสองรุ่นใช้ |

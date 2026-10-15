@@ -13,6 +13,22 @@ from script.modeling.predict import predict_rows
 
 
 class ImprovedModelingTests(unittest.TestCase):
+    def test_equal_time_validation_rejects_duration_gaps_and_test_overlap(self):
+        import copy
+        import json
+        from script.modeling.model_v2.train_improved import ROOT, validate_validation_scheme
+        config = json.loads((ROOT / 'config/modeling/current.json').read_text())
+        validate_validation_scheme(config)
+        for update in [
+            lambda c: c['folds'][0].update(end='2024-03-13'),
+            lambda c: c['folds'][1].update(start='2024-03-16', end='2024-05-29'),
+            lambda c: c['validation_scheme'].update(anchor_end_exclusive='2025-01-10'),
+        ]:
+            changed = copy.deepcopy(config)
+            update(changed)
+            with self.assertRaises(ValueError):
+                validate_validation_scheme(changed)
+
     def test_source_free_features_ignore_source_and_preserve_required_validation(self):
         from script.modeling.model_v2.features_v2 import SOURCE_FREE_FEATURES
         row = listing(1)

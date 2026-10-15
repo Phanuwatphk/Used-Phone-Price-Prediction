@@ -10,12 +10,24 @@
   "threads": 4,
   "folds": [
     {
-      "start": "2024-01-01",
-      "end": "2024-05-21"
+      "start": "2023-12-31",
+      "end": "2024-03-14"
     },
     {
-      "start": "2024-05-22",
-      "end": "2025-01-07"
+      "start": "2024-03-15",
+      "end": "2024-05-28"
+    },
+    {
+      "start": "2024-05-29",
+      "end": "2024-08-11"
+    },
+    {
+      "start": "2024-08-12",
+      "end": "2024-10-25"
+    },
+    {
+      "start": "2024-10-26",
+      "end": "2025-01-08"
     }
   ],
   "retrospective_test_start": "2025-01-09",
@@ -311,5 +323,12 @@
     "retained": "Brand/model/family/tier, storage, listing date, iPhone release year/model age, explicit battery and box claims plus missing indicators.",
     "unavailable": "No audited cosmetic grades, repair history, actual device age, or realized sale prices. No invented adjustments."
   },
-  "model_version": 2
+  "model_version": 2,
+  "validation_scheme": {
+    "kind": "expanding_window_equal_duration",
+    "n_splits": 5,
+    "window_days": 75,
+    "anchor_end_exclusive": "2025-01-09",
+    "boundary_basis": "Five consecutive 75-day calendar windows immediately before the fixed retrospective cutoff. No price values or validation scores determine boundaries. Training uses all earlier dates."
+  }
 }
