@@ -1,5 +1,6 @@
 """One canonical model report with training protocol, metrics and diagnostic figures."""
 import base64
+import csv
 import html
 import json
 import re
@@ -170,6 +171,65 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
     def value(row, key):
         return (f"{row[key]*100:.2f}%" if key == 'within_20pct' else
                 f"{row[key]:.4f}" if key == 'r2' else f"{row[key]:,.2f}")
+    diagnostic_section = ''
+    diagnostic_path = report / 'tables/train_validation_errors.csv'
+    if diagnostic_path.exists():
+        from script.artifacts import metadata_sha
+        from script.modeling.split_dataset import sha
+        diagnostic = read_metadata(report, 'train_validation_diagnostic')
+        if (diagnostic['config_sha256'] != metadata_sha(report, 'config') or
+                diagnostic['output_sha256'] != sha(diagnostic_path) or
+                diagnostic['recorded_fold_metrics_sha256'] != sha(report / 'tables/fold_metrics.csv')):
+            raise ValueError('Training/validation diagnostic is stale; rerun train_validation_errors.py')
+        with diagnostic_path.open() as handle:
+            errors = [{key: (value if key in ('candidate', 'window_start', 'window_end') else float(value) if value else None)
+                       for key, value in row.items()} for row in csv.DictReader(handle)]
+        if (len(errors) != len(folds) or
+                any(row['candidate'] != selected['name'] or row['fold'] != fold['fold'] or
+                    row['train_rows'] != fold['train_rows'] or row['validation_rows'] != fold['validation_rows'] or
+                    row['window_start'] != fold['window_start'] or row['window_end'] != fold['window_end']
+                    for row, fold in zip(errors, folds))):
+            raise ValueError('Training/validation diagnostic differs from selected folds')
+        error_table = table(
+            ['ช่วง', 'Train MAE', 'Validation MAE', 'MAE gap', 'Train RMSE', 'Validation RMSE', 'RMSE gap'],
+            [[int(row['fold']), *[f"{row[key]:,.2f}" for key in
+              ['train_mae_thb', 'validation_mae_thb', 'mae_thb_gap',
+               'train_rmse_thb', 'validation_rmse_thb', 'rmse_thb_gap']]] for row in errors])
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+        for axis, metric, label in zip(axes, ['mae_thb', 'rmse_thb'], ['MAE', 'RMSE']):
+            for partition, marker in [('train', 'o'), ('validation', 's')]:
+                axis.plot([row['fold'] for row in errors], [row[partition + '_' + metric] for row in errors],
+                          marker=marker, label=partition.capitalize())
+            axis.set(xlabel='Temporal validation fold', ylabel=label + ' (THB)',
+                     xticks=[row['fold'] for row in errors], ylim=(0, None))
+            axis.grid(alpha=.25)
+            axis.legend()
+        # Regenerate this figure from the diagnostic table even on presentation-only refreshes.
+        for suffix in ['png', 'svg']:
+            temporary = figures / ('train_validation_errors.tmp.' + suffix)
+            fig.tight_layout()
+            fig.savefig(temporary, dpi=160, format=suffix)
+            temporary.replace(figures / ('train_validation_errors.' + suffix))
+        plt.close(fig)
+        higher = sum(row['mae_thb_gap'] > 0 for row in errors)
+        largest = max(errors, key=lambda row: row['mae_thb_gap'])
+        diagnostic_section = f'''### 5.1 เปรียบเทียบ training กับ validation เพื่อดู overfitting
+
+ใช้โมเดล V2 สัดส่วนที่เลือกไว้ ฝึกใหม่ตาม train ของแต่ละช่วงเดิม แล้วทำนายทั้ง training และ validation ด้วยโมเดลเดียวกันในช่วงนั้น ไม่ใช้โมเดล evaluation ที่ฝึกรวม validation แล้วมาวัดย้อนหลังบน validation เดิม ตรวจแล้วว่าคะแนน validation ที่คำนวณซ้ำตรงกับผลที่บันทึกไว้ครบทั้ง {len(errors)} ช่วง
+
+ทุกค่าในตารางมีหน่วย **บาท** คำนวณหลังแปลง log ราคากลับและผสมโมเดลแล้ว ไม่ถ่วงน้ำหนักตอนวัด error ทั้งสองชุด แม้ตอนฝึกจะให้น้ำหนักตามความใหม่ของข้อมูล **gap = validation error − training error**; ค่าบวกหมายถึง error บน validation สูงกว่า train
+
+{error_table}
+
+![Training และ validation error ทั้ง 5 ช่วง](figures/train_validation_errors.png)
+
+Validation MAE สูงกว่า training MAE **{higher}/{len(errors)} ช่วง** ช่องว่าง MAE มากที่สุดอยู่ช่วง **{int(largest['fold'])}** เพิ่มขึ้น **{largest['mae_thb_gap']:,.2f} บาท** แสดงว่าโมเดลให้ผลบนข้อมูลที่ใช้ฝึกดีกว่าข้อมูลในอนาคต ช่องว่างนี้เป็นสัญญาณที่ควรเฝ้าระวัง overfitting แต่ยังแยกจากผลของการเปลี่ยนแปลงราคาและส่วนผสมรุ่นตามเวลาไม่ได้
+
+Training error เป็นผลบนข้อมูลที่โมเดลเคยเรียนรู้ จึงมักต่ำกว่า validation; ไม่ใช้ช่องว่างเพียงอย่างเดียวตัดสินว่า overfit หรือไม่ ชุด train ขยายและซ้อนกันระหว่างช่วง จึงไม่รวม train ทั้ง 5 ช่วงเป็นคะแนนเดียว และ validation เหล่านี้เคยใช้เลือกน้ำหนักแล้ว ควรยืนยันกับข้อมูลช่วงใหม่ที่ไม่เคยใช้พัฒนา
+
+หลักฐาน: [ตาราง error ของทั้ง 5 ช่วง](assets/modeling/tables/train_validation_errors.csv)
+
+'''
     metrics_table = table(['ตัวชี้วัด', 'V1 reference', 'V2'],
         [[label, value(b, key), value(e, key)] for label, key in metric_specs])
     source_table = table(['เว็บไซต์', 'จำนวน', 'MAE (บาท)', 'ภายใน ±20%'],
@@ -188,6 +248,8 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
          if name in platform['groups']])
     drift = s['data_drift']
     apple = drift['training_brands'].get('Apple', 0)
+    from script.modeling.model_v2.report_learning_curve import render_learning_curve
+    learning_curve_section = render_learning_curve(report, config, folds, selected)
     detailed = f'''# โมเดลประเมินราคาตั้งขายมือถือมือสอง — V2
 
 ใช้กับเครื่องที่ทำงานปกติ เป้าหมายคือราคาประกาศขาย หน่วยบาท
@@ -275,7 +337,7 @@ MAE ลดลง **{s['retrospective_mae_improvement_pct']:.2f}%**; R² ไม�
 
 ![ความคลาดเคลื่อน: ราคาทำนาย − ราคาประกาศ](figures/retrospective_residuals.png)
 
-## 6. ผลแยกเว็บไซต์และความครอบคลุมรุ่น
+{diagnostic_section}{learning_curve_section}## 6. ผลแยกเว็บไซต์และความครอบคลุมรุ่น
 
 {source_table}
 
@@ -306,6 +368,8 @@ MAE ลดลง **{s['retrospective_mae_improvement_pct']:.2f}%**; R² ไม�
 |---|---|
 | `script/modeling/model_v2/rebuild_features_v2.py` | สร้างข้อมูลฟีเจอร์จากข้อมูลต้นทางและ sidecar |
 | `script/modeling/model_v2/train_improved.py` | แบ่งเวลา เลือกน้ำหนัก ฝึกโมเดลประเมินและโมเดลใช้งาน |
+| `script/modeling/model_v2/train_validation_errors.py` | ฝึกซ้ำเฉพาะโมเดลที่เลือกตาม 5 ช่วงเดิม วัด train/validation error และตรวจตรงกับ validation เดิม |
+| `script/modeling/model_v2/learning_curve.py` | ฝึก learning curve 5 ขนาดต่อช่วง ตรึง validation และตรวจจุด 100% กับผลเดิม |
 | `config/modeling/current.json` | พารามิเตอร์ วันตัด และตัวเลือกที่ทดลอง |
 | `models/asking_price_v2/evaluation.joblib` | โมเดลสำหรับผลประเมินย้อนหลัง |
 | `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ |

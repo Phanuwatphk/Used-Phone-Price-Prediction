@@ -36,6 +36,90 @@ class ReportParser(HTMLParser):
 
 
 class ModelReportTests(unittest.TestCase):
+    def test_learning_curves_have_five_sizes_and_reproduce_full_size_errors(self):
+        import csv
+        import math
+        from script.modeling.model_v2.learning_curve import FRACTIONS, temporal_prefix
+        from script.modeling.split_dataset import read_dataset
+        report = ROOT / 'docs/assets/modeling'
+        config = read_metadata(report, 'config')
+        metadata = read_metadata(report, 'learning_curve')
+        with (report / 'tables/learning_curve.csv').open() as handle:
+            curves = list(csv.DictReader(handle))
+        with (report / 'tables/train_validation_errors.csv').open() as handle:
+            reference = list(csv.DictReader(handle))
+        rows = [row for row in read_dataset(ROOT / config['dataset'], config['dataset_sha256'])
+                if row['condition'] in config['training_conditions']]
+        self.assertEqual(len(curves), 25)
+        self.assertEqual(metadata['fresh_fits'], 25)
+        content = (ROOT / 'docs/modeling.md').read_text()
+        self.assertIn('### 5.2 Learning curve', content)
+        for fold, old in zip(read_metadata(report, 'folds'), reference):
+            points = [row for row in curves if int(row['fold']) == fold['fold']]
+            self.assertEqual([float(row['requested_fraction']) for row in points], list(FRACTIONS))
+            training = [row for row in rows if row['published_at'] < fold['window_start']]
+            for point in points:
+                prefix = temporal_prefix(training, float(point['requested_fraction']))
+                self.assertEqual(int(point['train_rows']), len(prefix))
+                self.assertEqual(point['train_max'], prefix[-1]['published_at'])
+                self.assertEqual(int(point['validation_rows']), fold['validation_rows'])
+                self.assertLess(point['train_max'], fold['window_start'])
+                for partition in ['train', 'validation']:
+                    for metric in ['mae_thb', 'rmse_thb']:
+                        number = float(point[partition + '_' + metric])
+                        self.assertTrue(math.isfinite(number) and number >= 0)
+            for partition in ['train', 'validation']:
+                for metric in ['mae_thb', 'rmse_thb']:
+                    key = partition + '_' + metric
+                    self.assertAlmostEqual(float(points[-1][key]), float(old[key]), places=6)
+        with (report / 'tables/learning_curve_summary.csv').open() as handle:
+            summary = list(csv.DictReader(handle))
+        self.assertEqual(len(summary), 5)
+        section = content.split('### 5.2', 1)[1].split('## 6.', 1)[0]
+        self.assertEqual(section.count('!['), 1)
+        self.assertNotIn('learning_curve_fold_', section)
+        for row in summary:
+            points = [point for point in curves if point['requested_fraction'] == row['requested_fraction']]
+            self.assertEqual(int(row['folds']), 5)
+            for key in ['train_mae_thb', 'validation_mae_thb', 'train_rmse_thb', 'validation_rmse_thb']:
+                self.assertAlmostEqual(float(row[key]), sum(float(point[key]) for point in points) / 5)
+            self.assertIn(f"{float(row['validation_mae_thb']):,.2f}", section)
+        for suffix in ['png', 'svg']:
+            self.assertTrue((report / 'figures' / f'learning_curve_summary.{suffix}').exists())
+
+    def test_train_validation_errors_cover_original_folds_and_match_scores(self):
+        import csv
+        import math
+        report = ROOT / 'docs/assets/modeling'
+        summary = read_metadata(report, 'summary')
+        with (report / 'tables/train_validation_errors.csv').open() as handle:
+            errors = list(csv.DictReader(handle))
+        with (report / 'tables/fold_metrics.csv').open() as handle:
+            recorded = [row for row in csv.DictReader(handle) if row['candidate'] == summary['selected_model']]
+        folds = read_metadata(report, 'folds')
+        self.assertEqual(len(errors), 5)
+        self.assertEqual(len(recorded), 5)
+        content = (ROOT / 'docs/modeling.md').read_text()
+        self.assertIn('### 5.1 เปรียบเทียบ training กับ validation', content)
+        self.assertIn('gap = validation error − training error', content)
+        for row, old, fold in zip(errors, recorded, folds):
+            self.assertEqual(int(row['fold']), fold['fold'])
+            self.assertEqual(int(row['train_rows']), fold['train_rows'])
+            self.assertEqual(int(row['validation_rows']), fold['validation_rows'])
+            self.assertEqual(row['window_start'], fold['window_start'])
+            self.assertEqual(row['window_end'], fold['window_end'])
+            for metric in ['mae_thb', 'rmse_thb']:
+                train, validation = float(row['train_' + metric]), float(row['validation_' + metric])
+                self.assertTrue(math.isfinite(train))
+                self.assertGreaterEqual(train, 0)
+                self.assertAlmostEqual(validation, float(old[metric]), places=6)
+                self.assertAlmostEqual(float(row[metric + '_gap']), validation - train)
+                for number in [train, validation, validation - train]:
+                    self.assertIn(f'{number:,.2f}', content)
+        count = sum(int(row['validation_rows']) for row in errors)
+        pooled_mae = sum(int(row['validation_rows']) * float(row['validation_mae_thb']) for row in errors) / count
+        self.assertAlmostEqual(pooled_mae, summary['validation']['mae_thb'])
+
     def test_current_scope_counts_are_consistent_in_report_and_folds(self):
         report = ROOT / 'docs/assets/modeling'
         summary = read_metadata(report, 'summary')
@@ -102,7 +186,7 @@ class ModelReportTests(unittest.TestCase):
         self.assertFalse(has_metadata(report, 'summary_text'))
         parser = ReportParser()
         parser.feed((report / 'report.html').read_text())
-        self.assertEqual(len(parser.images), 4)
+        self.assertEqual(len(parser.images), 6)
         self.assertTrue(all(src.startswith('data:image/png;base64,') for src in parser.images))
         self.assertGreaterEqual(parser.headings, 9)
         self.assertGreaterEqual(parser.tables, 5)

@@ -13,6 +13,45 @@ from script.modeling.predict import predict_rows
 
 
 class ImprovedModelingTests(unittest.TestCase):
+    def test_learning_curve_prefixes_are_nested_and_keep_whole_days(self):
+        from script.modeling.model_v2.learning_curve import temporal_prefix
+        rows = [listing(i, day) for i, day in enumerate(
+            ['2020-01-01', '2020-01-02', '2020-01-02', '2020-01-03', '2020-01-04'])]
+        shuffled = list(reversed(rows))
+        previous = set()
+        for fraction, count in [(.1, 1), (.25, 3), (.5, 3), (.75, 4), (1., 5)]:
+            prefix = temporal_prefix(shuffled, fraction)
+            self.assertEqual(len(prefix), count)
+            ids = {row['listing_id'] for row in prefix}
+            self.assertTrue(previous <= ids)
+            self.assertEqual(ids, {row['listing_id'] for row in rows
+                                   if row['published_at'] <= prefix[-1]['published_at']})
+            previous = ids
+        self.assertEqual(shuffled, list(reversed(rows)))
+        for fraction in [0, -.1, 1.1]:
+            with self.assertRaises(ValueError):
+                temporal_prefix(rows, fraction)
+        with self.assertRaises(ValueError):
+            temporal_prefix([], .5)
+
+    def test_fold_errors_use_same_fitted_model_and_report_thb_gaps(self):
+        from unittest.mock import patch
+        from script.modeling.model_v2.train_validation_errors import fold_errors
+        model = object()
+        training = [{'price_thb': '100'}, {'price_thb': '200'}]
+        validation = [{'price_thb': '300'}, {'price_thb': '400'}]
+        with patch('script.modeling.model_v2.train_validation_errors.forecast',
+                   side_effect=[np.array([110., 190.]), np.array([330., 360.])]) as forecast:
+            result = fold_errors(model, {}, training, validation, {}, 1)
+        self.assertIs(forecast.call_args_list[0].args[0], model)
+        self.assertIs(forecast.call_args_list[1].args[0], model)
+        self.assertIs(forecast.call_args_list[0].args[2], training)
+        self.assertIs(forecast.call_args_list[1].args[2], validation)
+        self.assertEqual(result['train_mae_thb'], 10.)
+        self.assertEqual(result['validation_mae_thb'], 35.)
+        self.assertEqual(result['mae_thb_gap'], 25.)
+        self.assertAlmostEqual(result['rmse_thb_gap'], np.sqrt(1250) - 10)
+
     def test_equal_time_validation_rejects_duration_gaps_and_test_overlap(self):
         import copy
         import json
