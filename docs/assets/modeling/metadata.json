@@ -497,6 +497,8 @@
     "source_free": true
   },
   "hashes": {
+    "figures/correlation_matrix.png": "f985d0eea1f1c84035cdc9a38e3ab639677c52ba37c1a6a57d2e99abf7169056",
+    "figures/correlation_matrix.svg": "9bfa7900059cb2ebbe194e9ec790537a34a0d9739c5ebcec8fbd8308deb4c8b6",
     "figures/learning_curve_fold_1.png": "cade8d50e230ac947dbb1ad91d51c9fb9062d69127f79de1b58ec7825f979415",
     "figures/learning_curve_fold_1.svg": "ec691a168aaeadc35c72cb4078f8f437099db482dab28cea4bc4ef13a18b2634",
     "figures/learning_curve_fold_2.png": "28a3afc46d2b7876c1c66fd51839e802359433ab4f59de4240f6ce38486bab5b",
@@ -508,7 +510,7 @@
     "figures/learning_curve_fold_5.png": "38d6b4ae3738a3fdd3753f14a1e4cd25ccb79c1f03e9df698d839a090fbcc4a9",
     "figures/learning_curve_fold_5.svg": "35ab3ceec2cdfc1c4c0535c9f12f4e2a4824dd23921219057228b455f60e29bb",
     "figures/learning_curve_summary.png": "ff3a57dc8f87e9d76f3264d02525c1e998a363b3f41a897db7c0f6032a7fbada",
-    "figures/learning_curve_summary.svg": "37659476e1c719570e473a96e1b837c86cf462d802d59357ff7675ecc1699f86",
+    "figures/learning_curve_summary.svg": "f127441637e733beb0a5330435c0a528d6c9e0d2269f441a4242935d7ecfc160",
     "figures/retrospective_actual_vs_predicted.png": "f438137ea6c522f84d0952b7436cf0d38e31462e9235d41fd9ef1596b901554b",
     "figures/retrospective_actual_vs_predicted.svg": "3ccd34c015d7703d4ec20c0c833d78cdcca5ec8517a0969998fd0bc5dc1f812b",
     "figures/retrospective_brand_mae.png": "1747e33f60402dce89fa4d5e8abd8167a15111d56531fcb0ddfe70be6aa6b940",
@@ -518,11 +520,13 @@
     "figures/retrospective_residuals.png": "8b592159ee05c6276479018f921654e267e8fdc1598c31c9d6125499177e258b",
     "figures/retrospective_residuals.svg": "f28c49661d6982a654416ce09a950b51baedc56ef62835f789d13fe8d91fe413",
     "figures/train_validation_errors.png": "b39505d0103fe813df0d8f5a6c81220d300b857c39d05d2601fe24073edb0643",
-    "figures/train_validation_errors.svg": "f2b9ba92eff44c1d0f3bb75041139da3b8ebeba2cce95808c5c18eb2756983e5",
+    "figures/train_validation_errors.svg": "9a49bdeb3a8fd8531268dc22c9554d05f8f7366168ad137c12b32e35c8e59822",
     "figures/validation_comparison.png": "4efe6ae0aed94a043d7da29d1e64585cc31f25d664c498bdd1daede5b005991b",
     "figures/validation_comparison.svg": "ee33550c4f362062703d4f48dd37b9b07962e468bb9e93491d4c7e98719367da",
     "history.zip": "245ec8bad101c2378d6d09ef2ec8a90f0adc44bcda1a6236289e5208c0e62c14",
-    "report.html": "a1b84892818ca4259677846f4b4da92d97e21665bf83aa399db2a24cc2ea8039",
+    "report.html": "a7322653b20372496cfdeaabc17216b692a868583323727994ee023885260713",
+    "tables/correlation_matrix.csv": "7860ab9a7c1b679e7f3c1f2c706a5652108cfac973e2ae6b55e197a221e6bbad",
+    "tables/correlation_pair_counts.csv": "76724b5c11b3f5ab4d8dd55c77121f6dd6440a3953bbcd2bde2f8a60cf120126",
     "tables/fold_metrics.csv": "f11a913332f27bcaa1f76df1fc397885d745485c516c045c4655c43ddc759ae5",
     "tables/learning_curve.csv": "e26bea753a72b33d25c0594ab824cd5df96810d6db43f216c3b976cc10c12c45",
     "tables/learning_curve_summary.csv": "af0b1c98c7363cccc190587d75394d3333fd12bc6fb98bfb5d4a21f0432bbdaf",
@@ -539,9 +543,10 @@
     "metadata.json#validation": "0783e5ba12f6c00bbead1260de5d152efa629a819abf43708ee1dda924435979",
     "metadata.json#workflow_validation": "af0e087c83a34fe932b5e3365bff68729db25ddad5d79f5e978f3e635a429873",
     "metadata.json#train_validation_diagnostic": "8f2d5a85e89e601b90da6e985beb7b7ea913bbf799949225c4cac5412a0cd529",
-    "metadata.json#report_refresh": "8786bcb825e4112274a155866436c85f9f6ffa6fbd0aaa2c595b7bc3864c31c7",
+    "metadata.json#report_refresh": "9d6081f8c23d3c1d47ce7985e4ff98693a0588b38990f38ef595597f51ac8474",
     "metadata.json#learning_curve": "ec42b290e2893679598f75262dfa522fa312cd4d5429d6335b99b5c1f4cc371a",
-    "../../modeling.md": "7b3eaa67661a90f9bd9e18ad3a61dfbebf5791cc28607dd186630e5e2d8364ef"
+    "metadata.json#correlation_matrix": "03dfa987ea679f7f0a2f453ea59da337251e87e9158d9f574ec3a463747f0651",
+    "../../modeling.md": "9e2bb718ec7246a656bd1708600028ea745e9853d939643117eeb9b2da0dc028"
   },
   "config": {
     "run": "asking_price_v2",
@@ -1006,9 +1011,9 @@
     "config_sha256": "ad19cc3cb234f5c3e001c32f1bbea0efa5663459ed5042abb843c47ed050df63"
   },
   "report_refresh": {
-    "refreshed_at": "2026-10-16T04:19:56.351106+00:00",
+    "refreshed_at": "2026-10-16T04:40:59.344828+00:00",
     "training_repeated": false,
-    "renderer_sha256": "01ea1e3da215815923e193f33b79ff6c7be55d9350797a65fbd696df269f0753",
+    "renderer_sha256": "d8f720cdc7d2d047c90e1a10f06f7df90384f786bce732e830e5f9f87b5cb508",
     "predictions_sha256": "8c52f65365b3c961e5a7b4515a9c683e5fd539d544126b40b5d574bb273cacca",
     "note": "Presentation refresh only. Original training metadata and artifact hashes remain unchanged."
   },
@@ -1057,5 +1062,36 @@
       "joblib": "1.6.0"
     },
     "policy": "Fresh fits of frozen selected candidate on nested earliest-date training prefixes, rounded up to whole days. Same validation rows at every size within a fold. Preprocessing and recency weights fitted on each prefix only. Unweighted THB errors. No retrospective test scoring, tuning, or model artifact replacement."
+  },
+  "correlation_matrix": {
+    "generated_at_utc": "2026-10-16T04:40:58.214145+00:00",
+    "method": "pearson",
+    "candidate": "used_core_blend_cat_share_0.5",
+    "rows": 8418,
+    "features": [
+      "storage_gb",
+      "publication_days",
+      "release_year",
+      "model_age_years",
+      "release_known",
+      "battery_health_pct",
+      "battery_missing",
+      "box_mentioned",
+      "box_missing",
+      "price_thb"
+    ],
+    "scope": "evaluation_model_training_only",
+    "cutoff": "2025-01-09",
+    "config_sha256": "ad19cc3cb234f5c3e001c32f1bbea0efa5663459ed5042abb843c47ed050df63",
+    "dataset_sha256": "5ff6a81706012008ec4c056bab00a0ca2572a22ccd5276f21031ead3ff35ce40",
+    "catalog_sha256": "2cffd363967843be2a8db06de49aa148563863e2f859833197b93ddb21f8ad05",
+    "script_sha256": "85a094657fc5eb188e388e3bdb4c3be9f6be23b95612e5e9863a63ca49da991d",
+    "output_hashes": {
+      "tables/correlation_matrix.csv": "7860ab9a7c1b679e7f3c1f2c706a5652108cfac973e2ae6b55e197a221e6bbad",
+      "tables/correlation_pair_counts.csv": "76724b5c11b3f5ab4d8dd55c77121f6dd6440a3953bbcd2bde2f8a60cf120126",
+      "figures/correlation_matrix.png": "f985d0eea1f1c84035cdc9a38e3ab639677c52ba37c1a6a57d2e99abf7169056",
+      "figures/correlation_matrix.svg": "9bfa7900059cb2ebbe194e9ec790537a34a0d9739c5ebcec8fbd8308deb4c8b6"
+    },
+    "policy": "Unweighted pairwise complete observations; no imputation, scaling, log target, categorical encoding, selection, retraining or retrospective scoring. Undefined correlations (constant within the available pair or fewer than two pairs) remain missing."
   }
 }

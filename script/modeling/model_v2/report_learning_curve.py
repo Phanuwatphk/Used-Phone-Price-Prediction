@@ -63,6 +63,8 @@ def render_learning_curve(report, config, folds, selected):
     for suffix in ['png', 'svg']:
         temporary = report / 'figures' / ('learning_curve_summary.tmp.' + suffix)
         fig.savefig(temporary, dpi=160, format=suffix)
+        if suffix == 'svg':
+            temporary.write_text('\n'.join(line.rstrip() for line in temporary.read_text().splitlines()) + '\n')
         temporary.replace(report / 'figures' / ('learning_curve_summary.' + suffix))
     plt.close(fig)
     summary_table = table(['Training', 'จำนวนฝึกเฉลี่ย', 'Train MAE เฉลี่ย (บาท)',

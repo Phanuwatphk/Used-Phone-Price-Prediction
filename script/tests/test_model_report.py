@@ -36,6 +36,44 @@ class ReportParser(HTMLParser):
 
 
 class ModelReportTests(unittest.TestCase):
+    def test_correlation_matrix_uses_training_only_and_retains_undefined_pairs(self):
+        import numpy as np
+        import pandas as pd
+        from script.modeling.model_v2.correlation_matrix import correlations
+        from script.modeling.split_dataset import read_dataset
+        fixture = pd.DataFrame({'a': [1., 2., 3., np.nan], 'b': [6., 4., 2., 0.],
+                                'constant': [1., 1., 1., 1.], 'sparse': [np.nan, np.nan, np.nan, 1.]})
+        correlation, count = correlations(fixture)
+        self.assertAlmostEqual(correlation.loc['a', 'b'], -1.)
+        self.assertEqual(count.loc['a', 'b'], 3)
+        self.assertEqual(count.loc['a', 'sparse'], 0)
+        self.assertTrue(pd.isna(correlation.loc['a', 'constant']))
+        self.assertTrue(pd.isna(correlation.loc['sparse', 'sparse']))
+        report = ROOT / 'docs/assets/modeling'
+        config = read_metadata(report, 'config')
+        metadata = read_metadata(report, 'correlation_matrix')
+        matrix = pd.read_csv(report / 'tables/correlation_matrix.csv', index_col='feature')
+        counts = pd.read_csv(report / 'tables/correlation_pair_counts.csv', index_col='feature')
+        self.assertEqual(matrix.shape, (10, 10))
+        self.assertEqual(list(matrix.columns), metadata['features'])
+        self.assertEqual(list(matrix.index), metadata['features'])
+        np.testing.assert_allclose(matrix, matrix.T, equal_nan=True)
+        np.testing.assert_array_equal(counts, counts.T)
+        self.assertTrue((matrix.abs().fillna(0) <= 1.00000001).all().all())
+        self.assertEqual(metadata['rows'], read_metadata(report, 'summary')['evaluation_fit_rows'])
+        self.assertEqual(counts.loc['price_thb', 'price_thb'], metadata['rows'])
+        rows = [row for row in read_dataset(ROOT / config['dataset'], config['dataset_sha256'])
+                if row['condition'] in config['training_conditions'] and row['published_at'] < metadata['cutoff']]
+        self.assertEqual(len(rows), metadata['rows'])
+        battery_rows = sum(row.get('battery_health_pct') not in (None, '') for row in rows)
+        self.assertEqual(counts.loc['battery_health_pct', 'price_thb'], battery_rows)
+        self.assertTrue(pd.isna(matrix.loc['battery_health_pct', 'battery_missing']))
+        content = (ROOT / 'docs/modeling.md').read_text()
+        self.assertIn('### 2.1 Correlation matrix', content)
+        self.assertIn('ไม่เติมค่าขาดหาย', content)
+        for name in matrix.columns.drop('price_thb'):
+            self.assertIn(f"{matrix.loc[name, 'price_thb']:.3f}", content)
+
     def test_learning_curves_have_five_sizes_and_reproduce_full_size_errors(self):
         import csv
         import math
@@ -186,7 +224,7 @@ class ModelReportTests(unittest.TestCase):
         self.assertFalse(has_metadata(report, 'summary_text'))
         parser = ReportParser()
         parser.feed((report / 'report.html').read_text())
-        self.assertEqual(len(parser.images), 6)
+        self.assertEqual(len(parser.images), 7)
         self.assertTrue(all(src.startswith('data:image/png;base64,') for src in parser.images))
         self.assertGreaterEqual(parser.headings, 9)
         self.assertGreaterEqual(parser.tables, 5)

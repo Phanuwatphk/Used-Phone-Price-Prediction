@@ -231,7 +231,7 @@ for page in ['สำรวจข้อมูล', 'ผลโมเดล']:
             self.assertIn('https://github.com/Phanuwatphk/Used-Phone-Price-Prediction/blob/main/docs/project.md', rendered)
             self.assertIn('RMSE (บาท)', rendered)
             self.assertIn('ไม่มีการทดสอบนัยสำคัญทางสถิติ', rendered)
-            self.assertEqual(len(app.get('image')), 6)
+            self.assertEqual(len(app.get('image')), 7)
 
     def test_explorer_axes_start_at_zero_for_full_and_filtered_data(self):
         import pandas as pd

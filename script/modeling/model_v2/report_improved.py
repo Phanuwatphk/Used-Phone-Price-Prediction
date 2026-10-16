@@ -209,6 +209,8 @@ def render(report, s, comparisons, actual, predicted, evaluation_rows=None, refr
             temporary = figures / ('train_validation_errors.tmp.' + suffix)
             fig.tight_layout()
             fig.savefig(temporary, dpi=160, format=suffix)
+            if suffix == 'svg':
+                temporary.write_text('\n'.join(line.rstrip() for line in temporary.read_text().splitlines()) + '\n')
             temporary.replace(figures / ('train_validation_errors.' + suffix))
         plt.close(fig)
         higher = sum(row['mae_thb_gap'] > 0 for row in errors)
@@ -250,6 +252,8 @@ Training error เป็นผลบนข้อมูลที่โมเด�
     apple = drift['training_brands'].get('Apple', 0)
     from script.modeling.model_v2.report_learning_curve import render_learning_curve
     learning_curve_section = render_learning_curve(report, config, folds, selected)
+    from script.modeling.model_v2.correlation_matrix import render_section as render_correlation
+    correlation_section = render_correlation(report, selected)
     detailed = f'''# โมเดลประเมินราคาตั้งขายมือถือมือสอง — V2
 
 ใช้กับเครื่องที่ทำงานปกติ เป้าหมายคือราคาประกาศขาย หน่วยบาท
@@ -287,7 +291,7 @@ Training error เป็นผลบนข้อมูลที่โมเด�
 | ตัวแปรซ้ำและเลขจากชื่อรุ่น | ซ้ำกับข้อมูลเดิมหรือเปรียบเทียบข้ามยี่ห้อไม่ได้ |
 | ราคาเป้าหมาย รหัส URL และข้อความเต็ม | ไม่ใช้เป็นตัวแปรทำนาย |
 
-## 3. การแบ่งข้อมูลตามเวลา
+{correlation_section}## 3. การแบ่งข้อมูลตามเวลา
 
 ใช้ expanding-window validation **{len(folds)} ช่วง ช่วงละ {config['validation_scheme']['window_days']} วันเท่ากัน** กำหนดช่วงต่อเนื่องย้อนจากวันเริ่มประเมินย้อนหลัง {config['retrospective_test_start']} รวม {len(folds)*config['validation_scheme']['window_days']} วัน โดยไม่ใช้ราคาเลือกขอบเขต Train ใช้ข้อมูลก่อนแต่ละช่วงและขยายตามเวลา ประกาศวันเดียวกันอยู่ฝั่งเดียวกัน
 
@@ -370,6 +374,7 @@ MAE ลดลง **{s['retrospective_mae_improvement_pct']:.2f}%**; R² ไม�
 | `script/modeling/model_v2/train_improved.py` | แบ่งเวลา เลือกน้ำหนัก ฝึกโมเดลประเมินและโมเดลใช้งาน |
 | `script/modeling/model_v2/train_validation_errors.py` | ฝึกซ้ำเฉพาะโมเดลที่เลือกตาม 5 ช่วงเดิม วัด train/validation error และตรวจตรงกับ validation เดิม |
 | `script/modeling/model_v2/learning_curve.py` | ฝึก learning curve 5 ขนาดต่อช่วง ตรึง validation และตรวจจุด 100% กับผลเดิม |
+| `script/modeling/model_v2/correlation_matrix.py` | คำนวณ Pearson correlation ของฟีเจอร์ตัวเลขและราคาจากชุดฝึกก่อนประเมินย้อนหลัง |
 | `config/modeling/current.json` | พารามิเตอร์ วันตัด และตัวเลือกที่ทดลอง |
 | `models/asking_price_v2/evaluation.joblib` | โมเดลสำหรับผลประเมินย้อนหลัง |
 | `models/asking_price_v2/model.joblib` | โมเดลใช้งานที่ฝึกครบ |
