@@ -88,42 +88,49 @@ class ModelReportTests(unittest.TestCase):
             reference = list(csv.DictReader(handle))
         rows = [row for row in read_dataset(ROOT / config['dataset'], config['dataset_sha256'])
                 if row['condition'] in config['training_conditions']]
-        self.assertEqual(len(curves), 25)
-        self.assertEqual(metadata['fresh_fits'], 25)
-        content = (ROOT / 'docs/modeling.md').read_text()
-        self.assertIn('### 5.2 Learning curve', content)
-        for fold, old in zip(read_metadata(report, 'folds'), reference):
-            points = [row for row in curves if int(row['fold']) == fold['fold']]
-            self.assertEqual([float(row['requested_fraction']) for row in points], list(FRACTIONS))
-            training = [row for row in rows if row['published_at'] < fold['window_start']]
-            for point in points:
-                prefix = temporal_prefix(training, float(point['requested_fraction']))
-                self.assertEqual(int(point['train_rows']), len(prefix))
-                self.assertEqual(point['train_max'], prefix[-1]['published_at'])
-                self.assertEqual(int(point['validation_rows']), fold['validation_rows'])
-                self.assertLess(point['train_max'], fold['window_start'])
-                for partition in ['train', 'validation']:
-                    for metric in ['mae_thb', 'rmse_thb']:
-                        number = float(point[partition + '_' + metric])
-                        self.assertTrue(math.isfinite(number) and number >= 0)
+        self.assertEqual(len(curves), 5)
+        self.assertEqual(metadata['fresh_fits'], 5)
+        fold = read_metadata(report, 'folds')[-1]
+        old = reference[-1]
+        self.assertEqual(metadata['fold'], fold['fold'])
+        self.assertEqual(metadata['split_policy'], 'latest_existing_temporal_validation')
+        self.assertEqual([float(row['requested_fraction']) for row in curves], list(FRACTIONS))
+        training = [row for row in rows if row['published_at'] < fold['window_start']]
+        previous = set()
+        for point in curves:
+            prefix = temporal_prefix(training, float(point['requested_fraction']))
+            ids = {row['listing_id'] for row in prefix}
+            self.assertTrue(previous <= ids)
+            previous = ids
+            self.assertEqual(int(point['fold']), fold['fold'])
+            self.assertEqual(int(point['train_rows']), len(prefix))
+            self.assertEqual(point['train_max'], prefix[-1]['published_at'])
+            self.assertEqual(int(point['validation_rows']), fold['validation_rows'])
+            self.assertEqual(point['window_start'], fold['window_start'])
+            self.assertEqual(point['window_end'], fold['window_end'])
+            self.assertLess(point['train_max'], fold['window_start'])
             for partition in ['train', 'validation']:
                 for metric in ['mae_thb', 'rmse_thb']:
-                    key = partition + '_' + metric
-                    self.assertAlmostEqual(float(points[-1][key]), float(old[key]), places=6)
-        with (report / 'tables/learning_curve_summary.csv').open() as handle:
-            summary = list(csv.DictReader(handle))
-        self.assertEqual(len(summary), 5)
-        section = content.split('### 5.2', 1)[1].split('## 6.', 1)[0]
+                    number = float(point[partition + '_' + metric])
+                    self.assertTrue(math.isfinite(number) and number >= 0)
+            self.assertAlmostEqual(float(point['mae_thb_gap']),
+                                   float(point['validation_mae_thb']) - float(point['train_mae_thb']))
+        for partition in ['train', 'validation']:
+            for metric in ['mae_thb', 'rmse_thb']:
+                key = partition + '_' + metric
+                self.assertAlmostEqual(float(curves[-1][key]), float(old[key]), places=6)
+        content = (ROOT / 'docs/modeling.md').read_text()
+        section = content.split('### 5.1 Learning curve', 1)[1].split('## 6.', 1)[0]
         self.assertEqual(section.count('!['), 1)
-        self.assertNotIn('learning_curve_fold_', section)
-        for row in summary:
-            points = [point for point in curves if point['requested_fraction'] == row['requested_fraction']]
-            self.assertEqual(int(row['folds']), 5)
-            for key in ['train_mae_thb', 'validation_mae_thb', 'train_rmse_thb', 'validation_rmse_thb']:
-                self.assertAlmostEqual(float(row[key]), sum(float(point[key]) for point in points) / 5)
-            self.assertIn(f"{float(row['validation_mae_thb']):,.2f}", section)
+        self.assertIn('validation ชุดเดิมทุกขนาด', section)
+        for point in curves:
+            self.assertIn(f"{float(point['validation_mae_thb']):,.2f}", section)
         for suffix in ['png', 'svg']:
-            self.assertTrue((report / 'figures' / f'learning_curve_summary.{suffix}').exists())
+            self.assertTrue((report / 'figures' / f'learning_curve.{suffix}').exists())
+            for name in ['learning_curve_summary', 'train_validation_errors']:
+                self.assertFalse((report / 'figures' / f'{name}.{suffix}').exists())
+        self.assertNotIn('figures/train_validation_errors.', content)
+        self.assertNotIn('figures/learning_curve_summary.', content)
 
     def test_train_validation_errors_cover_original_folds_and_match_scores(self):
         import csv
@@ -138,7 +145,6 @@ class ModelReportTests(unittest.TestCase):
         self.assertEqual(len(errors), 5)
         self.assertEqual(len(recorded), 5)
         content = (ROOT / 'docs/modeling.md').read_text()
-        self.assertIn('### 5.1 เปรียบเทียบ training กับ validation', content)
         self.assertIn('gap = validation error − training error', content)
         for row, old, fold in zip(errors, recorded, folds):
             self.assertEqual(int(row['fold']), fold['fold'])
@@ -152,8 +158,6 @@ class ModelReportTests(unittest.TestCase):
                 self.assertGreaterEqual(train, 0)
                 self.assertAlmostEqual(validation, float(old[metric]), places=6)
                 self.assertAlmostEqual(float(row[metric + '_gap']), validation - train)
-                for number in [train, validation, validation - train]:
-                    self.assertIn(f'{number:,.2f}', content)
         count = sum(int(row['validation_rows']) for row in errors)
         pooled_mae = sum(int(row['validation_rows']) * float(row['validation_mae_thb']) for row in errors) / count
         self.assertAlmostEqual(pooled_mae, summary['validation']['mae_thb'])
@@ -224,7 +228,7 @@ class ModelReportTests(unittest.TestCase):
         self.assertFalse(has_metadata(report, 'summary_text'))
         parser = ReportParser()
         parser.feed((report / 'report.html').read_text())
-        self.assertEqual(len(parser.images), 7)
+        self.assertEqual(len(parser.images), 6)
         self.assertTrue(all(src.startswith('data:image/png;base64,') for src in parser.images))
         self.assertGreaterEqual(parser.headings, 9)
         self.assertGreaterEqual(parser.tables, 5)

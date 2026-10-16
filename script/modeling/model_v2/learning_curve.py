@@ -1,4 +1,4 @@
-"""Fit chronological learning curves for the five frozen V2 validation windows.
+"""Fit one chronological learning curve against the latest frozen validation window.
 
 Execute with the project Python environment; the report refresh runs afterward.
 Each point is a fresh fit. Evaluation/deployment artifacts are never replaced.
@@ -60,33 +60,37 @@ def run():
         reference = {int(row['fold']): row for row in csv.DictReader(handle)}
     folds = read_metadata(report, 'folds')
     results = []
-    for index, interval in enumerate(config['folds'], 1):
-        training = [row for row in rows if row['published_at'] < interval['start']]
-        validation = [row for row in rows if interval['start'] <= row['published_at'] <= interval['end']]
-        if (len(training), len(validation)) != (folds[index-1]['train_rows'], folds[index-1]['validation_rows']):
-            raise ValueError('Fold sizes differ from recorded training')
-        for fraction in FRACTIONS:
-            subset = temporal_prefix(training, fraction)
-            print(f'FIT learning curve fold {index}/{len(folds)}, {fraction:.0%}: '
-                  f'{len(subset)} train, {len(validation)} fixed validation', flush=True)
-            model = fit(spec, subset, catalog, config)
-            scores = fold_errors(model, spec, subset, validation, catalog, config['threads'])
-            if fraction == 1.:
-                for key, value in scores.items():
-                    expected = reference[index][key]
-                    if not ((value is None and expected == '') or
-                            (value is not None and np.isclose(value, float(expected), rtol=1e-9, atol=1e-6))):
-                        raise ValueError(f'Full-size fold {index} differs from recorded {key}')
-            results.append({'candidate': spec['name'], 'fold': index, 'requested_fraction': fraction,
-                            'actual_fraction': len(subset) / len(training), 'full_train_rows': len(training),
-                            'train_min': subset[0]['published_at'], 'train_max': subset[-1]['published_at'],
-                            'window_start': interval['start'], 'window_end': interval['end'], **scores})
-            print(f"MAE train={scores['train_mae_thb']:.2f}, validation={scores['validation_mae_thb']:.2f}", flush=True)
+    # Use the latest existing split, chosen by chronology rather than its scores.
+    index = len(config['folds'])
+    interval = config['folds'][-1]
+    training = [row for row in rows if row['published_at'] < interval['start']]
+    validation = [row for row in rows if interval['start'] <= row['published_at'] <= interval['end']]
+    if (len(training), len(validation)) != (folds[index-1]['train_rows'], folds[index-1]['validation_rows']):
+        raise ValueError('Fold sizes differ from recorded training')
+    for fraction in FRACTIONS:
+        subset = temporal_prefix(training, fraction)
+        print(f'FIT learning curve fixed split {index}, {fraction:.0%}: '
+              f'{len(subset)} train, {len(validation)} fixed validation', flush=True)
+        model = fit(spec, subset, catalog, config)
+        scores = fold_errors(model, spec, subset, validation, catalog, config['threads'])
+        if fraction == 1.:
+            for key, value in scores.items():
+                expected = reference[index][key]
+                if not ((value is None and expected == '') or
+                        (value is not None and np.isclose(value, float(expected), rtol=1e-9, atol=1e-6))):
+                    raise ValueError(f'Full-size fold {index} differs from recorded {key}')
+        results.append({'candidate': spec['name'], 'fold': index, 'requested_fraction': fraction,
+                        'actual_fraction': len(subset) / len(training), 'full_train_rows': len(training),
+                        'train_min': subset[0]['published_at'], 'train_max': subset[-1]['published_at'],
+                        'window_start': interval['start'], 'window_end': interval['end'], **scores})
+        print(f"MAE train={scores['train_mae_thb']:.2f}, validation={scores['validation_mae_thb']:.2f}", flush=True)
     output = report / 'tables/learning_curve.csv'
     write_csv(output, results)
     write_metadata(report, 'learning_curve', {
         'generated_at_utc': datetime.now(timezone.utc).isoformat(),
         'candidate': spec['name'], 'fractions': list(FRACTIONS), 'fresh_fits': len(results),
+        'split_policy': 'latest_existing_temporal_validation', 'fold': index,
+        'window_start': interval['start'], 'window_end': interval['end'],
         'config_sha256': metadata_sha(report, 'config'), 'dataset_sha256': sha(dataset),
         'catalog_sha256': sha(catalog_path), 'reference_sha256': sha(reference_path),
         'output_sha256': sha(output), 'full_size_matches_recorded': True,
@@ -95,7 +99,7 @@ def run():
         'versions': {name: importlib.metadata.version(name)
                      for name in ['scikit-learn', 'catboost', 'pandas', 'numpy', 'joblib']},
         'policy': 'Fresh fits of frozen selected candidate on nested earliest-date training prefixes, '
-                  'rounded up to whole days. Same validation rows at every size within a fold. '
+                  'rounded up to whole days. One latest existing temporal split; same validation rows at every size. '
                   'Preprocessing and recency weights fitted on each prefix only. Unweighted THB errors. '
                   'No retrospective test scoring, tuning, or model artifact replacement.'})
     return results
